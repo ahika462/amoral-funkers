@@ -233,8 +233,9 @@ class Character extends FlxSprite
 							playAnim('danceLeft');
 					}
 				}
+				specAnim = false;
 			}
-		
+
 			/*switch (curCharacter)
 			{
 				case 'gf' | 'gf-christmas' | 'gf-car' | 'gf-pixel' | 'gf-tankmen':
@@ -281,26 +282,22 @@ class Character extends FlxSprite
 		else
 			offset.set(0, 0);
 
-		if (curCharacter == 'gf')
-		{
+		if (curCharacter == 'gf') {
 			if (AnimName == 'singLEFT')
-			{
 				danced = true;
-			}
 			else if (AnimName == 'singRIGHT')
-			{
 				danced = false;
-			}
 
 			if (AnimName == 'singUP' || AnimName == 'singDOWN')
-			{
 				danced = !danced;
-			}
-		}
+
+			if (AnimName.startsWith("hair"))
+				specAnim = true;
+		} else if (curCharacter == "tankman" && AnimName == "singDOWN-alt")
+			specAnim = true;
 	}
 
-	public function addOffset(name:String, x:Float = 0, y:Float = 0)
-	{
+	public function addOffset(name:String, x:Float = 0, y:Float = 0) {
 		animOffsets[name] = [x, y];
 	}
 }

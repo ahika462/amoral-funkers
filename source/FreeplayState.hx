@@ -51,6 +51,8 @@ class FreeplayState extends MusicBeatState
 	{
 		persistentUpdate = persistentDraw = true;
 
+		WeekData.loadWeeks();
+
 		#if discord_rpc
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("In the Menus", null);
@@ -69,8 +71,17 @@ class FreeplayState extends MusicBeatState
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 		}
 
-		for (i in 0...WeekData.list.length)
-			addWeek(WeekData.list[i].songs, i, WeekData.list[i].icons);
+		for (i in 0...WeekData.list.length) {
+			var songs:Array<String> = [];
+			for (j in WeekData.list[i].songs)
+				songs.push(j[0]);
+
+			var icons:Array<String> = [];
+			for (j in WeekData.list[i].songs)
+				icons.push(j[1]);
+
+			addWeek(songs, i, icons);
+		}
 
 		// LOAD MUSIC
 

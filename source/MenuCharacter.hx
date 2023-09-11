@@ -37,6 +37,9 @@ class MenuCharacter extends FlxSprite
 		updateHitbox();
 
 		switch(value) {
+			case "":
+				visible = false;
+
 			default:
 				var json:MenuCharacterFile = cast Json.parse(Paths.getEmbedText("menucharacters/" + value + ".json"));
 

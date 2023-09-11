@@ -5,6 +5,8 @@ import flixel.graphics.frames.FlxAtlasFrames;
 import openfl.utils.AssetType;
 import openfl.utils.Assets as OpenFlAssets;
 
+using StringTools;
+
 class Paths
 {
 	inline public static var SOUND_EXT = #if web "mp3" #else "ogg" #end;
@@ -123,11 +125,27 @@ class Paths
 		return OpenFlAssets.exists(getPath(key, type, library));
 	}
 
-	public static function getEmbedShit(key:String) {
+	public static function getEmbedShit(key:String):String {
 		return "embed/" + key;
 	}
 
-	public static function getEmbedText(key:String) {
+	public static function getEmbedText(key:String):String {
 		return OpenFlAssets.getText(getEmbedShit(key));
+	}
+
+	public static function getEmbedFiles(key:String, ?type:AssetType):Array<String> {
+		var files:Array<String> = OpenFlAssets.list(type);
+		for (file in files) {
+			if (!file.startsWith(getEmbedShit(key + "/")))
+				files.remove(file);
+
+			var array:Array<String> = file.split("/");
+			file = array[array.length - 1];
+		}
+		return files;
+	}
+
+	public static function embedExists(key:String, ?type:AssetType):Bool {
+		return OpenFlAssets.exists(getEmbedShit(key), type);
 	}
 }

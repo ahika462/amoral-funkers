@@ -51,6 +51,8 @@ class StoryMenuState extends MusicBeatState {
 
 		persistentUpdate = persistentDraw = true;
 
+		WeekData.loadWeeks();
+
 		scoreText = new FlxText(10, 10, 0, "SCORE: 49324858", 36);
 		scoreText.setFormat("VCR OSD Mono", 32);
 
@@ -104,7 +106,7 @@ class StoryMenuState extends MusicBeatState {
 		}
 
 		for (char in 0...3) {
-			var weekCharacterThing:MenuCharacter = new MenuCharacter((FlxG.width * 0.25) * (1 + char) - 150, WeekData.list[curWeek].characters[char]);
+			var weekCharacterThing:MenuCharacter = new MenuCharacter((FlxG.width * 0.25) * (1 + char) - 150, WeekData.list[curWeek].weekCharacters[char]);
 			weekCharacterThing.y += 70;
 			weekCharacterThing.antialiasing = ClientPrefs.data.antialiasing;
 			grpWeekCharacters.add(weekCharacterThing);
@@ -164,7 +166,7 @@ class StoryMenuState extends MusicBeatState {
 
 		scoreText.text = "WEEK SCORE:" + Math.round(lerpScore);
 
-		txtWeekTitle.text = WeekData.list[curWeek].name.toUpperCase();
+		txtWeekTitle.text = WeekData.list[curWeek].storyName.toUpperCase();
 		txtWeekTitle.x = FlxG.width - (txtWeekTitle.width + 10);
 
 		// FlxG.watch.addQuick('font', scoreText.font);
@@ -239,7 +241,10 @@ class StoryMenuState extends MusicBeatState {
 				stopspamming = true;
 			}
 
-			PlayState.storyPlaylist = WeekData.list[curWeek].songs;
+			PlayState.storyPlaylist = [];
+			for (i in WeekData.list[curWeek].songs)
+				PlayState.storyPlaylist.push(i[0]);
+
 			PlayState.isStoryMode = true;
 			selectedWeek = true;
 
@@ -330,11 +335,13 @@ class StoryMenuState extends MusicBeatState {
 	function updateText()
 	{
 		for (char in 0...3)
-			grpWeekCharacters.members[char].character = WeekData.list[curWeek].characters[char];
+			grpWeekCharacters.members[char].character = WeekData.list[curWeek].weekCharacters[char];
 
 		txtTracklist.text = "Tracks\n";
 
-		var stringThing:Array<String> = WeekData.list[curWeek].songs;
+		var stringThing:Array<String> = [];
+		for (i in WeekData.list[curWeek].songs)
+			stringThing.push(i[0]);
 
 		for (i in stringThing)
 		{
