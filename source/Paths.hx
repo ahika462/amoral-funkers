@@ -148,4 +148,14 @@ class Paths
 	public static function embedExists(key:String, ?type:AssetType):Bool {
 		return OpenFlAssets.exists(getEmbedShit(key), type);
 	}
+
+	#if AMORAL
+	public static function getAmoralStuff(key:String, ?type:AssetType):String {
+		return getPath(key, type, "amoral");
+	}
+
+	public static function getAmoralText(key:String):String {
+		return OpenFlAssets.getText(getAmoralStuff(key, TEXT));
+	}
+	#end
 }

@@ -49,14 +49,35 @@ import shaderslmfao.BuildingShaders.BuildingShader;
 import shaderslmfao.BuildingShaders;
 import shaderslmfao.ColorSwap;
 
-using StringTools;
-
 #if discord_rpc
 import Discord.DiscordClient;
 #end
 
-class PlayState extends MusicBeatState
+#if AMORAL
+import amoral.*;
+#end
+
+using StringTools;
+
+class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #end
 {
+	#if MOD_CORE
+	var script:ModScript;
+
+	function initializeScript(path:String):ModScript {
+		script = new ModScript();
+		return script;
+	}
+
+	function callOnScript(name:String, args:Array<Dynamic>):Dynamic {
+		return script.call(name, args).returnValue;
+	}
+	function setOnScript(name:String, value:Dynamic):Dynamic {
+		script.set(name, value);
+		return value;
+	}
+	#end
+
 	public static var STRUM_X = 48.5;
 	public static var STRUM_X_MIDDLESCROLL = -271;
 
@@ -173,6 +194,10 @@ class PlayState extends MusicBeatState
 	public static function get_isPixelStage():Bool {
 		return curStage.startsWith("school");
 	}
+
+	#if AMORAL
+	var missEffect:MissEffect;
+	#end
 
 	override public function create()
 	{
@@ -942,6 +967,13 @@ class PlayState extends MusicBeatState
 
 		// little input fix
 		FlxG.stage.addEventListener(Event.ENTER_FRAME, enterFrame);
+
+		#if AMORAL
+		missEffect = new MissEffect();
+		add(missEffect);
+
+		FlxG.camera.setFilters([new ShaderFilter(missEffect.shader)]);
+		#end
 
 		super.create();
 
@@ -2585,8 +2617,11 @@ class PlayState extends MusicBeatState
 		});
 	}
 
-	function noteMissPress(direction:Int = 1):Void
-	{
+	function noteMissPress(direction:Int = 1) {
+		#if AMORAL
+		missEffect.percent = 0.5;
+		#end
+
 		// whole function used to be encased in if (!boyfriend.stunned)
 		health -= 0.04;
 		killCombo();
@@ -2609,6 +2644,10 @@ class PlayState extends MusicBeatState
 	}
 
 	function noteMiss(daNote:Note) {
+		#if AMORAL
+		missEffect.percent = 0.5;
+		#end
+		
 		health -= 0.0475;
 		vocals.volume = 0;
 		killCombo();

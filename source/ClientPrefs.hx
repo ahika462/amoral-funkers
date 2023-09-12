@@ -15,7 +15,6 @@ class SaveVariables {
 	public var badWindow:Int = 135;
 
     public var ghostTapping:Bool = true;
-    public var lowQuality:Bool = false;
     public var shaders:Bool = true;
     public var antialiasing:Bool = true;
 
@@ -28,7 +27,26 @@ class ClientPrefs {
 
     public static function loadPrefs() {
         if (FlxG.save != null) {
-            
+            for (field in Reflect.fields(FlxG.save.data)) {
+                if (Reflect.hasField(data, field))
+                    Reflect.setField(data, field, Reflect.field(FlxG.save.data, field));
+            }
         }
+    }
+
+    public static function saveSettings() {
+        if (FlxG.save != null) {
+            for (field in Reflect.fields(data))
+                Reflect.setField(FlxG.save.data, field, Reflect.field(data, field));
+        }
+
+        FlxG.save.flush();
+    }
+
+    public static function resetOptions() {
+        for (field in Reflect.fields(defaults))
+            Reflect.setField(data, field, Reflect.field(defaults, field));
+
+        FlxG.save.flush();
     }
 }
