@@ -293,8 +293,7 @@ class Character extends FlxSprite
 
 			if (AnimName.startsWith("hair"))
 				specAnim = true;
-		} else if (curCharacter == "tankman" && AnimName == "singDOWN-alt")
-			specAnim = true;
+		} 
 	}
 
 	public function addOffset(name:String, x:Float = 0, y:Float = 0) {
