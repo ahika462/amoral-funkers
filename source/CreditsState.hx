@@ -1,0 +1,3 @@
+class CreditsState extends MusicBeatState {
+    
+}

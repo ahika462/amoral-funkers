@@ -1,5 +1,6 @@
 package;
 
+import openfl.display.BitmapData;
 import flixel.FlxG;
 import flixel.FlxGame;
 import flixel.FlxSprite;
@@ -298,10 +299,20 @@ class TitleState extends MusicBeatState
 
 		credTextShit.visible = false;
 
-		ngSpr = new FlxSprite(0, FlxG.height * 0.52).loadGraphic(Paths.image('newgrounds_logo'));
+		var ngGraphic:FlxGraphicAsset = null;
+		if (FlxG.random.bool(100))
+			ngGraphic = Assets.getBitmapData("embed/e705aac6-6fb4-4ccc-945c-df2950a1d972.png");
+		else
+			ngGraphic = Assets.getBitmapData(Paths.image('newgrounds_logo'));
+
+		ngSpr = new FlxSprite(0, FlxG.height * 0.52, ngGraphic);
 		add(ngSpr);
 		ngSpr.visible = false;
-		ngSpr.setGraphicSize(Std.int(ngSpr.width * 0.8));
+		// ngSpr.setGraphicSize(Std.int(ngSpr.width * 0.8));
+		ngSpr.setGraphicSize(
+			Std.int(Assets.getBitmapData(Paths.image('newgrounds_logo')).width * 0.8),
+			Std.int(Assets.getBitmapData(Paths.image('newgrounds_logo')).height * 0.8)
+		);
 		ngSpr.updateHitbox();
 		ngSpr.screenCenter(X);
 		ngSpr.antialiasing = true;
