@@ -51,7 +51,7 @@
 
 	<define name="AMORAL"/>
 	<classpath name="amoral" if="AMORAL"/>
-	<assets path="fuckdump" if="AMORAL"/>
+	<assets path="fuckdump" embed="true" if="AMORAL"/>
 	
 	<section if="PRELOAD_ALL">
 		<library name="songs"    preload="true" />
