@@ -38,6 +38,7 @@ class MainMenuState extends MusicBeatState
 	static var optionShit:Array<String> = [
 		"story mode",
 		"freeplay",
+		"kickstarter",
 		"donate",
 		"options"
 	];
@@ -97,6 +98,8 @@ class MainMenuState extends MusicBeatState
 						startExitState(new StoryMenuState());
 					case "freeplay":
 						startExitState(new FreeplayState());
+					case "kickstarter":
+						startExitState(new CredtitsState());
 					case "donate":
 						CoolUtil.coolOpenURL("https://rule34.xxx/index.php?page=post&s=view&id=5702006");
 					case "options":

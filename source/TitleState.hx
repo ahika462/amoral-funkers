@@ -1,6 +1,5 @@
 package;
 
-import openfl.display.BitmapData;
 import flixel.FlxG;
 import flixel.FlxGame;
 import flixel.FlxSprite;
@@ -299,11 +298,9 @@ class TitleState extends MusicBeatState
 
 		credTextShit.visible = false;
 
-		var ngGraphic:FlxGraphicAsset = null;
-		if (FlxG.random.bool(100))
-			ngGraphic = Assets.getBitmapData("embed/e705aac6-6fb4-4ccc-945c-df2950a1d972.png");
-		else
-			ngGraphic = Assets.getBitmapData(Paths.image('newgrounds_logo'));
+		var ngGraphic:FlxGraphicAsset = Paths.image('newgrounds_logo');
+		if (#if AMORAL FlxG.random.bool(100) #else false #end)
+			ngGraphic = Assets.getBitmapData("fuckdump/e705aac6-6fb4-4ccc-945c-df2950a1d972.png");
 
 		ngSpr = new FlxSprite(0, FlxG.height * 0.52, ngGraphic);
 		add(ngSpr);
