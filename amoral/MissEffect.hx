@@ -1,5 +1,3 @@
-package amoral;
-
 import flixel.addons.display.FlxRuntimeShader;
 import flixel.FlxBasic;
 

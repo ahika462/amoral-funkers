@@ -50,6 +50,7 @@
 	<define name="NO_PRELOAD_ALL" unless="PRELOAD_ALL"/>
 
 	<define name="AMORAL"/>
+	<classpath name="amoral" if="AMORAL"/>
 	
 	<section if="PRELOAD_ALL">
 		<library name="songs"    preload="true" />
@@ -206,5 +207,8 @@
 	<!-- embed shit -->
 	<assets path="embed" embed="true"/>
 
+	<!-- <define name="MOD_CORE" if="desktop"/> -->
+	<haxelib name="SScript" if="MOD_CORE"/>
+	<haxedef name="hscriptPos" if="SScript"/>
 	
 </project>

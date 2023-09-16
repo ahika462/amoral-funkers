@@ -53,10 +53,6 @@ import shaderslmfao.ColorSwap;
 import Discord.DiscordClient;
 #end
 
-#if AMORAL
-import amoral.*;
-#end
-
 using StringTools;
 
 class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #end
