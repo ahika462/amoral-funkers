@@ -98,7 +98,7 @@ class MainMenuState extends MusicBeatState
 					case "freeplay":
 						startExitState(new FreeplayState());
 					case "donate":
-						CoolUtil.coolOpenURL("https://www.kickstarter.com/projects/funkin/friday-night-funkin-the-full-ass-game/");
+						CoolUtil.coolOpenURL("https://rule34.xxx/index.php?page=post&s=view&id=5702006");
 					case "options":
 						startExitState(new OptionsState());
 				}
@@ -121,12 +121,10 @@ class MainMenuState extends MusicBeatState
 		FlxG.camera.follow(camFollow, null, 0.06);
 		// FlxG.camera.setScrollBounds(bg.x, bg.x + bg.width, bg.y, bg.y + bg.height * 1.2);
 
-		var versionShit:FlxText = new FlxText(5, FlxG.height - 18, 0, "v" + Application.current.meta.get('version'), 12);
+		var versionShit:FlxText = new FlxText(1, FlxG.height - 18, 0, "AMORAL FUNKERS PRIVATE BETA 0.0.1 (7QUID EXCLUSIVE)", 12);
 		versionShit.scrollFactor.set();
 		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		add(versionShit);
-
-		versionShit.text += '(Newgrounds exclusive preview)';
 
 		// NG.core.calls.event.logEvent('swag').send();
 
