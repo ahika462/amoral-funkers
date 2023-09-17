@@ -14,7 +14,7 @@ class CredtitsState extends MusicBeatState {
         for (i in creditsStuff) {
             var text:FlxText = new FlxText(300, 300, i.name, 64);
             add(text);
-            var icon:FlxSprite = new FlxSprite(i.name == "temmie" ? Assets.getBitmapData("fuckdump/e705aac6-6fb4-4ccc-945c-df2950a1d972.png") : Paths.image("credits/" + i.icon));
+            var icon:FlxSprite = new FlxSprite(i.name == "temmie" ? Assets.getBitmapData("amoral/e705aac6-6fb4-4ccc-945c-df2950a1d972.png") : Paths.image("credits/" + i.icon));
             icon.setGraphicSize(0, 300);
             icon.updateHitbox();
             icon.x = text.x + text.width + 10;

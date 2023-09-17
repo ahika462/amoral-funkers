@@ -300,7 +300,7 @@ class TitleState extends MusicBeatState
 
 		var ngGraphic:FlxGraphicAsset = Paths.image('newgrounds_logo');
 		if (#if AMORAL FlxG.random.bool(100) #else false #end)
-			ngGraphic = Assets.getBitmapData("fuckdump/e705aac6-6fb4-4ccc-945c-df2950a1d972.png");
+			ngGraphic = Assets.getBitmapData("amoral/e705aac6-6fb4-4ccc-945c-df2950a1d972.png");
 
 		ngSpr = new FlxSprite(0, FlxG.height * 0.52, ngGraphic);
 		add(ngSpr);
