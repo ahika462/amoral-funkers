@@ -1,5 +1,8 @@
 package;
 
+#if linc_luajit
+import sys.FileSystem;
+#end
 import flixel.addons.transition.Transition;
 import Conductor.Rating;
 import openfl.events.KeyboardEvent;
@@ -39,7 +42,7 @@ import flixel.util.FlxSort;
 import flixel.util.FlxStringUtil;
 import flixel.util.FlxTimer;
 import haxe.Json;
-import lime.utils.Assets;
+import openfl.utils.Assets;
 import openfl.Lib;
 import openfl.display.BitmapData;
 import openfl.display.BlendMode;
@@ -74,6 +77,14 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 	}
 	#end
 
+	// lua shit
+	public static var instance:PlayState;
+	public var luaSprites:Map<String, FlxSprite> = [];
+	public var luaTexts:Map<String, FlxText> = [];
+	public var luaTweens:Map<String, FlxTween> = [];
+	public var luaTimers:Map<String, FlxTimer> = [];
+	public var luaScripts:Array<LuaScript> = [];
+
 	public static var STRUM_X = 48.5;
 	public static var STRUM_X_MIDDLESCROLL = -271;
 
@@ -88,12 +99,12 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 
 	var halloweenLevel:Bool = false;
 
-	private var vocals:FlxSound;
-	private var vocalsFinished:Bool = false;
+	public var vocals:FlxSound;
+	public var vocalsFinished:Bool = false;
 
-	private var dad:Character;
-	private var gf:Character;
-	private var boyfriend:Boyfriend;
+	public var dad:Character;
+	public var gf:Character;
+	public var boyfriend:Boyfriend;
 
 	private var notes:FlxTypedGroup<Note>;
 	private var unspawnNotes:Array<Note> = [];
@@ -104,29 +115,29 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 
 	private static var prevCamFollow:FlxObject;
 
-	private var strumLineNotes:FlxTypedGroup<StrumNote>;
-	private var playerStrums:FlxTypedGroup<StrumNote>;
-	private var opponentStrums:FlxTypedGroup<StrumNote>;
+	public var strumLineNotes:FlxTypedGroup<StrumNote>;
+	public var playerStrums:FlxTypedGroup<StrumNote>;
+	public var opponentStrums:FlxTypedGroup<StrumNote>;
 
 	private var camZooming:Bool = false;
 	private var curSong:String = "";
 
-	private var gfSpeed:Int = 1;
-	private var health:Float = 1;
-	private var combo:Int = 0;
+	public var gfSpeed:Int = 1;
+	public var health:Float = 1;
+	public var combo:Int = 0;
 
-	private var healthBarBG:FlxSprite;
-	private var healthBar:FlxBar;
+	public var healthBarBG:FlxSprite;
+	public var healthBar:FlxBar;
 
 	private var generatedMusic:Bool = false;
 	private var startingSong:Bool = false;
 
-	private var iconP1:HealthIcon;
-	private var iconP2:HealthIcon;
+	public var iconP1:HealthIcon;
+	public var iconP2:HealthIcon;
 
-	private var camGame:SwagCamera = new SwagCamera();
-	private var camHUD:FlxCamera = new FlxCamera();
-	private var camOther:FlxCamera = new FlxCamera();
+	public var camGame:SwagCamera = new SwagCamera();
+	public var camHUD:FlxCamera = new FlxCamera();
+	public var camOther:FlxCamera = new FlxCamera();
 
 	var dialogue:Array<String> = ['blah blah blah', 'coolswag'];
 
@@ -162,16 +173,16 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 	var songScore:Int = 0;
 	var scoreTxt:FlxText;
 
-	var grpNoteSplashes:FlxTypedGroup<NoteSplash>;
+	public var grpNoteSplashes:FlxTypedGroup<NoteSplash>;
 
 	public static var campaignScore:Int = 0;
 
-	var defaultCamZoom:Float = 1.05;
+	public var defaultCamZoom:Float = 1.05;
 
 	// how big to stretch the pixel art assets
 	public static var daPixelZoom:Float = 6;
 
-	var inCutscene:Bool = false;
+	public var inCutscene:Bool = false;
 
 	#if discord_rpc
 	// Discord RPC variables
@@ -197,6 +208,8 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 
 	override public function create()
 	{
+		instance = this;
+
 		if (FlxG.sound.music != null)
 			FlxG.sound.music.stop();
 
@@ -960,6 +973,28 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 					startCountdown();
 			}
 		} 
+
+		#if linc_luajit
+		var filesPushed:Array<String> = [];
+		var foldersToCheck:Array<String> = [Paths.getPreloadPath("data/" + SONG.song.toLowerCase() + "/")];
+
+		for (folder in foldersToCheck)
+		{
+			if (FileSystem.exists(folder))
+			{
+				for (file in FileSystem.readDirectory(folder))
+				{
+					if(file.endsWith('.lua') && !filesPushed.contains(file))
+					{
+						trace("lua script pushed: " + folder + file);
+						luaScripts.push(new LuaScript(folder + file));
+						filesPushed.push(file);
+					}
+				}
+			}
+		}
+		#end
+		callOnLuas("create", []);
 
 		// little input fix
 		FlxG.stage.addEventListener(Event.ENTER_FRAME, enterFrame);
@@ -3015,5 +3050,40 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 			spr.playAnim('confirm', true);
 			spr.resetAnim = time;
 		}
+	}
+
+	public function getLuaObject(tag:String, text:Bool = true):FlxSprite {
+		if (luaSprites.exists(tag))
+			return luaSprites.get(tag);
+
+		if (text && luaTexts.exists(tag))
+			return luaTexts.get(tag);
+
+		return null;
+	}
+
+	public function callOnLuas(event:String, args:Array<Dynamic>, ignoreStops = true):Dynamic {
+		var returnVal:Dynamic = LuaScript.Function_Continue;
+		#if linc_luajit
+		for (script in luaScripts) {
+			var ret:Dynamic = script.call(event, args);
+			if(ret == LuaScript.Function_StopLua && !ignoreStops)
+				break;
+			
+			var bool:Bool = ret == LuaScript.Function_Continue;
+			if(!bool && ret != 0) {
+				returnVal = cast ret;
+			}
+		}
+		#end
+		return returnVal;
+	}
+
+	public function setOnLuas(variable:String, arg:Dynamic) {
+		#if linc_luajit
+		for (i in 0...luaScripts.length) {
+			luaScripts[i].set(variable, arg);
+		}
+		#end
 	}
 }

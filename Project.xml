@@ -50,8 +50,10 @@
 	<define name="NO_PRELOAD_ALL" unless="PRELOAD_ALL"/>
 
 	<define name="AMORAL"/>
-	<classpath name="amoral" if="AMORAL"/>
 	<assets path="amoral" embed="true" if="AMORAL"/>
+	<window title="AMORAL FUNKERS" if="AMORAL"/>
+
+	<haxelib name="linc_luajit" if="desktop"/>
 	
 	<section if="PRELOAD_ALL">
 		<library name="songs"    preload="true" />
