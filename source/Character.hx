@@ -92,6 +92,7 @@ class Character extends FlxSprite
 				} else
 					quickAnimAdd('idle', 'BF idle dance');
 		}
+		updateHitbox();
 
 		if (animation.exists("idle"))
 			playAnim("idle");
