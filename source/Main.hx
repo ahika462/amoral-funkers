@@ -51,6 +51,8 @@ class Main extends Sprite {
 	public static var fpsCounter:FPS;
 
 	private function setupGame() {
+		Conductor.init();
+
 		addChild(new FlxGame(game.width, game.height, game.initialState, game.framerate, game.framerate, game.skipSplash, game.startFullscreen));
 
 		#if !mobile

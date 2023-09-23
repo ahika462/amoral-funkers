@@ -1,245 +1,194 @@
-package;
-
-import flixel.FlxG;
-import flixel.FlxObject;
-import flixel.FlxSprite;
-import flixel.FlxState;
-import flixel.addons.transition.FlxTransitionableState;
-import flixel.effects.FlxFlicker;
-import flixel.graphics.frames.FlxAtlasFrames;
-import flixel.group.FlxGroup.FlxTypedGroup;
-import flixel.text.FlxText;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
-import flixel.ui.FlxButton;
+import flixel.effects.FlxFlicker;
 import flixel.util.FlxColor;
-import flixel.util.FlxTimer;
-import ui.AtlasMenuList;
-import ui.MenuList;
-import ui.OptionsState;
-import ui.Prompt;
-
-using StringTools;
-
+import flixel.text.FlxText;
+import flixel.FlxG;
+import flixel.addons.transition.FlxTransitionableState;
 #if discord_rpc
 import Discord.DiscordClient;
 #end
+import flixel.FlxObject;
+import flixel.FlxSprite;
+import ui.MenuList.MenuTypedList;
 
-class MainMenuState extends MusicBeatState
-{
-	static var curSelected:Int = 0;
-	
-	var menuItems:MainMenuList;
-
-	var magenta:FlxSprite;
-	var camFollow:FlxObject;
-
-	static var optionShit:Array<String> = [
-		"story mode",
+class MainMenuState extends MusicBeatState {
+	static var lastSelected:Int = -1;
+	var menuItems:MenuTypedList<FlxSprite>;
+	var optionShit:Array<String> = [
+		"story_mode",
 		"freeplay",
-		"kickstarter",
+		"credits",
 		"donate",
 		"options"
 	];
 
-	override function create()
-	{
+	var magenta:FlxSprite;
+	var camFollow:FlxObject;
+
+	override function create() {
 		#if discord_rpc
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("In the Menus", null);
 		#end
 
-		transIn = FlxTransitionableState.defaultTransIn;
-		transOut = FlxTransitionableState.defaultTransOut;
-
 		if (!FlxG.sound.music.playing)
-		{
-			FlxG.sound.playMusic(Paths.music('freakyMenu'));
-		}
+			FlxG.sound.playMusic(Paths.music("freakyMenu"));
 
-		persistentUpdate = persistentDraw = true;
+		persistentDraw = true;
+		persistentUpdate = true;
 
-		var bg:FlxSprite = new FlxSprite(Paths.image('menuBG'));
-		bg.scrollFactor.x = 0;
-		bg.scrollFactor.y = 0.17;
+		var yScroll:Float = Math.max(0.25 - (0.05 * (optionShit.length - 4)), 0.1);
+		var bg:FlxSprite = new FlxSprite(Paths.image("menuBG"));
+		bg.scrollFactor.set(0, yScroll);
 		bg.setGraphicSize(Std.int(bg.width * 1.2));
 		bg.updateHitbox();
 		bg.screenCenter();
-		bg.antialiasing = true;
+		bg.antialiasing = ClientPrefs.data.antialiasing;
 		add(bg);
 
 		camFollow = new FlxObject(0, 0, 1, 1);
 		add(camFollow);
 
-		magenta = new FlxSprite(Paths.image('menuDesat'));
-		magenta.scrollFactor.x = bg.scrollFactor.x;
-		magenta.scrollFactor.y = bg.scrollFactor.y;
+		magenta = new FlxSprite(-80, Paths.image("menuDesat"));
+		magenta.scrollFactor.set(0, yScroll);
 		magenta.setGraphicSize(Std.int(bg.width));
 		magenta.updateHitbox();
-		magenta.x = bg.x;
-		magenta.y = bg.y;
+		magenta.screenCenter();
 		magenta.visible = false;
-		magenta.antialiasing = true;
+		magenta.antialiasing = ClientPrefs.data.antialiasing;
 		magenta.color = 0xFFfd719b;
 		if (ClientPrefs.data.flashing)
 			add(magenta);
-		// magenta.scrollFactor.set();
 
-		menuItems = new MainMenuList();
-		add(menuItems);
-		menuItems.onChange.add(onMenuItemChange);
+		menuItems = new MenuTypedList<FlxSprite>(lastSelected);
+		menuItems.onChange = function(step:Int = 0) {
+			menuItems.selectedIndex += step;
 
-		// menuItems.enabled = false; // disable for intro
-		for (i in 0...optionShit.length) {
-			menuItems.createItem(optionShit[i], function() {
-				switch(optionShit[i]) {
-					case "story mode":
-						startExitState(new StoryMenuState());
-					case "freeplay":
-						startExitState(new FreeplayState());
-					case "kickstarter":
-						startExitState(new CredtitsState());
-					case "donate":
-						CoolUtil.coolOpenURL("https://rule34.xxx/index.php?page=post&s=view&id=5702006");
-					case "options":
-						startExitState(new OptionsState());
+			if (menuItems.selectedIndex >= menuItems.length)
+				menuItems.selectedIndex = 0;
+			if (menuItems.selectedIndex < 0)
+				menuItems.selectedIndex = menuItems.length - 1;
+
+			menuItems.forEach(function(spr:FlxSprite) {
+				spr.animation.play("idle");
+				spr.updateHitbox();
+
+				if (spr == menuItems.selectedItem) {
+					spr.animation.play("selected");
+
+					var add:Float = 0;
+					if (menuItems.length > 4)
+						add = menuItems.length * 8;
+
+					camFollow.setPosition(spr.getGraphicMidpoint().x, spr.getGraphicMidpoint().y - add);
+					spr.centerOffsets();
 				}
-			}, true);
+			});
+		}
+		menuItems.onSelect = function() {
+			if (optionShit[menuItems.selectedIndex] == "donate")
+				CoolUtil.coolOpenURL("https://ninja-muffin24.itch.io/funkin");
+			else
+			{
+				if (menuItems.selected)
+					return;
+
+				menuItems.selected = true;
+				lastSelected = menuItems.selectedIndex;
+
+				FlxFlicker.flicker(magenta, 1.1, 0.15, false);
+
+				menuItems.forEach(function(spr:FlxSprite) {
+					if (menuItems.selectedItem != spr) {
+						FlxTween.tween(spr, {alpha: 0}, 0.4, {ease: FlxEase.quadOut, onComplete: function(twn:FlxTween) {
+							spr.kill();
+						}});
+					}
+					else {
+						FlxFlicker.flicker(spr, 1, 0.06, false, false, function(flick:FlxFlicker) {
+							var daChoice:String = optionShit[menuItems.selectedIndex];
+
+							switch (daChoice) {
+								case "story_mode":
+									FlxG.switchState(new StoryMenuState());
+								case "freeplay":
+									FlxG.switchState(new FreeplayState());
+								case "credits":
+									FlxG.switchState(new CredtitsState());
+								case "options":
+									// LoadingState.loadAndSwitchState(new options.OptionsState());
+							}
+						});
+					}
+				});
+			}
+		}
+		add(menuItems);
+
+		for (i in 0...optionShit.length) {
+			var offset:Float = 108 - (Math.max(optionShit.length, 4) - 4) * 80;
+			var menuItem:FlxSprite = new FlxSprite(0, (i * 140)  + offset);
+			menuItem.frames = Paths.getSparrowAtlas("mainmenu/menu_" + optionShit[i]);
+			menuItem.animation.addByPrefix("idle", optionShit[i] + " basic", 24);
+			menuItem.animation.addByPrefix("selected", optionShit[i] + " white", 24);
+			menuItem.animation.play("idle");
+			menuItem.screenCenter(X);
+			menuItems.add(menuItem);
+
+			var scr:Float = (optionShit.length - 4) * 0.135;
+			if (optionShit.length < 6)
+				scr = 0;
+			menuItem.scrollFactor.set(0, scr);
+			
+			menuItem.antialiasing = ClientPrefs.data.antialiasing;
+			menuItem.updateHitbox();
 		}
 
-		menuItems.selectItem(curSelected);
-
-		// center vertically
-		var spacing = 160;
-		var top = (FlxG.height - (spacing * (menuItems.length - 1))) / 2;
-		for (i in 0...menuItems.length)
-		{
-			var menuItem = menuItems.members[i];
-			menuItem.x = FlxG.width / 2;
-			menuItem.y = top + spacing * i;
-		}
+		menuItems.onChange();
 
 		FlxG.cameras.reset(new SwagCamera());
 		FlxG.camera.follow(camFollow, null, 0.06);
-		// FlxG.camera.setScrollBounds(bg.x, bg.x + bg.width, bg.y, bg.y + bg.height * 1.2);
 
 		var versionShit:FlxText = new FlxText(1, FlxG.height - 18, 0, "AMORAL FUNKERS PRIVATE BETA " + FlxG.stage.application.meta["version"] + " (7QUID EXCLUSIVE)", 12);
+		versionShit.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		versionShit.scrollFactor.set();
-		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		add(versionShit);
-
-		// NG.core.calls.event.logEvent('swag').send();
 
 		super.create();
 	}
 
-	override function finishTransIn()
-	{
-		super.finishTransIn();
-
-		// menuItems.enabled = true;
-	}
-
-	function onMenuItemChange(selected:MenuItem)
-	{
-		camFollow.setPosition(selected.getGraphicMidpoint().x, selected.getGraphicMidpoint().y);
-		curSelected = menuItems.selectedIndex;
-	}
-
-	public function openPrompt(prompt:Prompt, onClose:Void->Void)
-	{
-		menuItems.enabled = false;
-		prompt.closeCallback = function()
-		{
-			menuItems.enabled = true;
-			if (onClose != null)
-				onClose();
-		}
-
-		openSubState(prompt);
-	}
-
-	function startExitState(state:FlxState)
-	{
-		menuItems.enabled = false; // disable for exit
-		FlxFlicker.flicker(magenta, 1.1, 0.15, false, true);
-		FlxG.sound.play(Paths.sound("confirmMenu"));
-		menuItems.forEach(function(item)
-		{
-			if (menuItems.selectedIndex != item.ID)
-			{
-				FlxTween.tween(item, {alpha: 0}, 0.4, {ease: FlxEase.quadOut});
-			}
-			else
-			{
-				FlxFlicker.flicker(item, 1, 0.06, false, false, function(flick:FlxFlicker) {
-					FlxG.switchState(state);
-				});
-			}
-		});
-	}
-
-	override function update(elapsed:Float)
-	{
-		// FlxG.camera.followLerp = CoolUtil.camLerpShit(0.06);
-
+	override function update(elapsed:Float) {
 		if (FlxG.sound.music.volume < 0.8)
-		{
 			FlxG.sound.music.volume += 0.5 * FlxG.elapsed;
+
+		if (!menuItems.selected) {
+			if (controls.UI_UP_P) {
+				FlxG.sound.play(Paths.sound("scrollMenu"));
+				menuItems.onChange(-1);
+			}
+
+			if (controls.UI_DOWN_P) {
+				FlxG.sound.play(Paths.sound("scrollMenu"));
+				menuItems.onChange(1);
+			}
+
+			if (controls.BACK) {
+				FlxG.sound.play(Paths.sound("cancelMenu"));
+				menuItems.selected = true;
+				FlxG.switchState(new TitleState());
+			}
+
+			if (controls.ACCEPT) {
+				FlxG.sound.play(Paths.sound("confirmMenu"));
+				menuItems.onSelect();
+			}
 		}
-
-		if (_exiting)
-			menuItems.enabled = false;
-
-		if (controls.BACK && menuItems.enabled && !menuItems.busy)
-		{
-			FlxG.sound.play(Paths.sound('cancelMenu'));
-			FlxG.switchState(new TitleState());
-		}
-
+		
 		super.update(elapsed);
-	}
-}
 
-private class MainMenuList extends MenuTypedList<MainMenuItem>
-{
-	public var atlas:FlxAtlasFrames;
-
-	public function new()
-	{
-		atlas = Paths.getSparrowAtlas('main_menu');
-		super(Vertical);
-	}
-
-	public function createItem(x = 0.0, y = 0.0, name:String, callback, fireInstantly = false)
-	{
-		var item = new MainMenuItem(x, y, name, atlas, callback);
-		item.fireInstantly = fireInstantly;
-		item.ID = length;
-
-		return addItem(name, item);
-	}
-
-	override function destroy()
-	{
-		super.destroy();
-		atlas = null;
-	}
-}
-
-private class MainMenuItem extends AtlasMenuItem
-{
-	public function new(x = 0.0, y = 0.0, name, atlas, callback)
-	{
-		super(x, y, name, atlas, callback);
-		scrollFactor.set();
-	}
-
-	override function changeAnim(anim:String)
-	{
-		super.changeAnim(anim);
-		// position by center
-		centerOrigin();
-		offset.copyFrom(origin);
+		menuItems.forEach(function(spr:FlxSprite) {
+			spr.screenCenter(X);
+		});
 	}
 }

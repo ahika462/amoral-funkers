@@ -208,18 +208,6 @@ class TitleState extends MusicBeatState
 
 	function startIntro()
 	{
-		if (!initialized)
-		{
-			var diamond:FlxGraphic = FlxGraphic.fromClass(GraphicTransTileDiamond);
-			diamond.persist = true;
-			diamond.destroyOnNoUse = false;
-
-			transIn = FlxTransitionableState.defaultTransIn = new TransitionData(FADE, FlxColor.BLACK, 1, new FlxPoint(0, -1), {asset: diamond, width: 32, height: 32},
-				new FlxRect(-200, -200, FlxG.width * 1.4, FlxG.height * 1.4));
-			transOut = FlxTransitionableState.defaultTransOut = new TransitionData(FADE, FlxColor.BLACK, 0.7, new FlxPoint(0, 1),
-				{asset: diamond, width: 32, height: 32}, new FlxRect(-200, -200, FlxG.width * 1.4, FlxG.height * 1.4));
-		}
-
 		if (FlxG.sound.music == null || !FlxG.sound.music.playing)
 		{
 			FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
@@ -227,6 +215,7 @@ class TitleState extends MusicBeatState
 		}
 
 		Conductor.changeBPM(102);
+		Conductor.followSound = FlxG.sound.music;
 		persistentUpdate = true;
 
 		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
@@ -477,7 +466,7 @@ class TitleState extends MusicBeatState
 	override function beatHit()
 	{
 		super.beatHit();
-
+		
 		if (!startedIntro)
 			return ;
 
@@ -494,12 +483,12 @@ class TitleState extends MusicBeatState
 		}
 		else
 		{
-			FlxG.log.add(curBeat);
+			FlxG.log.add(Conductor.curBeat);
 			// if the user is draggin the window some beats will
 			// be missed so this is just to compensate
-			if (curBeat > lastBeat)
+			if (Conductor.curBeat > lastBeat)
 			{
-				for (i in lastBeat...curBeat)
+				for (i in lastBeat...Conductor.curBeat)
 				{
 					switch (i + 1)
 					{
@@ -553,7 +542,7 @@ class TitleState extends MusicBeatState
 					}
 				}
 			}
-			lastBeat = curBeat;
+			lastBeat = Conductor.curBeat;
 		}
 	}
 

@@ -1,73 +1,68 @@
 package;
 
-import Conductor.BPMChangeEvent;
-import flixel.FlxG;
-import flixel.FlxGame;
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.addons.ui.FlxUIState;
-import flixel.math.FlxRect;
-import flixel.util.FlxTimer;
 
-class MusicBeatState extends FlxUIState
-{
-	private var curStep:Int = 0;
-	private var curBeat:Int = 0;
+class MusicBeatState extends FlxUIState {
 	private var controls(get, never):Controls;
 
 	inline function get_controls():Controls
 		return PlayerSettings.player1.controls;
 
-	override function create()
-	{
-		if (transIn != null)
-			trace('reg ' + transIn.region);
+	override function create() {
+		Conductor.onStepHit.add(stepHit);
+		Conductor.onBeatHit.add(beatHit);
 
 		super.create();
 	}
 
-	override function update(elapsed:Float)
-	{
-		// everyStep();
-		var oldStep:Int = curStep;
+	function stepHit() {}
+	function beatHit() {}
 
-		updateCurStep();
-		updateBeat();
-
-		if (oldStep != curStep && curStep >= 0)
-			stepHit();
-
-		super.update(elapsed);
+	override function destroy() {
+		Conductor.onStepHit.remove(stepHit);
+		Conductor.onBeatHit.remove(beatHit);
 	}
 
-	private function updateBeat():Void
-	{
-		curBeat = Math.floor(curStep / 4);
-	}
-
-	private function updateCurStep():Void
-	{
-		var lastChange:BPMChangeEvent = {
-			stepTime: 0,
-			songTime: 0,
-			bpm: 0
-		}
-		for (i in 0...Conductor.bpmChangeMap.length)
+	override function transitionIn() {
+		if (FlxTransitionableState.skipNextTransIn)
 		{
-			if (Conductor.songPosition >= Conductor.bpmChangeMap[i].songTime)
-				lastChange = Conductor.bpmChangeMap[i];
+			FlxTransitionableState.skipNextTransIn = false;
+
+			if (finishTransIn != null)
+				finishTransIn();
+
+			return;
 		}
 
-		curStep = lastChange.stepTime + Math.floor((Conductor.songPosition - lastChange.songTime) / Conductor.stepCrochet);
+		var _trans = new CustomFadeTransition(true);
+
+		_trans.setStatus(FULL);
+		openSubState(_trans);
+
+		_trans.finishCallback = finishTransIn;
+		_trans.start(OUT);
 	}
 
-	public function stepHit():Void
-	{
-		if (curStep % 4 == 0)
-			beatHit();
+	override function transitionOut(?onExit:Void->Void) {
+		_onExit = onExit;
+
+		var _trans = new CustomFadeTransition(false);
+
+		_trans.setStatus(EMPTY);
+		openSubState(_trans);
+
+		_trans.finishCallback = finishTransOut;
+		_trans.start(IN);
 	}
 
-	public function beatHit():Void
-	{
-		// do literally nothing dumbass
+	override function startOutro(onOutroComplete:Void->Void) {
+		_exiting = true;
+		transitionOut(onOutroComplete);
+		
+		if (FlxTransitionableState.skipNextTransOut) {
+			FlxTransitionableState.skipNextTransOut = false;
+			finishTransOut();
+		}
 	}
 }

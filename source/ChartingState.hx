@@ -138,6 +138,7 @@ class ChartingState extends MusicBeatState
 		loadSong(_song.song);
 		Conductor.changeBPM(_song.bpm);
 		Conductor.mapBPMChanges(_song);
+		Conductor.followSound = FlxG.sound.music;
 
 		bpmTxt = new FlxText(1000, 50, 0, "", 16);
 		bpmTxt.scrollFactor.set();
@@ -471,7 +472,7 @@ class ChartingState extends MusicBeatState
 
 	override function update(elapsed:Float)
 	{
-		curStep = recalculateSteps();
+		Conductor.curStep = recalculateSteps();
 
 		Conductor.songPosition = FlxG.sound.music.time;
 		_song.song = typingShit.text;
@@ -481,9 +482,9 @@ class ChartingState extends MusicBeatState
 		if (FlxG.keys.justPressed.X)
 			toggleAltAnimNote();
 
-		if (curBeat % 4 == 0 && curStep >= 16 * (curSection + 1))
+		if (Conductor.curBeat % 4 == 0 && Conductor.curStep >= 16 * (curSection + 1))
 		{
-			trace(curStep);
+			trace(Conductor.curStep);
 			trace((_song.notes[curSection].lengthInSteps) * (curSection + 1));
 			trace('DUMBSHIT');
 
@@ -495,8 +496,8 @@ class ChartingState extends MusicBeatState
 			changeSection(curSection + 1, false);
 		}
 
-		FlxG.watch.addQuick('daBeat', curBeat);
-		FlxG.watch.addQuick('daStep', curStep);
+		FlxG.watch.addQuick('daBeat', Conductor.curBeat);
+		FlxG.watch.addQuick('daStep', Conductor.curStep);
 
 		if (FlxG.mouse.justPressed)
 		{
@@ -717,10 +718,10 @@ class ChartingState extends MusicBeatState
 				lastChange = Conductor.bpmChangeMap[i];
 		}
 
-		curStep = lastChange.stepTime + Math.floor((FlxG.sound.music.time - lastChange.songTime) / Conductor.stepCrochet);
-		updateBeat();
+		Conductor.curStep = lastChange.stepTime + Math.floor((FlxG.sound.music.time - lastChange.songTime) / Conductor.stepCrochet);
+		Conductor.curBeat = Math.floor(Conductor.curStep / 4);
 
-		return curStep;
+		return Conductor.curStep;
 	}
 
 	function resetSection(songBeginning:Bool = false):Void
@@ -740,7 +741,7 @@ class ChartingState extends MusicBeatState
 		}
 
 		vocals.time = FlxG.sound.music.time;
-		updateCurStep();
+		Conductor.update();
 
 		updateGrid();
 		updateSectionUI();
@@ -771,7 +772,7 @@ class ChartingState extends MusicBeatState
 
 				FlxG.sound.music.time = sectionStartTime();
 				vocals.time = FlxG.sound.music.time;
-				updateCurStep();
+				Conductor.update();
 			}
 
 			updateGrid();

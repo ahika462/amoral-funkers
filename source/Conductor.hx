@@ -1,11 +1,8 @@
-package;
-
+import flixel.sound.FlxSound;
+import openfl.events.Event;
+import openfl.Lib;
 import Song.SwagSong;
-
-/**
- * ...
- * @author
- */
+import flixel.util.FlxSignal;
 
 typedef BPMChangeEvent =
 {
@@ -14,28 +11,30 @@ typedef BPMChangeEvent =
 	var bpm:Float;
 }
 
-class Conductor
-{
-	public static var bpm:Float = 100;
-	public static var crochet:Float = ((60 / bpm) * 1000); // beats in milliseconds
+class Conductor {
+    public static var bpm:Float = 100;
+    public static var crochet:Float = ((60 / bpm) * 1000); // beats in milliseconds
 	public static var stepCrochet:Float = crochet / 4; // steps in milliseconds
-	public static var songPosition:Float;
+    
+    public static var songPosition:Float;
 	public static var lastSongPos:Float;
+    public static var followSound:FlxSound = null;
+
 	public static var offset:Float = 0;
 
-	public static var safeZoneOffset(get, never):Float;
+    public static var safeZoneOffset(get, never):Float;
 	public static function get_safeZoneOffset():Float {
 		return (ClientPrefs.data.safeFrames / 60) * 1000; // is calculated in create(), is safeFrames in milliseconds
 	}
 
-	public static var bpmChangeMap:Array<BPMChangeEvent> = [];
+    public static var bpmChangeMap:Array<BPMChangeEvent> = [];
 
-	public function new()
-	{
-	}
+    public static var curStep:Int = 0;
+    public static var curBeat:Int = 0;
+    public static var onStepHit:FlxSignal = new FlxSignal();
+    public static var onBeatHit:FlxSignal = new FlxSignal();
 
-	public static function mapBPMChanges(song:SwagSong)
-	{
+    public static function mapBPMChanges(song:SwagSong) {
 		bpmChangeMap = [];
 
 		var curBPM:Float = song.bpm;
@@ -61,8 +60,7 @@ class Conductor
 		trace("new BPM map BUDDY " + bpmChangeMap);
 	}
 
-	public static function changeBPM(newBpm:Float)
-	{
+    public static function changeBPM(newBpm:Float) {
 		bpm = newBpm;
 
 		crochet = ((60 / bpm) * 1000);
@@ -79,6 +77,39 @@ class Conductor
 
 		return ratings[ratings.length - 1];
 	}
+
+    public static function init() {
+        Lib.current.stage.addEventListener(Event.ENTER_FRAME, function(?e:Event) {
+            update();
+        });
+    }
+
+    public static function update() {
+        if (followSound != null && followSound.playing)
+            songPosition = followSound.time + offset;
+
+        var oldStep:Int = curStep;
+
+        var lastChange:BPMChangeEvent = {
+            stepTime: 0,
+            songTime: 0,
+            bpm: 0
+        }
+        for (i in 0...bpmChangeMap.length)
+        {
+            if (songPosition >= bpmChangeMap[i].songTime)
+                lastChange = bpmChangeMap[i];
+        }
+
+        curStep = lastChange.stepTime + Math.floor((songPosition - lastChange.songTime) / stepCrochet);
+        curBeat = Math.floor(curStep / 4);
+
+        if (oldStep != curStep && curStep >= 0) {
+            onStepHit.dispatch();
+            if (curStep % 4 == 0)
+                onBeatHit.dispatch();
+        }
+    }
 }
 
 class Rating {

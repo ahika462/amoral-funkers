@@ -1,5 +1,3 @@
-import flixel.util.FlxColor;
-import shaderslmfao.ReplaceColor;
 import flixel.FlxG;
 import openfl.utils.Assets;
 import flixel.FlxSprite;
@@ -20,12 +18,6 @@ class CredtitsState extends MusicBeatState {
             icon.x = text.x + text.width + 10;
             icon.y = (text.y + text.height / 2) - icon.height / 2;
             icon.antialiasing = ClientPrefs.data.antialiasing;
-            /*var replaceColor:ReplaceColor = new ReplaceColor();
-            var colorToReplace:FlxColor = 0xffFAFAF0;
-            var newColor:FlxColor = FlxColor.TRANSPARENT;
-            replaceColor.setFloatArray("colorToReplace", [colorToReplace.redFloat, colorToReplace.greenFloat, colorToReplace.blueFloat, colorToReplace.alphaFloat]);
-            replaceColor.setFloatArray("newColor", [newColor.redFloat, newColor.greenFloat, newColor.blueFloat, newColor.alphaFloat]);
-            icon.shader = replaceColor;*/
             add(icon);
         }
 

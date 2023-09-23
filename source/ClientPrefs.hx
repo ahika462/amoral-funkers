@@ -1,4 +1,5 @@
 import flixel.FlxG;
+import flixel.input.keyboard.FlxKey;
 
 class SaveVariables {
     public var censorNaughty:Bool = false;
@@ -17,6 +18,23 @@ class SaveVariables {
     public var ghostTapping:Bool = true;
     public var shaders:Bool = true;
     public var antialiasing:Bool = true;
+
+    public var keyBinds:Map<String, Array<FlxKey>> = [
+        "note_left"  => [A, LEFT],
+        "note_down"  => [S, DOWN],
+        "note_up"    => [W, UP],
+        "note_right" => [D, RIGHT],
+
+        "ui_left"    => [A, LEFT],
+        "ui_down"    => [S, DOWN],
+        "ui_up"      => [W, UP],
+        "ui_right"   => [D, RIGHT],
+
+        "reset"      => [R],
+        "accept"     => [SPACE, ENTER],
+        "pause"      => [ESCAPE, ENTER],
+        "back"       => [ESCAPE, BACKSPACE]
+    ];
 
     public function new() {}
 }

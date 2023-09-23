@@ -461,44 +461,44 @@ class Controls extends FlxActionSet
 		switch (scheme)
 		{
 			case Solo:
-				bindKeys(Control.UI_UP, [W, FlxKey.UP]);
-				bindKeys(Control.UI_DOWN, [S, FlxKey.DOWN]);
-				bindKeys(Control.UI_LEFT, [A, FlxKey.LEFT]);
-				bindKeys(Control.UI_RIGHT, [D, FlxKey.RIGHT]);
-				bindKeys(Control.NOTE_UP, [W, FlxKey.UP]);
-				bindKeys(Control.NOTE_DOWN, [S, FlxKey.DOWN]);
-				bindKeys(Control.NOTE_LEFT, [A, FlxKey.LEFT]);
-				bindKeys(Control.NOTE_RIGHT, [D, FlxKey.RIGHT]);
-				bindKeys(Control.ACCEPT, [Z, SPACE, ENTER]);
-				bindKeys(Control.BACK, [X, BACKSPACE, ESCAPE]);
-				bindKeys(Control.PAUSE, [P, ENTER, ESCAPE]);
-				bindKeys(Control.RESET, [R]);
+				bindKeys(Control.UI_UP, ClientPrefs.data.keyBinds["ui_up"]);
+				bindKeys(Control.UI_DOWN, ClientPrefs.data.keyBinds["ui_down"]);
+				bindKeys(Control.UI_LEFT, ClientPrefs.data.keyBinds["ui_left"]);
+				bindKeys(Control.UI_RIGHT, ClientPrefs.data.keyBinds["ui_right"]);
+				bindKeys(Control.NOTE_UP, ClientPrefs.data.keyBinds["note_up"]);
+				bindKeys(Control.NOTE_DOWN, ClientPrefs.data.keyBinds["note_down"]);
+				bindKeys(Control.NOTE_LEFT, ClientPrefs.data.keyBinds["note_left"]);
+				bindKeys(Control.NOTE_RIGHT, ClientPrefs.data.keyBinds["note_right"]);
+				bindKeys(Control.ACCEPT, ClientPrefs.data.keyBinds["accept"]);
+				bindKeys(Control.BACK, ClientPrefs.data.keyBinds["back"]);
+				bindKeys(Control.PAUSE, ClientPrefs.data.keyBinds["pause"]);
+				bindKeys(Control.RESET, ClientPrefs.data.keyBinds["reset"]);
 			case Duo(true):
-				bindKeys(Control.UI_UP, [W]);
-				bindKeys(Control.UI_DOWN, [S]);
-				bindKeys(Control.UI_LEFT, [A]);
-				bindKeys(Control.UI_RIGHT, [D]);
-				bindKeys(Control.NOTE_UP, [W]);
-				bindKeys(Control.NOTE_DOWN, [S]);
-				bindKeys(Control.NOTE_LEFT, [A]);
-				bindKeys(Control.NOTE_RIGHT, [D]);
-				bindKeys(Control.ACCEPT, [G, Z]);
-				bindKeys(Control.BACK, [H, X]);
-				bindKeys(Control.PAUSE, [ONE]);
-				bindKeys(Control.RESET, [R]);
+				bindKeys(Control.UI_UP, [ClientPrefs.data.keyBinds["ui_up"][0]]);
+				bindKeys(Control.UI_DOWN, [ClientPrefs.data.keyBinds["ui_down"][0]]);
+				bindKeys(Control.UI_LEFT, [ClientPrefs.data.keyBinds["ui_left"][0]]);
+				bindKeys(Control.UI_RIGHT, [ClientPrefs.data.keyBinds["ui_right"][0]]);
+				bindKeys(Control.NOTE_UP, [ClientPrefs.data.keyBinds["note_up"][0]]);
+				bindKeys(Control.NOTE_DOWN, [ClientPrefs.data.keyBinds["note_down"][0]]);
+				bindKeys(Control.NOTE_LEFT, [ClientPrefs.data.keyBinds["note_left"][0]]);
+				bindKeys(Control.NOTE_RIGHT, [ClientPrefs.data.keyBinds["note_right"][0]]);
+				bindKeys(Control.ACCEPT, ClientPrefs.data.keyBinds["accept"]);
+				bindKeys(Control.BACK, ClientPrefs.data.keyBinds["back"]);
+				bindKeys(Control.PAUSE, ClientPrefs.data.keyBinds["pause"]);
+				bindKeys(Control.RESET, ClientPrefs.data.keyBinds["reset"]);
 			case Duo(false):
-				bindKeys(Control.UI_UP, [FlxKey.UP]);
-				bindKeys(Control.UI_DOWN, [FlxKey.DOWN]);
-				bindKeys(Control.UI_LEFT, [FlxKey.LEFT]);
-				bindKeys(Control.UI_RIGHT, [FlxKey.RIGHT]);
-				bindKeys(Control.NOTE_UP, [FlxKey.UP]);
-				bindKeys(Control.NOTE_DOWN, [FlxKey.DOWN]);
-				bindKeys(Control.NOTE_LEFT, [FlxKey.LEFT]);
-				bindKeys(Control.NOTE_RIGHT, [FlxKey.RIGHT]);
-				bindKeys(Control.ACCEPT, [O]);
-				bindKeys(Control.BACK, [P]);
-				bindKeys(Control.PAUSE, [ENTER]);
-				bindKeys(Control.RESET, [BACKSPACE]);
+				bindKeys(Control.UI_UP, [ClientPrefs.data.keyBinds["ui_up"][1]]);
+				bindKeys(Control.UI_DOWN, [ClientPrefs.data.keyBinds["ui_down"][1]]);
+				bindKeys(Control.UI_LEFT, [ClientPrefs.data.keyBinds["ui_left"][1]]);
+				bindKeys(Control.UI_RIGHT, [ClientPrefs.data.keyBinds["ui_right"][1]]);
+				bindKeys(Control.NOTE_UP, [ClientPrefs.data.keyBinds["note_up"][1]]);
+				bindKeys(Control.NOTE_DOWN, [ClientPrefs.data.keyBinds["note_down"][1]]);
+				bindKeys(Control.NOTE_LEFT, [ClientPrefs.data.keyBinds["note_left"][1]]);
+				bindKeys(Control.NOTE_RIGHT, [ClientPrefs.data.keyBinds["note_right"][1]]);
+				bindKeys(Control.ACCEPT, ClientPrefs.data.keyBinds["accept"]);
+				bindKeys(Control.BACK, ClientPrefs.data.keyBinds["back"]);
+				bindKeys(Control.PAUSE, ClientPrefs.data.keyBinds["pause"]);
+				bindKeys(Control.RESET, ClientPrefs.data.keyBinds["reset"]);
 			case None: // nothing
 			case Custom: // nothing
 		}

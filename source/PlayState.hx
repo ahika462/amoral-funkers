@@ -1,8 +1,6 @@
 package;
 
-#if linc_luajit
-import sys.FileSystem;
-#end
+import flixel.input.keyboard.FlxKey;
 import flixel.addons.transition.Transition;
 import Conductor.Rating;
 import openfl.events.KeyboardEvent;
@@ -77,13 +75,7 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 	}
 	#end
 
-	// lua shit
 	public static var instance:PlayState;
-	public var luaSprites:Map<String, FlxSprite> = [];
-	public var luaTexts:Map<String, FlxText> = [];
-	public var luaTweens:Map<String, FlxTween> = [];
-	public var luaTimers:Map<String, FlxTimer> = [];
-	public var luaScripts:Array<LuaScript> = [];
 
 	public static var STRUM_X = 48.5;
 	public static var STRUM_X_MIDDLESCROLL = -271;
@@ -210,6 +202,7 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 	{
 		instance = this;
 
+		Conductor.followSound = null;
 		if (FlxG.sound.music != null)
 			FlxG.sound.music.stop();
 
@@ -224,7 +217,7 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 		FlxG.cameras.add(camHUD, false);
 		FlxG.cameras.add(camOther, false);
 
-		Transition.targetCamera = camOther;
+		CustomFadeTransition.targetCamera = camOther;
 
 		persistentUpdate = true;
 		persistentDraw = true;
@@ -974,30 +967,10 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 			}
 		} 
 
-		#if linc_luajit
-		var filesPushed:Array<String> = [];
-		var foldersToCheck:Array<String> = [Paths.getPreloadPath("data/" + SONG.song.toLowerCase() + "/")];
-
-		for (folder in foldersToCheck)
-		{
-			if (FileSystem.exists(folder))
-			{
-				for (file in FileSystem.readDirectory(folder))
-				{
-					if(file.endsWith('.lua') && !filesPushed.contains(file))
-					{
-						trace("lua script pushed: " + folder + file);
-						luaScripts.push(new LuaScript(folder + file));
-						filesPushed.push(file);
-					}
-				}
-			}
-		}
-		#end
-		callOnLuas("create", []);
-
-		// little input fix
-		FlxG.stage.addEventListener(Event.ENTER_FRAME, enterFrame);
+		// input fix
+		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyJustPressed);
+		FlxG.stage.addEventListener(Event.ENTER_FRAME, onKeyPressed);
+		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyJustReleased);
 
 		#if AMORAL
 		missEffect = new MissEffect();
@@ -1008,18 +981,7 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 
 		super.create();
 
-		Transition.targetCamera = camOther;
-	}
-
-	function enterFrame(?e:Event) {
-		if (!seenCutscene && (persistentUpdate || subState == null)) 
-			keyShit();
-	}
-
-	override function destroy() {
-		FlxG.stage.removeEventListener(Event.ENTER_FRAME, enterFrame);
-
-		super.destroy();
+		CustomFadeTransition.targetCamera = camOther;
 	}
 
 	function ughIntro()
@@ -1432,9 +1394,9 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 		});*/
 	}
 
+	#if discord_rpc
 	function initDiscord():Void
 	{
-		#if discord_rpc
 		storyDifficultyText = CoolUtil.difficultyString();
 		iconRPC = SONG.player2;
 
@@ -1455,8 +1417,8 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 
 		// Updating Discord Rich Presence.
 		DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")", iconRPC);
-		#end
 	}
+	#end
 
 	function schoolIntro(?dialogueBox:DialogueBox):Void
 	{
@@ -1641,6 +1603,7 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 		if (!paused)
 			FlxG.sound.playMusic(Paths.inst(SONG.song), 1, false);
 		FlxG.sound.music.onComplete = endSong;
+		Conductor.followSound = FlxG.sound.music;
 		vocals.play();
 
 		#if discord_rpc
@@ -1858,7 +1821,6 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 
 		vocals.pause();
 		FlxG.sound.music.play();
-		Conductor.songPosition = FlxG.sound.music.time + Conductor.offset;
 
 		if (vocalsFinished)
 			return;
@@ -1885,14 +1847,14 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 		{
 			if (startedCountdown)
 			{
-				Conductor.songPosition += FlxG.elapsed * 1000;
+				Conductor.songPosition += elapsed * 1000;
 				if (Conductor.songPosition >= 0)
 					startSong();
 			}
 		}
 		else
 		{
-			Conductor.songPosition = FlxG.sound.music.time + Conductor.offset; // 20 is THE MILLISECONDS??
+			// Conductor.songPosition = FlxG.sound.music.time + Conductor.offset; // 20 is THE MILLISECONDS??
 			// Conductor.songPosition += FlxG.elapsed * 1000;
 
 			if (!paused)
@@ -2027,9 +1989,9 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 			changeSection(-1);
 		#end
 
-		if (generatedMusic && SONG.notes[Std.int(curStep / 16)] != null)
+		if (generatedMusic && SONG.notes[Std.int(Conductor.curStep / 16)] != null)
 		{
-			cameraRightSide = SONG.notes[Std.int(curStep / 16)].mustHitSection;
+			cameraRightSide = SONG.notes[Std.int(Conductor.curStep / 16)].mustHitSection;
 
 			cameraMovement();
 		}
@@ -2040,12 +2002,12 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 			camHUD.zoom = FlxMath.lerp(1, camHUD.zoom, 0.95);
 		}
 
-		FlxG.watch.addQuick("beatShit", curBeat);
-		FlxG.watch.addQuick("stepShit", curStep);
+		FlxG.watch.addQuick("beatShit", Conductor.curBeat);
+		FlxG.watch.addQuick("stepShit", Conductor.curStep);
 
 		if (curSong == 'Fresh')
 		{
-			switch (curBeat)
+			switch (Conductor.curBeat)
 			{
 				case 16:
 					camZooming = true;
@@ -2064,7 +2026,7 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 
 		if (curSong == 'Bopeebo')
 		{
-			switch (curBeat)
+			switch (Conductor.curBeat)
 			{
 				case 128, 129, 130:
 					vocals.volume = 0;
@@ -2250,7 +2212,7 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 			}
 			daPos += 4 * (1000 * 60 / daBPM);
 		}
-		Conductor.songPosition = FlxG.sound.music.time = daPos;
+		FlxG.sound.music.time = daPos;
 		updateCurStep();
 		resyncVocals();
 	}
@@ -2277,9 +2239,6 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 			if (storyPlaylist.length <= 0)
 			{
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
-
-				transIn = FlxTransitionableState.defaultTransIn;
-				transOut = FlxTransitionableState.defaultTransOut;
 
 				switch (PlayState.storyWeek)
 				{
@@ -2533,73 +2492,47 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 		}
 	}
 
-	private function keyShit() {
-		// control arrays, order L D R U
-		var holdArray:Array<Bool> = [controls.NOTE_LEFT, controls.NOTE_DOWN, controls.NOTE_UP, controls.NOTE_RIGHT];
-		var pressArray:Array<Bool> = [
-			controls.NOTE_LEFT_P,
-			controls.NOTE_DOWN_P,
-			controls.NOTE_UP_P,
-			controls.NOTE_RIGHT_P
-		];
-		var releaseArray:Array<Bool> = [
-			controls.NOTE_LEFT_R,
-			controls.NOTE_DOWN_R,
-			controls.NOTE_UP_R,
-			controls.NOTE_RIGHT_R
-		];
-
-		// HOLDS, check for sustain notes
-		if (holdArray.contains(true) && /*!boyfriend.stunned && */ generatedMusic)
-		{
-			notes.forEachAlive(function(daNote:Note)
-			{
-				if (daNote.isSustainNote && daNote.canBeHit && daNote.mustPress && holdArray[daNote.noteData])
-					goodNoteHit(daNote);
-			});
+	function onKeyJustPressed(?e:KeyboardEvent) {
+		var keyID:Int = -1;
+		var binds:Array<Array<FlxKey>> = [ClientPrefs.data.keyBinds["note_left"], ClientPrefs.data.keyBinds["note_down"], ClientPrefs.data.keyBinds["note_up"], ClientPrefs.data.keyBinds["note_right"]];
+		for (i in 0...binds.length) {
+			for (key in binds[i]) {
+				if (e.keyCode == key)
+					keyID = i;
+			}
 		}
 
-		// PRESSES, check for note hits
-		if (pressArray.contains(true) && /*!boyfriend.stunned && */ generatedMusic)
-		{
+		if (keyID >= 0 && /*!boyfriend.stunned && */ generatedMusic) {
 			boyfriend.holdTimer = 0;
 
 			var possibleNotes:Array<Note> = []; // notes that can be hit
 			var directionList:Array<Int> = []; // directions that can be hit
 			var dumbNotes:Array<Note> = []; // notes to kill later
 
-			notes.forEachAlive(function(daNote:Note)
-			{
-				if (daNote.canBeHit && daNote.mustPress && !daNote.tooLate && !daNote.wasGoodHit)
-				{
-					if (directionList.contains(daNote.noteData))
-					{
-						for (coolNote in possibleNotes)
-						{
-							if (coolNote.noteData == daNote.noteData && Math.abs(daNote.strumTime - coolNote.strumTime) < 10)
-							{ // if it's the same note twice at < 10ms distance, just delete it
+			notes.forEachAlive(function(daNote:Note) {
+				if (daNote.canBeHit && daNote.mustPress && !daNote.tooLate && !daNote.wasGoodHit) {
+					if (directionList.contains(daNote.noteData)) {
+						for (coolNote in possibleNotes) {
+							if (coolNote.noteData == daNote.noteData && Math.abs(daNote.strumTime - coolNote.strumTime) < 10) {
+								// if it's the same note twice at < 10ms distance, just delete it
 								// EXCEPT u cant delete it in this loop cuz it fucks with the collection lol
 								dumbNotes.push(daNote);
 								break;
-							}
-							else if (coolNote.noteData == daNote.noteData && daNote.strumTime < coolNote.strumTime)
-							{ // if daNote is earlier than existing note (coolNote), replace
+							} else if (coolNote.noteData == daNote.noteData && daNote.strumTime < coolNote.strumTime) {
+								// if daNote is earlier than existing note (coolNote), replace
 								possibleNotes.remove(coolNote);
 								possibleNotes.push(daNote);
 								break;
 							}
 						}
-					}
-					else
-					{
+					} else {
 						possibleNotes.push(daNote);
 						directionList.push(daNote.noteData);
 					}
 				}
 			});
 
-			for (note in dumbNotes)
-			{
+			for (note in dumbNotes) {
 				FlxG.log.add("killing dumb ass note at " + note.strumTime);
 				note.kill();
 				notes.remove(note, true);
@@ -2610,45 +2543,59 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 
 			if (perfectMode)
 				goodNoteHit(possibleNotes[0]);
-			else if (possibleNotes.length > 0)
-			{
-				for (shit in 0...pressArray.length)
-				{ // if a direction is hit that shouldn't be
-					if (pressArray[shit] && !directionList.contains(shit))
-						noteMissPress(shit);
-				}
-				for (coolNote in possibleNotes)
-				{
-					if (pressArray[coolNote.noteData])
+			else if (possibleNotes.length > 0) {
+				if (!directionList.contains(keyID))
+					noteMissPress(keyID);
+
+				for (coolNote in possibleNotes) {
+					if (keyID == coolNote.noteData)
 						goodNoteHit(coolNote);
 				}
 			}
 			else
-			{
-				for (shit in 0...pressArray.length)
-					if (pressArray[shit] && !ClientPrefs.data.ghostTapping)
-						noteMissPress(shit);
-			}
+				noteMissPress(keyID);
 		}
 
-		if (boyfriend.holdTimer > Conductor.stepCrochet * 4 * 0.001 && !holdArray.contains(true))
-		{
-			if (boyfriend.animation.curAnim.name.startsWith('sing') && !boyfriend.animation.curAnim.name.endsWith('miss'))
-			{
-				boyfriend.playAnim('idle');
-			}
-		}
-
-		playerStrums.forEach(function(spr:StrumNote)
-		{
-			if (pressArray[spr.ID] && spr.animation.curAnim.name != "confirm")
+		playerStrums.forEach(function(spr:StrumNote) {
+			if (spr.animation.curAnim.name != "confirm" && keyID == spr.ID)
 				spr.playAnim("pressed");
-			if (!holdArray[spr.ID])
-				spr.playAnim("static");
 		});
 	}
 
+	function onKeyPressed(?e:Event) {
+		var holdArray:Array<Bool> = [controls.NOTE_LEFT, controls.NOTE_DOWN, controls.NOTE_UP, controls.NOTE_RIGHT];
+
+		if (holdArray.contains(true) && /*!boyfriend.stunned && */ generatedMusic) {
+			notes.forEachAlive(function(daNote:Note) {
+				if (daNote.isSustainNote && daNote.canBeHit && daNote.mustPress && holdArray[daNote.noteData])
+					goodNoteHit(daNote);
+			});
+		}
+
+		playerStrums.forEach(function(spr:StrumNote) {
+			if (spr.animation.curAnim.name != "confirm" && spr.animation.curAnim.name != "pressed" && holdArray[spr.ID])
+				spr.playAnim("pressed");
+		});
+	}
+
+	function onKeyJustReleased(?e:KeyboardEvent) {
+		var keyID:Int = -1;
+		var binds:Array<Array<FlxKey>> = [ClientPrefs.data.keyBinds["note_left"], ClientPrefs.data.keyBinds["note_down"], ClientPrefs.data.keyBinds["note_up"], ClientPrefs.data.keyBinds["note_right"]];
+		for (i in 0...binds.length) {
+			for (key in binds[i]) {
+				if (e.keyCode == key)
+					keyID = i;
+			}
+		}
+
+		if (keyID >= 0)
+			playerStrums.members[keyID].playAnim("static", true);
+	}
+
 	function noteMissPress(direction:Int = 1) {
+		if (ClientPrefs.data.ghostTapping)
+			return;
+		
 		#if AMORAL
 		missEffect.percent = 0.5;
 		#end
@@ -2755,9 +2702,9 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 
 		var altAnim:String = "";
 
-		if (SONG.notes[Math.floor(curStep / 16)] != null)
+		if (SONG.notes[Math.floor(Conductor.curStep / 16)] != null)
 		{
-			if (SONG.notes[Math.floor(curStep / 16)].altAnim)
+			if (SONG.notes[Math.floor(Conductor.curStep / 16)].altAnim)
 				altAnim = '-alt';
 		}
 
@@ -2881,7 +2828,7 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 		FlxG.sound.play(Paths.soundRandom('thunder_', 1, 2));
 		halloweenBG.animation.play('lightning');
 
-		lightningStrikeBeat = curBeat;
+		lightningStrikeBeat = Conductor.curBeat;
 		lightningOffset = FlxG.random.int(8, 24);
 
 		boyfriend.playAnim('scared', true);
@@ -2891,13 +2838,14 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 	override function stepHit()
 	{
 		super.stepHit();
+
 		if (Math.abs(FlxG.sound.music.time - (Conductor.songPosition - Conductor.offset)) > 20
 			|| (SONG.needsVoices && Math.abs(vocals.time - (Conductor.songPosition - Conductor.offset)) > 20))
 		{
 			resyncVocals();
 		}
 
-		if (dad.curCharacter == 'spooky' && curStep % 4 == 2)
+		if (dad.curCharacter == 'spooky' && Conductor.curStep % 4 == 2)
 		{
 			// dad.dance();
 		}
@@ -2915,11 +2863,11 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 			notes.sort(sortNotes, FlxSort.DESCENDING);
 		}
 
-		if (SONG.notes[Math.floor(curStep / 16)] != null)
+		if (SONG.notes[Math.floor(Conductor.curStep / 16)] != null)
 		{
-			if (SONG.notes[Math.floor(curStep / 16)].changeBPM)
+			if (SONG.notes[Math.floor(Conductor.curStep / 16)].changeBPM)
 			{
-				Conductor.changeBPM(SONG.notes[Math.floor(curStep / 16)].bpm);
+				Conductor.changeBPM(SONG.notes[Math.floor(Conductor.curStep / 16)].bpm);
 				FlxG.log.add('CHANGED BPM!');
 			}
 			// else
@@ -2932,13 +2880,13 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 
 		if (ClientPrefs.data.cameraZoom)
 		{
-			if (curSong.toLowerCase() == 'milf' && curBeat >= 168 && curBeat < 200 && camZooming && FlxG.camera.zoom < 1.35)
+			if (curSong.toLowerCase() == 'milf' && Conductor.curBeat >= 168 && Conductor.curBeat < 200 && camZooming && FlxG.camera.zoom < 1.35)
 			{
 				FlxG.camera.zoom += 0.015;
 				camHUD.zoom += 0.03;
 			}
 
-			if (camZooming && FlxG.camera.zoom < 1.35 && curBeat % 4 == 0)
+			if (camZooming && FlxG.camera.zoom < 1.35 && Conductor.curBeat % 4 == 0)
 			{
 				FlxG.camera.zoom += 0.015;
 				camHUD.zoom += 0.03;
@@ -2951,10 +2899,10 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 		iconP1.updateHitbox();
 		iconP2.updateHitbox();
 
-		if (curBeat % gfSpeed == 0)
+		if (Conductor.curBeat % gfSpeed == 0)
 			gf.dance();
 
-		if (curBeat % 2 == 0)
+		if (Conductor.curBeat % 2 == 0)
 		{
 			if (!boyfriend.animation.curAnim.name.startsWith("sing"))
 				boyfriend.playAnim('idle');
@@ -2967,12 +2915,12 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 				dad.dance();
 		}
 
-		if (curBeat % 8 == 7 && curSong == 'Bopeebo')
+		if (Conductor.curBeat % 8 == 7 && curSong == 'Bopeebo')
 		{
 			boyfriend.playAnim('hey', true);
 		}
 
-		if (curBeat % 16 == 15 && SONG.song == 'Tutorial' && dad.curCharacter == 'gf' && curBeat > 16 && curBeat < 48)
+		if (Conductor.curBeat % 16 == 15 && SONG.song == 'Tutorial' && dad.curCharacter == 'gf' && Conductor.curBeat > 16 && Conductor.curBeat < 48)
 		{
 			boyfriend.playAnim('hey', true);
 			dad.playAnim('cheer', true);
@@ -3006,7 +2954,7 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 				if (!trainMoving)
 					trainCooldown += 1;
 
-				if (curBeat % 4 == 0)
+				if (Conductor.curBeat % 4 == 0)
 				{
 					lightFadeShader.reset();
 
@@ -3021,7 +2969,7 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 					// phillyCityLights.members[curLight].alpha = 1;
 				}
 
-				if (curBeat % 8 == 4 && FlxG.random.bool(30) && !trainMoving && trainCooldown > 8)
+				if (Conductor.curBeat % 8 == 4 && FlxG.random.bool(30) && !trainMoving && trainCooldown > 8)
 				{
 					trainCooldown = FlxG.random.int(-4, 0);
 					trainStart();
@@ -3030,7 +2978,7 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 				tankWatchtower.dance();
 		}
 
-		if (isHalloween && FlxG.random.bool(10) && curBeat > lightningStrikeBeat + lightningOffset)
+		if (isHalloween && FlxG.random.bool(10) && Conductor.curBeat > lightningStrikeBeat + lightningOffset)
 		{
 			lightningStrikeShit();
 		}
@@ -3040,50 +2988,22 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 
 	function strumPlayAnim(isDad:Bool, id:Int, time:Float, ?note:Note = null, ?isSustain:Bool = false) {
 		var spr:StrumNote = null;
-		if (isDad) {
+		if (isDad)
 			spr = strumLineNotes.members[id];
-		} else {
+		 else
 			spr = playerStrums.members[id];
-		}
 
 		if (spr != null) {
-			spr.playAnim('confirm', true);
+			spr.playAnim("confirm", true);
 			spr.resetAnim = time;
 		}
 	}
 
-	public function getLuaObject(tag:String, text:Bool = true):FlxSprite {
-		if (luaSprites.exists(tag))
-			return luaSprites.get(tag);
+	override function destroy() {
+		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyJustPressed);
+		FlxG.stage.removeEventListener(Event.ENTER_FRAME, onKeyPressed);
+		FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyJustReleased);
 
-		if (text && luaTexts.exists(tag))
-			return luaTexts.get(tag);
-
-		return null;
-	}
-
-	public function callOnLuas(event:String, args:Array<Dynamic>, ignoreStops = true):Dynamic {
-		var returnVal:Dynamic = LuaScript.Function_Continue;
-		#if linc_luajit
-		for (script in luaScripts) {
-			var ret:Dynamic = script.call(event, args);
-			if(ret == LuaScript.Function_StopLua && !ignoreStops)
-				break;
-			
-			var bool:Bool = ret == LuaScript.Function_Continue;
-			if(!bool && ret != 0) {
-				returnVal = cast ret;
-			}
-		}
-		#end
-		return returnVal;
-	}
-
-	public function setOnLuas(variable:String, arg:Dynamic) {
-		#if linc_luajit
-		for (i in 0...luaScripts.length) {
-			luaScripts[i].set(variable, arg);
-		}
-		#end
+		super.destroy();
 	}
 }
