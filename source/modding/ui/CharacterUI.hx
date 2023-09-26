@@ -1,5 +1,6 @@
 package modding.ui;
 
+import flixel.addons.ui.FlxUINumericStepper;
 import flixel.FlxG;
 import flixel.addons.ui.FlxUICheckBox;
 import flixel.ui.FlxButton;
@@ -10,11 +11,18 @@ import flixel.addons.ui.FlxUI;
 class CharacterUI extends FlxUI {
     public var iconInputText:FlxUIInputText;
     public var imageInputText:FlxUIInputText;
+    public var nameInputText:FlxUIInputText;
+    public var animInputText:FlxUIInputText;
+    public var indicesInputText:FlxUIInputText;
 
     var characterList:Array<String> = [];
 
     var animations:Array<String> = [];
     var currentAnimation:Int = 0;
+    var selectedAnim:String = "";
+
+    var fpsStepper:FlxUINumericStepper;
+    var loopCheckBox:FlxUICheckBox;
 
     public function new() {
         super();
@@ -69,11 +77,53 @@ class CharacterUI extends FlxUI {
             for (anim in ModdingState.instance.characterDebug.json.animations)
                 anim.name
         ];
+        selectedAnim = animations[0];
 
         var animationsDropDown:FlxUIDropDownMenu = new FlxUIDropDownMenu(10, editorOffset, FlxUIDropDownMenu.makeStrIdLabelArray(animations, true), function(choice:String) {
-            currentAnimation = Std.parseInt(choice);
+            selectedAnim = animations[Std.parseInt(choice)];
         });
-        add(animationsDropDown);
+        insert(0, animationsDropDown);
+
+        var addButton:FlxButton = new FlxButton(animationsDropDown.x + animationsDropDown.width + 10, animationsDropDown.y, "Add/Update", function() {
+            var animName:String = nameInputText.text;
+            var animAnim:String = animInputText.text;
+            var animIndices:Array<Int> = [
+                for (ind in indicesInputText.text.split(","))
+                    Std.parseInt(ind)
+            ];
+            var animFps:Int = Std.int(fpsStepper.value);
+            var animLoop:Bool = loopCheckBox.checked;
+
+            if (animIndices.length > 0)
+                ModdingState.instance.characterDebug.character.animation.addByIndices(animName, animAnim, animIndices, "", animFps, animLoop);
+            else
+                ModdingState.instance.characterDebug.character.animation.addByPrefix(animName, animAnim, animFps, animLoop);
+
+            ModdingState.instance.characterDebug.json.animations.push({
+                name: animName,
+                anim: animAnim,
+                indices: animIndices,
+                fps: animFps,
+                loop: animLoop,
+                offsets: [0, 0]
+            });
+            ModdingState.instance.characterDebug.character.addOffset(animName);
+        });
+
+        nameInputText = new FlxUIInputText(10, animationsDropDown.y + 30, 175);
+        insert(0, nameInputText);
+
+        animInputText = new FlxUIInputText(10, nameInputText.y + nameInputText.height + 10, 175);
+        insert(0, animInputText);
+
+        indicesInputText = new FlxUIInputText(10, animInputText.y + animInputText.height + 10, 150);
+        insert(0, indicesInputText);
+
+        fpsStepper = new FlxUINumericStepper(indicesInputText.x + indicesInputText.width + 10, indicesInputText.y, 1, 24, 1);
+        insert(0, fpsStepper);
+
+        loopCheckBox = new FlxUICheckBox(fpsStepper.x + fpsStepper.width + 10, fpsStepper.y, null, null, "Loop");
+        insert(0, loopCheckBox);
     }
 
     override function update(elapsed:Float) {
