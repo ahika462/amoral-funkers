@@ -32,7 +32,7 @@ class SaveVariables {
 
         "reset"      => [R],
         "accept"     => [SPACE, ENTER],
-        "pause"      => [ESCAPE, ENTER],
+        "pause"      => [ENTER, ESCAPE],
         "back"       => [ESCAPE, BACKSPACE]
     ];
 

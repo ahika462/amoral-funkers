@@ -62,14 +62,8 @@ class MainMenuState extends MusicBeatState {
 			add(magenta);
 
 		menuItems = new MenuTypedList<FlxSprite>(lastSelected);
-		menuItems.onChange = function(step:Int = 0) {
-			menuItems.selectedIndex += step;
-
-			if (menuItems.selectedIndex >= menuItems.length)
-				menuItems.selectedIndex = 0;
-			if (menuItems.selectedIndex < 0)
-				menuItems.selectedIndex = menuItems.length - 1;
-
+		menuItems.checkBounds = true;
+		menuItems.onChange = function(step:Int) {
 			menuItems.forEach(function(spr:FlxSprite) {
 				spr.animation.play("idle");
 				spr.updateHitbox();
@@ -117,7 +111,7 @@ class MainMenuState extends MusicBeatState {
 								case "credits":
 									FlxG.switchState(new CredtitsState());
 								case "options":
-									// LoadingState.loadAndSwitchState(new options.OptionsState());
+									FlxG.switchState(new ui.OptionsState());
 							}
 						});
 					}
@@ -145,7 +139,7 @@ class MainMenuState extends MusicBeatState {
 			menuItem.updateHitbox();
 		}
 
-		menuItems.onChange();
+		menuItems.change();
 
 		FlxG.cameras.reset(new SwagCamera());
 		FlxG.camera.follow(camFollow, null, 0.06);
@@ -162,17 +156,17 @@ class MainMenuState extends MusicBeatState {
 		if (FlxG.sound.music.volume < 0.8)
 			FlxG.sound.music.volume += 0.5 * FlxG.elapsed;
 
+		if (controls.UI_UP_P) {
+			FlxG.sound.play(Paths.sound("scrollMenu"));
+			menuItems.change(-1);
+		}
+
+		if (controls.UI_DOWN_P) {
+			FlxG.sound.play(Paths.sound("scrollMenu"));
+			menuItems.change(1);
+		}
+
 		if (!menuItems.selected) {
-			if (controls.UI_UP_P) {
-				FlxG.sound.play(Paths.sound("scrollMenu"));
-				menuItems.onChange(-1);
-			}
-
-			if (controls.UI_DOWN_P) {
-				FlxG.sound.play(Paths.sound("scrollMenu"));
-				menuItems.onChange(1);
-			}
-
 			if (controls.BACK) {
 				FlxG.sound.play(Paths.sound("cancelMenu"));
 				menuItems.selected = true;
@@ -181,8 +175,11 @@ class MainMenuState extends MusicBeatState {
 
 			if (controls.ACCEPT) {
 				FlxG.sound.play(Paths.sound("confirmMenu"));
-				menuItems.onSelect();
+				menuItems.select(false);
 			}
+
+			if (FlxG.keys.justPressed.SEVEN)
+				LoadingState.loadAndSwitchState(new modding.ModdingState());
 		}
 		
 		super.update(elapsed);

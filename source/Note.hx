@@ -44,6 +44,9 @@ class Note extends FlxSprite
 	public var missHealth:Float;
 
 	public var copyX:Bool = true;
+	public var copyAlpha:Bool = true;
+	public var copyAngle:Bool = true;
+
 	public var offsetX:Float = 0;
 
 	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false)
@@ -208,7 +211,7 @@ class Note extends FlxSprite
 			{
 				if (strumTime > Conductor.songPosition - Conductor.safeZoneOffset)
 				{ // The * 0.5 is so that it's easier to hit them too late, instead of too early
-					if (strumTime <= Conductor.songPosition + (Conductor.safeZoneOffset * 0.5))
+					if (strumTime <= Conductor.songPosition + Conductor.safeZoneOffset)
 						canBeHit = true;
 				}
 				else

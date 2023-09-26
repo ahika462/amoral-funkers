@@ -9,6 +9,10 @@ class MusicBeatState extends FlxUIState {
 	inline function get_controls():Controls
 		return PlayerSettings.player1.controls;
 
+	public function new() {
+		super();
+	}
+
 	override function create() {
 		Conductor.onStepHit.add(stepHit);
 		Conductor.onBeatHit.add(beatHit);

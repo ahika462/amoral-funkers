@@ -1,5 +1,6 @@
 package;
 
+import gifatlas.GifAtlas;
 import animateatlas.AtlasFrameMaker;
 import haxe.Json;
 import Section.SwagSection;
@@ -35,7 +36,7 @@ class Character extends FlxSprite
 	public var animOffsets:Map<String, Array<Dynamic>>;
 	public var debugMode:Bool = false;
 
-	public var isPlayer:Bool = false;
+	public var isPlayer(default, set):Bool = false;
 	public var curCharacter:String = 'bf';
 
 	public var holdTimer:Float = 0;
@@ -56,8 +57,12 @@ class Character extends FlxSprite
 		antialiasing = true;
 
 		switch(curCharacter) {
+			case "h4mster":
+				frames = GifAtlas.build("characters/h4mster");
+				animation.addByPrefix("idle", "h4mster idle", 24, false);
+
 			default:
-				var json:CharacterFile = cast Json.parse(Paths.getEmbedText("characters/" + character + ".json"));
+				var json:CharacterFile = cast Json.parse(Paths.getEmbedText("characters/" + character + ".json")).character;
 		
 				if (Paths.exists("images/" + json.image + ".xml", TEXT))
 					frames = Paths.getSparrowAtlas(json.image);
@@ -65,6 +70,8 @@ class Character extends FlxSprite
 					frames = Paths.getPackerAtlas(json.image);
 				else if (Paths.exists("images/" + json.image + "/Animation.json", TEXT))
 					frames = AtlasFrameMaker.construct(json.image);
+				else
+					frames = GifAtlas.build(json.image);
 		
 				antialiasing = json.no_antialiasing ? false : ClientPrefs.data.antialiasing;
 				healthIcon = json.healthicon;
@@ -106,9 +113,13 @@ class Character extends FlxSprite
 
 		dance();
 		animation.finish();
+	}
 
-		if (isPlayer)
+	function set_isPlayer(value:Bool):Bool {
+		if (isPlayer != value)
 			flipX = !flipX;
+
+		return isPlayer = value;
 	}
 
 	public function loadMappedAnims()

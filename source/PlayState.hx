@@ -2104,6 +2104,12 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 				if (daNote.copyX)
 					daNote.x = (daNote.mustPress ? playerStrums : opponentStrums).members[daNote.noteData].x + daNote.offsetX;
 
+				if (daNote.copyAlpha)
+					daNote.alpha = (daNote.mustPress ? playerStrums : opponentStrums).members[daNote.noteData].alpha;
+
+				if (daNote.copyAngle)
+					daNote.angle = (daNote.mustPress ? playerStrums : opponentStrums).members[daNote.noteData].angle;
+
 				var strumLineMid = strumLine.y + Note.swagWidth / 2;
 
 				if (ClientPrefs.data.downscroll)
@@ -2184,6 +2190,10 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 				}
 			});
 		}
+
+		var holdArray:Array<Bool> = [controls.NOTE_LEFT, controls.NOTE_DOWN, controls.NOTE_UP, controls.NOTE_RIGHT];
+		if (boyfriend.holdTimer > Conductor.stepCrochet * 4 * 0.001 && !holdArray.contains(true) && boyfriend.animation.curAnim.name.startsWith('sing') && !boyfriend.animation.curAnim.name.endsWith('miss'))
+				boyfriend.playAnim('idle');
 	}
 
 	function killCombo():Void
@@ -2505,6 +2515,8 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 		if (keyID >= 0 && /*!boyfriend.stunned && */ generatedMusic) {
 			boyfriend.holdTimer = 0;
 
+			var possibleNotes:Array<Note> = [];
+
 			var possibleNotes:Array<Note> = []; // notes that can be hit
 			var directionList:Array<Int> = []; // directions that can be hit
 			var dumbNotes:Array<Note> = []; // notes to kill later
@@ -2626,7 +2638,7 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 		missEffect.percent = 0.5;
 		#end
 		
-		health -= 0.0475;
+		health -= daNote.missHealth;
 		vocals.volume = 0;
 		killCombo();
 
@@ -2671,10 +2683,7 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 				popUpScore(note);
 			}
 
-			if (note.noteData >= 0)
-				health += 0.023;
-			else
-				health += 0.004;
+			health += note.hitHealth;
 
 			boyfriend.playAnim(singAnims[note.noteData], true);
 

@@ -157,5 +157,9 @@ class Paths
 	public static function getAmoralText(key:String):String {
 		return OpenFlAssets.getText(getAmoralStuff(key, TEXT));
 	}
+
+	public static function getAmoralFile(key:String):String {
+		return "assets/amoral/" + key;
+	}
 	#end
 }
