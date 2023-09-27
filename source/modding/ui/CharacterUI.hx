@@ -29,7 +29,7 @@ class CharacterUI extends FlxUI {
 
     var debug:CharacterDebugger;
 
-    var colorShow:FlxSprite;
+    var colorShow:FlxUIInputText;
     public var redStepper:FlxUINumericStepper;
     public var greenStepper:FlxUINumericStepper;
     public var blueStepper:FlxUINumericStepper;
@@ -81,7 +81,9 @@ class CharacterUI extends FlxUI {
         }
         insert(0, flipCheckBox);
 
-        colorShow = new FlxSprite(10, flipCheckBox.y + flipCheckBox.height + 10).makeGraphic(30, 1, FlxColor.WHITE);
+        // colorShow = new FlxSprite(10, flipCheckBox.y + flipCheckBox.height + 10).makeGraphic(30, 1, FlxColor.WHITE);
+
+        colorShow = new FlxUIInputText(10, flipCheckBox.y + flipCheckBox.height + 10, 30, "");
         insert(0, colorShow);
 
         redStepper = new FlxUINumericStepper(colorShow.x + colorShow.width + 10, flipCheckBox.y + flipCheckBox.height + 10, 1, 255, 0, 255);
@@ -93,8 +95,7 @@ class CharacterUI extends FlxUI {
         blueStepper = new FlxUINumericStepper(greenStepper.x + greenStepper.width + 10, greenStepper.y, 1, 255, 0, 255);
         insert(0, blueStepper);
 
-        colorShow.scale.y = redStepper.height;
-        colorShow.updateHitbox();
+        updateColor();
 
         editorOffset = 250;
 
@@ -235,8 +236,18 @@ class CharacterUI extends FlxUI {
     }
 
     override function update(elapsed:Float) {
-        colorShow.makeGraphic(30, 1, FlxColor.fromRGB(Std.int(redStepper.value), Std.int(greenStepper.value), Std.int(blueStepper.value)));
+        updateColor();
 
         super.update(elapsed);
+
+        colorShow.hasFocus = false;
+    }
+
+    function updateColor() {
+        var showColor:FlxColor = FlxColor.WHITE;
+        showColor.red = Std.int(redStepper.value);
+        showColor.green = Std.int(greenStepper.value);
+        showColor.blue = Std.int(blueStepper.value);
+        colorShow.backgroundColor = showColor;
     }
 }

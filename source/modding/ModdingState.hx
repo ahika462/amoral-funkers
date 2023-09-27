@@ -1,5 +1,6 @@
 package modding;
 
+import modding.editors.ChartDebugger;
 import flixel.FlxObject;
 import modding.ui.*;
 import flixel.addons.ui.FlxUIInputText;
@@ -30,11 +31,9 @@ class ModdingState extends MusicBeatState {
     var camHUD:FlxCamera = new FlxCamera();
 
     public var characterDebug:CharacterDebugger;
+    public var chartDebug:ChartDebugger;
 
     var characterUI:CharacterUI;
-
-    var charIconInputText:FlxUIInputText;
-    var charImageInputText:FlxUIInputText;
 
     override function create() {
         instance = this;
@@ -60,8 +59,7 @@ class ModdingState extends MusicBeatState {
         
         mainTabUI = new FlxUITabMenu([
             {name: "Characters", label: "Characters"},
-            {name: "Songs", label: "Songs"},
-            {name: "Chars", label: "Chars"},
+            {name: "Charts", label: "Charts"},
             {name: "Weeks", label: "Weeks"}
         ], true);
         mainTabUI.setPosition(10, 10);
@@ -69,19 +67,20 @@ class ModdingState extends MusicBeatState {
         mainTabUI.cameras = [camHUD];
         add(mainTabUI);
 
-        characterDebug = cast init(new CharacterDebugger());
+        characterDebug = cast initDebugger(new CharacterDebugger());
+        chartDebug = cast initDebugger(new ChartDebugger());
 
         addCharacterUI();
-        addStageUI();
-        addSongUI();
+        addChartUI();
         addWeekUI();
 
         super.create();
     }
 
-    function init(debug:BaseDebugger):BaseDebugger {
+    function initDebugger(debug:BaseDebugger):BaseDebugger {
         add(debug);
-        return cast remove(debug);
+        remove(debug);
+        return debug;
     }
 
     var characterList:Array<String> = [];
@@ -101,12 +100,8 @@ class ModdingState extends MusicBeatState {
             inputTexts.push(cast characterUI.blueStepper.text_field);
         }
     }
-
-    function addStageUI() {
-
-    }
     
-    function addSongUI() {
+    function addChartUI() {
 
     }
 
@@ -159,8 +154,9 @@ class ModdingState extends MusicBeatState {
             case "Characters":
                 if (subState != characterDebug)
                     openSubState(characterDebug);
-            case "Songs":
-                closeSubState();
+            case "Charts":
+                if (subState != chartDebug)
+                    openSubState(chartDebug);
             case "Chars":
                 closeSubState();
             case "Weeks":

@@ -42,8 +42,6 @@ class GifAtlas {
             bitmapData.setPixels(new Rectangle(x, 0, bitmap.width, bitmap.height), bitmap.getPixels(bitmap.rect));
         }
 
-        trace("frames found: " + bitmaps.length);
-
         var frames:FlxAtlasFrames = new FlxAtlasFrames(FlxGraphic.fromBitmapData(bitmapData));
         for (i in 0...bitmaps.length) {
             var x:Int = bitmaps[i][0];
