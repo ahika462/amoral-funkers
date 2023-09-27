@@ -1,5 +1,6 @@
 package modding;
 
+import flixel.FlxObject;
 import modding.ui.*;
 import flixel.addons.ui.FlxUIInputText;
 import flixel.addons.ui.FlxUICheckBox;
@@ -23,7 +24,7 @@ using StringTools;
 class ModdingState extends MusicBeatState {
     public static var instance:ModdingState;
 
-    var mainTabUI:FlxUITabMenu;
+    public var mainTabUI:FlxUITabMenu;
 
     var camEditor:FlxCamera = new FlxCamera();
     var camHUD:FlxCamera = new FlxCamera();
@@ -60,10 +61,11 @@ class ModdingState extends MusicBeatState {
         mainTabUI = new FlxUITabMenu([
             {name: "Characters", label: "Characters"},
             {name: "Songs", label: "Songs"},
+            {name: "Chars", label: "Chars"},
             {name: "Weeks", label: "Weeks"}
         ], true);
         mainTabUI.setPosition(10, 10);
-        mainTabUI.resize(FlxG.width / 4 - mainTabUI.x * 2, FlxG.height - mainTabUI.y * 2);
+        mainTabUI.resize(FlxG.width / 4 - mainTabUI.x * 2 + 20, FlxG.height - mainTabUI.y * 2);
         mainTabUI.cameras = [camHUD];
         add(mainTabUI);
 
@@ -89,6 +91,15 @@ class ModdingState extends MusicBeatState {
 
         inputTexts.push(characterUI.iconInputText);
         inputTexts.push(characterUI.imageInputText);
+        inputTexts.push(characterUI.nameInputText);
+        inputTexts.push(characterUI.animInputText);
+        inputTexts.push(characterUI.indicesInputText);
+        @:privateAccess {
+            inputTexts.push(cast characterUI.fpsStepper.text_field);
+            inputTexts.push(cast characterUI.redStepper.text_field);
+            inputTexts.push(cast characterUI.greenStepper.text_field);
+            inputTexts.push(cast characterUI.blueStepper.text_field);
+        }
     }
 
     function addStageUI() {
@@ -110,20 +121,21 @@ class ModdingState extends MusicBeatState {
     }
 
     var inputTexts:Array<FlxUIInputText> = [];
-    var anyFocused:Bool = false;
+    public var anyFocused(get, never):Bool;
+    function get_anyFocused():Bool {
+        var returnVal:Bool = false;
+        for (text in inputTexts) {
+            if (text.hasFocus)
+                returnVal = true;
+        }
+        return returnVal;
+    }
 
     var exiting:Bool = false;
     override function update(elapsed:Float) {
-        for (text in inputTexts) {
-            if (text.hasFocus)
-                anyFocused = true;
-        }
-        
         var keys:Array<FlxKey> = [ESCAPE];
         if (!anyFocused)
             keys.push(BACKSPACE);
-
-        anyFocused = false;
 
         if (FlxG.keys.anyJustPressed(keys)) {
             exiting = true;
@@ -145,11 +157,11 @@ class ModdingState extends MusicBeatState {
 
         switch(mainTabUI.selected_tab_id) {
             case "Characters":
-                if (subState != characterDebug) {
-                    closeSubState();
+                if (subState != characterDebug)
                     openSubState(characterDebug);
-                }
             case "Songs":
+                closeSubState();
+            case "Chars":
                 closeSubState();
             case "Weeks":
                 closeSubState();

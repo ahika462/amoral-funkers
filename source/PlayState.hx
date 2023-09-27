@@ -869,7 +869,7 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 		healthBar = new FlxBar(healthBarBG.x + 4, healthBarBG.y + 4, RIGHT_TO_LEFT, Std.int(healthBarBG.width - 8), Std.int(healthBarBG.height - 8), this,
 			'health', 0, 2);
 		healthBar.scrollFactor.set();
-		healthBar.createFilledBar(0xFFFF0000, 0xFF66FF33);
+		reloadHealthBarColors();
 		// healthBar
 		add(healthBar);
 
@@ -3014,5 +3014,9 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyJustReleased);
 
 		super.destroy();
+	}
+
+	function reloadHealthBarColors() {
+		healthBar.createFilledBar(dad.healthColor, boyfriend.healthColor);
 	}
 }

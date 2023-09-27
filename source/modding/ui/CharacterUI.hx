@@ -1,5 +1,10 @@
 package modding.ui;
 
+import flixel.addons.ui.StrNameLabel;
+import flixel.util.FlxColor;
+import flixel.FlxSprite;
+import modding.editors.CharacterDebugger;
+import Character.AnimArray;
 import flixel.addons.ui.FlxUINumericStepper;
 import flixel.FlxG;
 import flixel.addons.ui.FlxUICheckBox;
@@ -7,6 +12,8 @@ import flixel.ui.FlxButton;
 import flixel.addons.ui.FlxUIDropDownMenu;
 import flixel.addons.ui.FlxUIInputText;
 import flixel.addons.ui.FlxUI;
+
+using StringTools;
 
 class CharacterUI extends FlxUI {
     public var iconInputText:FlxUIInputText;
@@ -17,106 +24,190 @@ class CharacterUI extends FlxUI {
 
     var characterList:Array<String> = [];
 
-    var animations:Array<String> = [];
-    var currentAnimation:Int = 0;
-    var selectedAnim:String = "";
-
-    var fpsStepper:FlxUINumericStepper;
+    public var fpsStepper:FlxUINumericStepper;
     var loopCheckBox:FlxUICheckBox;
+
+    var debug:CharacterDebugger;
+
+    var colorShow:FlxSprite;
+    public var redStepper:FlxUINumericStepper;
+    public var greenStepper:FlxUINumericStepper;
+    public var blueStepper:FlxUINumericStepper;
 
     public function new() {
         super();
         name = "Characters";
+        debug = ModdingState.instance.characterDebug;
 
         characterList = CoolUtil.coolTextFile(Paths.txt("characterList"));
-        var charactersDropdown:FlxUIDropDownMenu = new FlxUIDropDownMenu(10, 10, FlxUIDropDownMenu.makeStrIdLabelArray(characterList, true), function(choice:String) {
-            ModdingState.instance.characterDebug.curCharacter = characterList[Std.parseInt(choice)];
-        });
+        var charactersDropdown:FlxUIDropDownMenu = new FlxUIDropDownMenu(10, 10, FlxUIDropDownMenu.makeStrIdLabelArray(characterList, true));
         add(charactersDropdown);
 
         var saveButton:FlxButton = new FlxButton(charactersDropdown.x + charactersDropdown.width + 10, 10, "Save", function() {
-            ModdingState.instance.characterDebug.json.healthicon = iconInputText.text;
-            ModdingState.instance.saveFile(ModdingState.instance.characterDebug.json);
+            debug.json.healthicon = iconInputText.text;
+            debug.json.healthbar_colors = [colorShow.color.red, colorShow.color.green, colorShow.color.blue];
+            ModdingState.instance.saveFile(debug.json);
         });
         add(saveButton);
 
         var editorOffset:Float = 100;
 
-        iconInputText = new FlxUIInputText(10, editorOffset, 75, ModdingState.instance.characterDebug.character.json.healthicon);
+        iconInputText = new FlxUIInputText(10, editorOffset, 75, debug.character.json.healthicon);
         insert(0, iconInputText);
 
         var playerCheckBox:FlxUICheckBox = new FlxUICheckBox(iconInputText.x + iconInputText.width + 10, editorOffset, null, null, "Is Player");
         playerCheckBox.callback = function() {
-            ModdingState.instance.characterDebug.character.isPlayer = playerCheckBox.checked;
+            debug.character.isPlayer = playerCheckBox.checked;
         }
         insert(0, playerCheckBox);
 
-        imageInputText = new FlxUIInputText(10, playerCheckBox.y + playerCheckBox.height + 10, 175, ModdingState.instance.characterDebug.json.image);
+        imageInputText = new FlxUIInputText(10, playerCheckBox.y + playerCheckBox.height + 10, 175, debug.json.image);
         insert(0, imageInputText);
 
         var reloadButton:FlxButton = new FlxButton(imageInputText.x + imageInputText.width + 10, imageInputText.y, "Reload", function() {
-            ModdingState.instance.characterDebug.json.image = imageInputText.text;
-            ModdingState.instance.characterDebug.character.updateCharacter();
+            debug.json.image = imageInputText.text;
+            debug.character.updateCharacter();
         });
         add(reloadButton);
 
         var flipCheckBox:FlxUICheckBox = new FlxUICheckBox(10, imageInputText.y + imageInputText.height + 10, null, null, "Flip X");
-        flipCheckBox.checked = ModdingState.instance.characterDebug.json.flip_x;
+        flipCheckBox.checked = debug.json.flip_x;
         flipCheckBox.callback = function() {
-            ModdingState.instance.characterDebug.json.flip_x = flipCheckBox.checked;
+            debug.json.flip_x = flipCheckBox.checked;
 
-            ModdingState.instance.characterDebug.character.flipX = ModdingState.instance.characterDebug.json.flip_x;
-			if (ModdingState.instance.characterDebug.character.isPlayer)
-                ModdingState.instance.characterDebug.character.flipX = !ModdingState.instance.characterDebug.character.flipX;
+            debug.character.flipX = debug.json.flip_x;
+			if (debug.character.isPlayer)
+                debug.character.flipX = !debug.character.flipX;
         }
         insert(0, flipCheckBox);
 
-        editorOffset = 200;
+        colorShow = new FlxSprite(10, flipCheckBox.y + flipCheckBox.height + 10).makeGraphic(30, 1, FlxColor.WHITE);
+        insert(0, colorShow);
 
-        animations = [
-            for (anim in ModdingState.instance.characterDebug.json.animations)
-                anim.name
-        ];
-        selectedAnim = animations[0];
+        redStepper = new FlxUINumericStepper(colorShow.x + colorShow.width + 10, flipCheckBox.y + flipCheckBox.height + 10, 1, 255, 0, 255);
+        insert(0, redStepper);
 
-        var animationsDropDown:FlxUIDropDownMenu = new FlxUIDropDownMenu(10, editorOffset, FlxUIDropDownMenu.makeStrIdLabelArray(animations, true), function(choice:String) {
-            selectedAnim = animations[Std.parseInt(choice)];
+        greenStepper = new FlxUINumericStepper(redStepper.x + redStepper.width + 10, redStepper.y, 1, 255, 0, 255);
+        insert(0, greenStepper);
+
+        blueStepper = new FlxUINumericStepper(greenStepper.x + greenStepper.width + 10, greenStepper.y, 1, 255, 0, 255);
+        insert(0, blueStepper);
+
+        colorShow.scale.y = redStepper.height;
+        colorShow.updateHitbox();
+
+        editorOffset = 250;
+
+        var daArray:Array<StrNameLabel> = [new StrNameLabel("-1", "")];
+            for (anim in debug.character.getAnimNames())
+                daArray.push(new StrNameLabel(Std.string(debug.character.getAnimNames().indexOf(anim)), anim));
+
+        var animationsDropDown:FlxUIDropDownMenu = new FlxUIDropDownMenu(10, editorOffset, daArray, function(choice:String) {
+            var anim:AnimArray = null;
+            for (i in debug.json.animations) {
+                if (i.anim == debug.character.getAnimNames()[Std.parseInt(choice)])
+                    anim = i;
+            }
+
+            if (anim != null) {
+                nameInputText.text = anim.anim;
+                animInputText.text = anim.name;
+                indicesInputText.text = Std.string(anim.indices).replace("[", "").replace("]", "");
+                fpsStepper.value = anim.fps;
+                loopCheckBox.checked = anim.loop;
+            }
         });
         insert(0, animationsDropDown);
 
         var addButton:FlxButton = new FlxButton(animationsDropDown.x + animationsDropDown.width + 10, animationsDropDown.y, "Add/Update", function() {
-            var animName:String = nameInputText.text;
-            var animAnim:String = animInputText.text;
+            var animAnim:String = nameInputText.text;
+            var animName:String = animInputText.text;
             var animIndices:Array<Int> = [
-                for (ind in indicesInputText.text.split(","))
-                    Std.parseInt(ind)
+                for (ind in indicesInputText.text.split(",")) {
+                    if (ind.replace(" ", "").length > 0 && Math.isNaN(Std.parseInt(ind)))
+                        Std.parseInt(ind);
+                }
             ];
             var animFps:Int = Std.int(fpsStepper.value);
             var animLoop:Bool = loopCheckBox.checked;
 
+            var animIndex:Int = -1;
+            for (anim in debug.json.animations) {
+                if (anim.anim == nameInputText.text) {
+                    animIndex = debug.json.animations.indexOf(anim);
+                    debug.json.animations.remove(anim);
+                }
+            }
+
             if (animIndices.length > 0)
-                ModdingState.instance.characterDebug.character.animation.addByIndices(animName, animAnim, animIndices, "", animFps, animLoop);
+                debug.character.animation.addByIndices(animAnim, animName, animIndices, "", animFps, animLoop);
             else
-                ModdingState.instance.characterDebug.character.animation.addByPrefix(animName, animAnim, animFps, animLoop);
+                debug.character.animation.addByPrefix(animAnim, animName, animFps, animLoop);
 
-            ModdingState.instance.characterDebug.json.animations.push({
-                name: animName,
-                anim: animAnim,
-                indices: animIndices,
-                fps: animFps,
-                loop: animLoop,
-                offsets: [0, 0]
-            });
-            ModdingState.instance.characterDebug.character.addOffset(animName);
+            if (animIndex == -1)
+                debug.json.animations.push({
+                    name: animName,
+                    anim: animAnim,
+                    indices: animIndices,
+                    fps: animFps,
+                    loop: animLoop,
+                    offsets: [0, 0]
+                });
+            else
+                debug.json.animations.insert(animIndex, {
+                    name: animName,
+                    anim: animAnim,
+                    indices: animIndices,
+                    fps: animFps,
+                    loop: animLoop,
+                    offsets: [0, 0]
+                });
+
+            debug.character.addOffset(animName);
+
+            var daArray:Array<StrNameLabel> = [new StrNameLabel("-1", "")];
+            for (anim in debug.character.getAnimNames())
+                daArray.push(new StrNameLabel(Std.string(debug.character.getAnimNames().indexOf(anim)), anim));
+
+            var daLayer:Int = members.indexOf(animationsDropDown);
+            remove(animationsDropDown);
+            animationsDropDown = new FlxUIDropDownMenu(animationsDropDown.x, animationsDropDown.y, daArray, animationsDropDown.callback);
+            insert(daLayer, animationsDropDown);
         });
+        insert(0, addButton);
 
-        nameInputText = new FlxUIInputText(10, animationsDropDown.y + 30, 175);
+        var removeButton:FlxButton = new FlxButton(addButton.x + addButton.width + 10, addButton.y, "Remove", function() {
+            for (anim in debug.json.animations) {
+                if (anim.anim == nameInputText.text)
+                    debug.json.animations.remove(anim);
+            }
+
+            var nextAnimID:Int = debug.character.getAnimNames().indexOf(debug.character.animation.curAnim.name) + 1;
+            if (nextAnimID > debug.character.getAnimNames().length - 1)
+                nextAnimID = 0;
+
+            debug.character.playAnim(debug.character.getAnimNames()[nextAnimID]);
+            
+            var daArray:Array<StrNameLabel> = [new StrNameLabel("-1", "")];
+            for (anim in debug.character.getAnimNames())
+                daArray.push(new StrNameLabel(Std.string(debug.character.getAnimNames().indexOf(anim)), anim));
+
+            var daLayer:Int = members.indexOf(animationsDropDown);
+            remove(animationsDropDown);
+            animationsDropDown = new FlxUIDropDownMenu(animationsDropDown.x, animationsDropDown.y, daArray, animationsDropDown.callback);
+            insert(daLayer, animationsDropDown);
+
+            debug.character.animation.remove(nameInputText.text);
+        });
+        insert(0, removeButton);
+
+        nameInputText = new FlxUIInputText(10, animationsDropDown.y + 30, 175, "");
         insert(0, nameInputText);
 
-        animInputText = new FlxUIInputText(10, nameInputText.y + nameInputText.height + 10, 175);
+        animInputText = new FlxUIInputText(10, nameInputText.y + nameInputText.height + 10, 175, "");
         insert(0, animInputText);
 
-        indicesInputText = new FlxUIInputText(10, animInputText.y + animInputText.height + 10, 150);
+        indicesInputText = new FlxUIInputText(10, animInputText.y + animInputText.height + 10, 150, "");
         insert(0, indicesInputText);
 
         fpsStepper = new FlxUINumericStepper(indicesInputText.x + indicesInputText.width + 10, indicesInputText.y, 1, 24, 1);
@@ -124,28 +215,27 @@ class CharacterUI extends FlxUI {
 
         loopCheckBox = new FlxUICheckBox(fpsStepper.x + fpsStepper.width + 10, fpsStepper.y, null, null, "Loop");
         insert(0, loopCheckBox);
+
+        charactersDropdown.callback = function(choice:String) {
+            debug.curCharacter = characterList[Std.parseInt(choice)];
+
+            iconInputText.text = debug.json.healthicon;
+            imageInputText.text = debug.json.image;
+            flipCheckBox.checked = debug.json.flip_x;
+
+            var daArray:Array<StrNameLabel> = [new StrNameLabel("-1", "")];
+            for (anim in debug.character.getAnimNames())
+                daArray.push(new StrNameLabel(Std.string(debug.character.getAnimNames().indexOf(anim)), anim));
+
+            var daLayer:Int = members.indexOf(animationsDropDown);
+            remove(animationsDropDown);
+            animationsDropDown = new FlxUIDropDownMenu(animationsDropDown.x, animationsDropDown.y, daArray, animationsDropDown.callback);
+            insert(daLayer, animationsDropDown);
+        }
     }
 
     override function update(elapsed:Float) {
-        if (FlxG.keys.justPressed.W) {
-            currentAnimation--;
-            if (currentAnimation < 0)
-                currentAnimation = animations.length - 1;
-            else if (currentAnimation > animations.length - 1)
-                currentAnimation = 0;
-
-            ModdingState.instance.characterDebug.character.playAnim(animations[currentAnimation]);
-        }
-        
-        if (FlxG.keys.justPressed.S) {
-            currentAnimation++;
-            if (currentAnimation < 0)
-                currentAnimation = animations.length - 1;
-            else if (currentAnimation > animations.length - 1)
-                currentAnimation = 0;
-
-            ModdingState.instance.characterDebug.character.playAnim(animations[currentAnimation]);
-        }
+        colorShow.makeGraphic(30, 1, FlxColor.fromRGB(Std.int(redStepper.value), Std.int(greenStepper.value), Std.int(blueStepper.value)));
 
         super.update(elapsed);
     }

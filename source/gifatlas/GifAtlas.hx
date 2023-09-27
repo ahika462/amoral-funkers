@@ -1,7 +1,5 @@
 package gifatlas;
 
-import openfl.display.PNGEncoderOptions;
-import sys.io.File;
 import flixel.graphics.FlxGraphic;
 import openfl.geom.Rectangle;
 import openfl.utils.ByteArray;
@@ -41,7 +39,7 @@ class GifAtlas {
             var x:Int = data[0];
             var bitmap:BitmapData = data[1];
 
-            bitmapData.setPixels(new Rectangle(x, 0, bitmap.width, bitmap.height), bitmap.getPixels(new Rectangle(0, 0, bitmap.width, bitmap.height)));
+            bitmapData.setPixels(new Rectangle(x, 0, bitmap.width, bitmap.height), bitmap.getPixels(bitmap.rect));
         }
 
         trace("frames found: " + bitmaps.length);
@@ -54,8 +52,6 @@ class GifAtlas {
 
             frames.addAtlasFrame(new FlxRect(x, 0, bitmap.width, bitmap.height), new FlxPoint(bitmap.width, bitmap.height), new FlxPoint(), name);
         }
-
-        File.saveBytes("h4mster.png", bitmapData.encode(bitmapData.rect, new PNGEncoderOptions()));
 
         return frames;
     }

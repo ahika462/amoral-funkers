@@ -1,5 +1,8 @@
 package modding.editors;
 
+import flixel.addons.display.FlxGridOverlay;
+import flixel.util.FlxColor;
+import flixel.text.FlxText;
 import flixel.FlxG;
 import gifatlas.GifAtlas;
 import animateatlas.AtlasFrameMaker;
@@ -13,26 +16,92 @@ class CharacterDebugger extends BaseDebugger {
 
     public var json(get, set):CharacterFile;
 
+    var offsetTxt:FlxText;
+
     public function new(char:String = "bf") {
         super();
 
-        var bg:BGSprite = new BGSprite('stageback', -600, -200, 0.9, 0.9);
+        var bg:FlxSprite = FlxGridOverlay.create(10, 10);
+        bg.scrollFactor.set(0.5, 0.5);
         add(bg);
-
-        var stageFront:BGSprite = new BGSprite("stagefront", -650, 600, 0.9, 0.9);
-        stageFront.setGraphicSize(Std.int(stageFront.width * 1.1));
-        stageFront.updateHitbox();
-        add(stageFront);
-        
-        var stageCurtains:BGSprite = new BGSprite("stagecurtains", -500, -300, 1.3, 1.3);
-        stageCurtains.setGraphicSize(Std.int(stageCurtains.width * 0.9));
-        stageCurtains.updateHitbox();
-        add(stageCurtains);
 
         character = new EditorCharacter(400, 130, cast Json.parse(Paths.getEmbedText("characters/" + curCharacter + ".json")).character, false);
         add(character);
 
         curCharacter = char;
+
+        offsetTxt = new FlxText(ModdingState.instance.mainTabUI.x + ModdingState.instance.mainTabUI.width + 10, 10, FlxG.width, "");
+        offsetTxt.setFormat(Paths.font("vcr.ttf"), 16, OUTLINE, FlxColor.BLACK);
+        add(offsetTxt);
+
+        for (anim in character.animation.getNameList())
+            offsetTxt.text += anim + ": " + character.animOffsets[anim] + "\n";
+    }
+
+    override function update(elapsed:Float) {
+        offsetTxt.text = "";
+        for (anim in character.getAnimNames())
+            offsetTxt.text += anim + ": " + character.animOffsets[anim] + "\n";
+
+        if (!ModdingState.instance.anyFocused) {
+            if (FlxG.keys.pressed.J)
+                character.velocity.x = 300;
+            else if (FlxG.keys.pressed.L)
+                character.velocity.x = -300;
+            else
+                character.velocity.x = 0;
+    
+            if (FlxG.keys.pressed.I)
+                character.velocity.y = 300;
+            else if (FlxG.keys.pressed.K)
+                character.velocity.y = -300;
+            else
+                character.velocity.y = 0;
+
+            if (character.animation.curAnim != null) {
+                if (FlxG.keys.justPressed.W) {
+                    var curAnim:Int = character.animation.getNameList().indexOf(character.animation.curAnim.name);
+                    curAnim--;
+                    if (curAnim < 0)
+                        curAnim = character.animation.getNameList().length - 1;
+                    else if (curAnim > character.animation.getNameList().length - 1)
+                        curAnim = 0;
+        
+                    character.playAnim(character.animation.getNameList()[curAnim]);
+                }
+                
+                if (FlxG.keys.justPressed.S) {
+                    var curAnim:Int = character.animation.getNameList().indexOf(character.animation.curAnim.name);
+                    curAnim++;
+                    if (curAnim < 0)
+                        curAnim = character.animation.getNameList().length - 1;
+                    else if (curAnim > character.animation.getNameList().length - 1)
+                        curAnim = 0;
+        
+                    character.playAnim(character.animation.getNameList()[curAnim]);
+                }
+
+                var offsetAdd:Int = FlxG.keys.pressed.SHIFT ? 10 : 1;
+                if (FlxG.keys.justPressed.UP)
+                    character.animOffsets[character.animation.curAnim.name][1] += offsetAdd;
+                if (FlxG.keys.justPressed.DOWN)
+                    character.animOffsets[character.animation.curAnim.name][1] -= offsetAdd;
+                if (FlxG.keys.justPressed.LEFT)
+                    character.animOffsets[character.animation.curAnim.name][0] += offsetAdd;
+                if (FlxG.keys.justPressed.RIGHT)
+                    character.animOffsets[character.animation.curAnim.name][0] -= offsetAdd;
+
+                if (FlxG.keys.anyJustPressed([UP, DOWN, LEFT, RIGHT]))
+                    character.playAnim(character.animation.curAnim.name);
+            } else {
+                if (FlxG.keys.anyJustPressed([W, S])) {
+                    var animToPlay:String = character.getAnimNames()[0];
+                    if (character.animation.exists(animToPlay))
+                        character.animation.play(animToPlay);
+                }
+            }
+        }
+        super.update(elapsed);
     }
 
     function set_curCharacter(value:String):String {
@@ -100,6 +169,8 @@ class EditorCharacter extends FlxSprite {
             animation.addByPrefix("idle", "BF idle dance", 24, false);
 
         updateHitbox();
+
+        playAnim(animation.getNameList()[0]);
     }
 
     public function addOffset(anim:String, x:Float = 0, y:Float = 0) {
@@ -123,5 +194,12 @@ class EditorCharacter extends FlxSprite {
         }
         else
             offset.set(0, 0);
+    }
+
+    public function getAnimNames():Array<String> {
+        return [
+            for (anim in json.animations)
+                anim.anim
+        ];
     }
 }

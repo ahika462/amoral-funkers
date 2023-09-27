@@ -1,5 +1,6 @@
 package;
 
+import flixel.util.FlxColor;
 import gifatlas.GifAtlas;
 import animateatlas.AtlasFrameMaker;
 import haxe.Json;
@@ -20,6 +21,7 @@ typedef CharacterFile = {
 	var healthicon:String;
 	var flip_x:Bool;
 	var scale:Float;
+	var healthbar_colors:Array<Int>;
 }
 
 typedef AnimArray = {
@@ -45,6 +47,8 @@ class Character extends FlxSprite
 
 	public var healthIcon:String = "face";
 	public var specAnim:Bool = false;
+
+	public var healthColor:FlxColor = FlxColor.WHITE;
 
 	public function new(x:Float, y:Float, ?character:String = "bf", ?isPlayer:Bool = false)
 	{
@@ -74,7 +78,12 @@ class Character extends FlxSprite
 					frames = GifAtlas.build(json.image);
 		
 				antialiasing = json.no_antialiasing ? false : ClientPrefs.data.antialiasing;
+
 				healthIcon = json.healthicon;
+				healthColor.red = json.healthbar_colors[0];
+				healthColor.green = json.healthbar_colors[1];
+				healthColor.blue = json.healthbar_colors[2];
+
 				if (json.flip_x)
 					flipX = !flipX;
 				scale.set(json.scale, json.scale);
