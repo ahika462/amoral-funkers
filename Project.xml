@@ -208,7 +208,8 @@
 	<!-- <haxedef name="CLEAR_INPUT_SAVE"/> -->
 
 	<!-- embed shit -->
-	<assets path="embed" embed="true"/>
+	<assets path="embed"/>
+	<assets path="embed" embed="true" if="final"/>
 
 	<haxelib name="yagp"/>
 	
