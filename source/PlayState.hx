@@ -162,8 +162,16 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 	var tankGround:BGSprite;
 
 	var talking:Bool = true;
+
 	var songScore:Int = 0;
+	var songMisses:Int = 0;
 	var scoreTxt:FlxText;
+
+	var songRank:String = "N/A";
+	var sicks:Int = 0;
+	var goods:Int = 0;
+	var bads:Int = 0;
+	var shits:Int = 0;
 
 	public var grpNoteSplashes:FlxTypedGroup<NoteSplash>;
 
@@ -877,6 +885,7 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 		scoreTxt.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		scoreTxt.scrollFactor.set();
 		add(scoreTxt);
+		recalculateRatings();
 
 		iconP1 = new HealthIcon(boyfriend.healthIcon, true);
 		iconP1.y = healthBar.y - (iconP1.height / 2);
@@ -1529,12 +1538,12 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 				gf.dance();
 			if (swagCounter % 2 == 0)
 			{
-				if (!boyfriend.animation.curAnim.name.startsWith("sing"))
+				if (boyfriend.animation.curAnim != null && !boyfriend.animation.curAnim.name.startsWith("sing"))
 					boyfriend.playAnim('idle');
-				if (!dad.animation.curAnim.name.startsWith("sing"))
+				if (dad.animation.curAnim != null && !dad.animation.curAnim.name.startsWith("sing"))
 					dad.dance();
 			}
-			else if (dad.curCharacter == 'spooky' && !dad.animation.curAnim.name.startsWith("sing"))
+			else if (dad.curCharacter == 'spooky' && dad.animation.curAnim != null && !dad.animation.curAnim.name.startsWith("sing"))
 				dad.dance();
 			if (generatedMusic)
 				notes.sort(sortNotes, FlxSort.DESCENDING);
@@ -1896,8 +1905,6 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 		}
 
 		super.update(elapsed);
-
-		scoreTxt.text = "Score:" + songScore;
 
 		if (controls.PAUSE && startedCountdown && canPause)
 		{
@@ -2325,7 +2332,6 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 		vocals.volume = 1;
 
 		var rating:FlxSprite = new FlxSprite();
-		var score:Int = 350;
 
 		var daRating:Rating = Conductor.judgeNote(daNote, [
 			new Rating("sick", ClientPrefs.data.sickWindow, true),
@@ -2334,6 +2340,17 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 			new Rating("shit", Std.int(Conductor.safeZoneOffset), false)
 		]);
 
+		switch(daRating.name) {
+			case "sick":
+				sicks++;
+			case "good":
+				goods++;
+			case "bad":
+				bads++;
+			case "shit":
+				shits++;
+		}
+
 		if (daRating.sick) {
 			var noteSplash:NoteSplash = grpNoteSplashes.recycle(NoteSplash);
 			noteSplash.setupNoteSplash(daNote.x, daNote.y, daNote.noteData);
@@ -2341,7 +2358,7 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 		}
 
 		if (!practiceMode)
-			songScore += score;
+			songScore += daNote.score;
 
 		var pixelShitPart1:String = isPixelStage ? "weeb/pixelUI/" : "";
 		var pixelShitPart2:String = isPixelStage ? "-pixel" : "";
@@ -2572,12 +2589,17 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 			if (spr.animation.curAnim.name != "confirm" && keyID == spr.ID)
 				spr.playAnim("pressed");
 		});
+
+		recalculateRatings();
 	}
 
 	function onKeyPressed(?e:Event) {
 		var holdArray:Array<Bool> = [controls.NOTE_LEFT, controls.NOTE_DOWN, controls.NOTE_UP, controls.NOTE_RIGHT];
 
-		if (holdArray.contains(true) && /*!boyfriend.stunned && */ generatedMusic) {
+		if (!holdArray.contains(true))
+			return;
+
+		if (/*!boyfriend.stunned && */ generatedMusic) {
 			notes.forEachAlive(function(daNote:Note) {
 				if (daNote.isSustainNote && daNote.canBeHit && daNote.mustPress && holdArray[daNote.noteData])
 					goodNoteHit(daNote);
@@ -2588,6 +2610,8 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 			if (spr.animation.curAnim.name != "confirm" && spr.animation.curAnim.name != "pressed" && holdArray[spr.ID])
 				spr.playAnim("pressed");
 		});
+
+		recalculateRatings();
 	}
 
 	function onKeyJustReleased(?e:KeyboardEvent) {
@@ -2602,6 +2626,8 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 
 		if (keyID >= 0)
 			playerStrums.members[keyID].playAnim("static", true);
+
+		recalculateRatings();
 	}
 
 	function noteMissPress(direction:Int = 1) {
@@ -2615,6 +2641,7 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 		// whole function used to be encased in if (!boyfriend.stunned)
 		health -= 0.04;
 		killCombo();
+		songMisses++;
 
 		if (!practiceMode)
 			songScore -= 10;
@@ -2631,6 +2658,8 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 		}); */
 
 		boyfriend.playAnim(singAnims[direction] + "miss", true);
+
+		recalculateRatings();
 	}
 
 	function noteMiss(daNote:Note) {
@@ -2641,6 +2670,7 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 		health -= daNote.missHealth;
 		vocals.volume = 0;
 		killCombo();
+		songMisses++;
 
 		daNote.active = false;
 		daNote.visible = false;
@@ -2650,6 +2680,8 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 		daNote.destroy();
 
 		boyfriend.playAnim(singAnims[daNote.noteData] + "miss", true);
+
+		recalculateRatings();
 	}
 
 	/* not used anymore lol
@@ -2894,12 +2926,6 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 				FlxG.camera.zoom += 0.015;
 				camHUD.zoom += 0.03;
 			}
-
-			if (camZooming && FlxG.camera.zoom < 1.35 && Conductor.curBeat % 4 == 0)
-			{
-				FlxG.camera.zoom += 0.015;
-				camHUD.zoom += 0.03;
-			}
 		}
 
 		iconP1.setGraphicSize(Std.int(iconP1.width + 30));
@@ -2993,6 +3019,15 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 		}
 	}
 
+	override function sectionHit() {
+		super.sectionHit();
+
+		if (camZooming) {
+			FlxG.camera.zoom += 0.015;
+			camHUD.zoom += 0.03;
+		}
+	}
+
 	var curLight:Int = 0;
 
 	function strumPlayAnim(isDad:Bool, id:Int, time:Float, ?note:Note = null, ?isSustain:Bool = false) {
@@ -3018,5 +3053,22 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 
 	function reloadHealthBarColors() {
 		healthBar.createFilledBar(dad.healthColor, boyfriend.healthColor);
+	}
+
+	function recalculateRatings() {
+		songRank = "N/A";
+		if (sicks > 0)
+			songRank = "SFC";
+		if (goods > 0)
+			songRank = "GFC";
+		if (bads > 0 || shits > 0)
+			songRank = "FC";
+		if (songMisses > 0)
+			songRank = "SDCB";
+		if (songMisses >= 10)
+			songRank = "Clear";
+
+		scoreTxt.text = "Score:" + songScore + " | " + "Misses: " + songMisses + " | " + "Rating: " + songRank;
+		scoreTxt.screenCenter(X);
 	}
 }

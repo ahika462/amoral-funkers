@@ -34,10 +34,12 @@ class ModdingState extends MusicBeatState {
     public var chartDebug:ChartDebugger;
 
     var characterUI:CharacterUI;
+    var chartUI:ChartUI;
 
     override function create() {
         instance = this;
 
+        FlxG.sound.music.stop();
         FlxG.mouse.visible = true;
 
         persistentDraw = true;
@@ -95,6 +97,7 @@ class ModdingState extends MusicBeatState {
         inputTexts.push(characterUI.indicesInputText);
         @:privateAccess {
             inputTexts.push(cast characterUI.fpsStepper.text_field);
+            inputTexts.push(cast characterUI.scaleStepper.text_field);
             inputTexts.push(cast characterUI.redStepper.text_field);
             inputTexts.push(cast characterUI.greenStepper.text_field);
             inputTexts.push(cast characterUI.blueStepper.text_field);
@@ -102,7 +105,10 @@ class ModdingState extends MusicBeatState {
     }
     
     function addChartUI() {
+        chartUI = new ChartUI();
+        mainTabUI.addGroup(chartUI);
 
+        inputTexts.push(chartUI.nameInputText);
     }
 
     function addWeekUI() {

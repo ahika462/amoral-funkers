@@ -2,11 +2,9 @@ package modding.ui;
 
 import flixel.addons.ui.StrNameLabel;
 import flixel.util.FlxColor;
-import flixel.FlxSprite;
 import modding.editors.CharacterDebugger;
 import Character.AnimArray;
 import flixel.addons.ui.FlxUINumericStepper;
-import flixel.FlxG;
 import flixel.addons.ui.FlxUICheckBox;
 import flixel.ui.FlxButton;
 import flixel.addons.ui.FlxUIDropDownMenu;
@@ -27,12 +25,14 @@ class CharacterUI extends FlxUI {
     public var fpsStepper:FlxUINumericStepper;
     var loopCheckBox:FlxUICheckBox;
 
-    var debug:CharacterDebugger;
+    public var scaleStepper:FlxUINumericStepper;
 
     var colorShow:FlxUIInputText;
     public var redStepper:FlxUINumericStepper;
     public var greenStepper:FlxUINumericStepper;
     public var blueStepper:FlxUINumericStepper;
+
+    var debug:CharacterDebugger;
 
     public function new() {
         super();
@@ -45,7 +45,7 @@ class CharacterUI extends FlxUI {
 
         var saveButton:FlxButton = new FlxButton(charactersDropdown.x + charactersDropdown.width + 10, 10, "Save", function() {
             debug.json.healthicon = iconInputText.text;
-            debug.json.healthbar_colors = [colorShow.color.red, colorShow.color.green, colorShow.color.blue];
+            debug.json.healthbar_colors = [Std.int(redStepper.value), Std.int(greenStepper.value), Std.int(blueStepper.value)];
             ModdingState.instance.saveFile(debug.json);
         });
         add(saveButton);
@@ -81,7 +81,8 @@ class CharacterUI extends FlxUI {
         }
         insert(0, flipCheckBox);
 
-        // colorShow = new FlxSprite(10, flipCheckBox.y + flipCheckBox.height + 10).makeGraphic(30, 1, FlxColor.WHITE);
+        scaleStepper = new FlxUINumericStepper(flipCheckBox.x + flipCheckBox.width + 10, flipCheckBox.y, 0.1, debug.json.scale, 0, 999, 1);
+        insert(0, scaleStepper);
 
         colorShow = new FlxUIInputText(10, flipCheckBox.y + flipCheckBox.height + 10, 30, "");
         insert(0, colorShow);
@@ -124,8 +125,8 @@ class CharacterUI extends FlxUI {
             var animAnim:String = nameInputText.text;
             var animName:String = animInputText.text;
             var animIndices:Array<Int> = [
-                for (ind in indicesInputText.text.split(",")) {
-                    if (ind.replace(" ", "").length > 0 && Math.isNaN(Std.parseInt(ind)))
+                for (ind in indicesInputText.text.trim().split(",")) {
+                    if (Math.isNaN(Std.parseInt(ind)))
                         Std.parseInt(ind);
                 }
             ];
@@ -183,11 +184,13 @@ class CharacterUI extends FlxUI {
                     debug.json.animations.remove(anim);
             }
 
-            var nextAnimID:Int = debug.character.getAnimNames().indexOf(debug.character.animation.curAnim.name) + 1;
-            if (nextAnimID > debug.character.getAnimNames().length - 1)
-                nextAnimID = 0;
+            if (debug.character.animation.getNameList().length > 0) {
+                var nextAnimID:Int = debug.character.getAnimNames().indexOf(debug.character.animation.curAnim.name) + 1;
+                if (nextAnimID > debug.character.getAnimNames().length - 1)
+                    nextAnimID = 0;
 
-            debug.character.playAnim(debug.character.getAnimNames()[nextAnimID]);
+                debug.character.playAnim(debug.character.getAnimNames()[nextAnimID]);
+            }
             
             var daArray:Array<StrNameLabel> = [new StrNameLabel("-1", "")];
             for (anim in debug.character.getAnimNames())
@@ -223,6 +226,7 @@ class CharacterUI extends FlxUI {
             iconInputText.text = debug.json.healthicon;
             imageInputText.text = debug.json.image;
             flipCheckBox.checked = debug.json.flip_x;
+            scaleStepper.value = debug.json.scale;
 
             var daArray:Array<StrNameLabel> = [new StrNameLabel("-1", "")];
             for (anim in debug.character.getAnimNames())
@@ -237,6 +241,11 @@ class CharacterUI extends FlxUI {
 
     override function update(elapsed:Float) {
         updateColor();
+
+        if (debug.character.scale.x != scaleStepper.value) {
+            debug.json.scale = scaleStepper.value;
+            debug.character.updateCharacter();
+        }
 
         super.update(elapsed);
 

@@ -210,10 +210,6 @@
 	<!-- embed shit -->
 	<assets path="embed" embed="true"/>
 
-	<!-- <define name="MOD_CORE" if="desktop"/> -->
-	<haxelib name="SScript" if="MOD_CORE"/>
-	<haxedef name="hscriptPos" if="SScript"/>
-
 	<haxelib name="yagp"/>
 	
 </project>

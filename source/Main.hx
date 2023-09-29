@@ -1,5 +1,5 @@
-package;
-
+import flixel.FlxState;
+import lime.app.Application;
 #if sys
 import Discord.DiscordClient;
 import flixel.FlxG;
@@ -18,8 +18,17 @@ import openfl.events.Event;
 
 using StringTools;
 
+typedef GameConfig = {
+	var width:Int;
+	var height:Int;
+	var initialState:Class<FlxState>;
+	var framerate:Int;
+	var skipSplash:Bool;
+	var startFullscreen:Bool;
+}
+
 class Main extends Sprite {
-	var game = {
+	var game:GameConfig = {
 		width: 1280,
 		height: 720,
 		initialState: TitleState,
@@ -28,7 +37,19 @@ class Main extends Sprite {
 		startFullscreen: false
 	}
 
+	static var funnyTitles:Array<String> = [ // названий не может быть больше 10
+		"AUTISM FUNKIN",
+		"FEMBOY FUNKERS"
+	];
+
 	public static function main() {
+		while (funnyTitles.length < 10)
+			funnyTitles.push("AMORAL FUNKERS");
+
+		funnyTitles.resize(10); // это если какой-то еблан сделает больше 10
+
+		Application.current.window.title = funnyTitles[Math.floor(Math.random() * 10)];
+		
 		Lib.current.addChild(new Main());
 	}
 
@@ -92,11 +113,6 @@ class Main extends Sprite {
 		Sys.println("Crash dump saved in " + Path.normalize(path));
 
         FlxG.stage.application.window.alert(errMsg, "Error!");
-
-		/*new Process("crash-dialog.exe", [Std.string(e.error),
-			Std.string(Std.int(FlxG.stage.application.window.display.bounds.width / 5)),
-			Std.string(Std.int(FlxG.stage.application.window.display.bounds.height / 2)),
-		path]);*/
 
 		#if discord_rpc
 		DiscordClient.shutdown();

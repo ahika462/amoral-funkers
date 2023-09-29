@@ -16,7 +16,7 @@ class Conductor {
     public static var crochet:Float = ((60 / bpm) * 1000); // beats in milliseconds
 	public static var stepCrochet:Float = crochet / 4; // steps in milliseconds
     
-    public static var songPosition:Float;
+    public static var songPosition(get, default):Float;
 	public static var lastSongPos:Float;
     public static var followSound:FlxSound = null;
 
@@ -31,8 +31,11 @@ class Conductor {
 
     public static var curStep:Int = 0;
     public static var curBeat:Int = 0;
+	public static var curSection:Int = 0;
+	
     public static var onStepHit:FlxSignal = new FlxSignal();
     public static var onBeatHit:FlxSignal = new FlxSignal();
+	public static var onSectionHit:FlxSignal = new FlxSignal();
 
     public static function mapBPMChanges(song:SwagSong) {
 		bpmChangeMap = [];
@@ -109,7 +112,32 @@ class Conductor {
             if (curStep % 4 == 0)
                 onBeatHit.dispatch();
         }
+
+		var oldSection:Int = curSection;
+		curSection = 0;
+		var sectionLength:Int = 16;
+		if (PlayState.SONG != null && PlayState.SONG.notes[curSection] != null)
+			sectionLength = PlayState.SONG.notes[curSection].lengthInSteps;
+		var stepsToDo:Int = sectionLength;
+		while (curStep >= stepsToDo) {
+			curSection++;
+
+			if (PlayState.SONG != null && PlayState.SONG.notes[curSection] != null)
+				sectionLength = PlayState.SONG.notes[curSection].lengthInSteps;
+
+			stepsToDo += sectionLength;
+		}
+
+		if (oldSection != curSection && curSection >= 0)
+			onSectionHit.dispatch();
     }
+
+	static function get_songPosition():Float {
+		if (followSound != null)
+			return followSound.time;
+		else
+			return songPosition;
+	}
 }
 
 class Rating {

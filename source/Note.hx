@@ -49,6 +49,8 @@ class Note extends FlxSprite
 
 	public var offsetX:Float = 0;
 
+	public var score:Int = 350;
+
 	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false)
 	{
 		super();
@@ -114,7 +116,7 @@ class Note extends FlxSprite
 			animation.addByPrefix('bluehold', 'blue hold piece');
 
 			setGraphicSize(Std.int(width * 0.7));
-			antialiasing = true;
+			antialiasing = ClientPrefs.data.antialiasing;
 		}
 
 		updateHitbox();

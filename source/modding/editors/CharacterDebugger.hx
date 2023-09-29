@@ -134,7 +134,6 @@ class EditorCharacter extends FlxSprite {
     }
 
     public function updateCharacter() {
-        
         if (Paths.exists("images/" + json.image + ".xml", TEXT))
             frames = Paths.getSparrowAtlas(json.image);
         else if (Paths.exists("images/" + json.image + ".txt", TEXT))

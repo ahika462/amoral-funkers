@@ -16,16 +16,19 @@ class MusicBeatState extends FlxUIState {
 	override function create() {
 		Conductor.onStepHit.add(stepHit);
 		Conductor.onBeatHit.add(beatHit);
+		Conductor.onSectionHit.add(sectionHit);
 
 		super.create();
 	}
 
 	function stepHit() {}
 	function beatHit() {}
+	function sectionHit() {}
 
 	override function destroy() {
 		Conductor.onStepHit.remove(stepHit);
 		Conductor.onBeatHit.remove(beatHit);
+		Conductor.onSectionHit.remove(sectionHit);
 	}
 
 	override function transitionIn() {

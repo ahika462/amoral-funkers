@@ -58,13 +58,9 @@ class Character extends FlxSprite
 		curCharacter = character;
 		this.isPlayer = isPlayer;
 
-		antialiasing = true;
+		antialiasing = ClientPrefs.data.antialiasing;
 
 		switch(curCharacter) {
-			case "h4mster":
-				frames = GifAtlas.build("characters/h4mster");
-				animation.addByPrefix("idle", "h4mster idle", 24, false);
-
 			default:
 				var json:CharacterFile = cast Json.parse(Paths.getEmbedText("characters/" + character + ".json")).character;
 		
@@ -162,7 +158,7 @@ class Character extends FlxSprite
 
 	override function update(elapsed:Float) {
 		if (!isPlayer) {
-			if (animation.curAnim.name.startsWith("sing"))
+			if (animation.curAnim != null && animation.curAnim.name.startsWith("sing"))
 				holdTimer += elapsed;
 
 			var dadVar:Float = 4;
@@ -175,13 +171,13 @@ class Character extends FlxSprite
 			}
 		}
 
-		if (animation.curAnim.finished && animation.exists(animation.curAnim.name + "-loop"))
+		if (animation.curAnim != null && animation.curAnim.finished && animation.exists(animation.curAnim.name + "-loop"))
 			playAnim(animation.curAnim.name + "-loop");
 
 		switch (curCharacter)
 		{
 			case 'gf':
-				if (animation.curAnim.name == 'hairFall' && animation.curAnim.finished)
+				if (animation.curAnim != null && animation.curAnim.name == 'hairFall' && animation.curAnim.finished)
 					playAnim('danceRight');
 			case "pico-speaker":
 				// for pico??
@@ -201,7 +197,7 @@ class Character extends FlxSprite
 					}
 				}
 
-				if (animation.curAnim.finished)
+				if (animation.curAnim != null && animation.curAnim.finished)
 				{
 					playAnim(animation.curAnim.name, false, false, animation.curAnim.numFrames - 3);
 				}
@@ -219,11 +215,11 @@ class Character extends FlxSprite
 	{
 		if (!debugMode)
 		{
-			if (!specAnim || animation.curAnim.finished) {
+			if (!specAnim || animation.curAnim != null && animation.curAnim.finished) {
 				if (animation.exists("idle"))
 					playAnim("idle");
 				else if (animation.exists("danceLeft")) {
-					if (!animation.curAnim.name.startsWith('hair')) {
+					if (animation.curAnim != null && !animation.curAnim.name.startsWith('hair')) {
 						danced = !danced;
 	
 						if (danced)
