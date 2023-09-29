@@ -124,6 +124,8 @@ class Conductor {
 
 			if (PlayState.SONG != null && PlayState.SONG.notes[curSection] != null)
 				sectionLength = PlayState.SONG.notes[curSection].lengthInSteps;
+			else
+				sectionLength = 16;
 
 			stepsToDo += sectionLength;
 		}
