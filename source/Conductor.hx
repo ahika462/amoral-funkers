@@ -87,7 +87,7 @@ class Conductor {
         });
     }
 
-    public static function update() {
+    static function update() {
         if (followSound != null && followSound.playing)
             songPosition = followSound.time + offset;
 
