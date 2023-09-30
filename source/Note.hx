@@ -40,8 +40,8 @@ class Note extends FlxSprite
 
 	public static var swagWidth:Float = 160 * 0.7;
 
-	public var hitHealth:Float;
-	public var missHealth:Float;
+	public var hitHealth:Float = 0.023;
+	public var missHealth:Float = 0.04;
 
 	public var copyX:Bool = true;
 	public var copyAlpha:Bool = true;
@@ -66,13 +66,6 @@ class Note extends FlxSprite
 		this.strumTime = strumTime;
 
 		this.noteData = noteData;
-
-		if (!isSustainNote)
-			hitHealth = 0.023;
-		else
-			hitHealth = 0.004;
-
-		missHealth = 0.04;
 
 		if (PlayState.isPixelStage) {
 			loadGraphic(Paths.image('weeb/pixelUI/NOTE_assets'), true, 17, 17);

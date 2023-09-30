@@ -121,6 +121,8 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 	public var healthBarBG:FlxSprite;
 	public var healthBar:FlxBar;
 
+	public var healthLerp:Float;
+
 	private var generatedMusic:Bool = false;
 	private var startingSong:Bool = false;
 
@@ -874,8 +876,7 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 		if (ClientPrefs.data.downscroll)
 			healthBarBG.y = FlxG.height * 0.1;
 
-		healthBar = new FlxBar(healthBarBG.x + 4, healthBarBG.y + 4, RIGHT_TO_LEFT, Std.int(healthBarBG.width - 8), Std.int(healthBarBG.height - 8), this,
-			'health', 0, 2);
+		healthBar = new FlxBar(healthBarBG.x + 4, healthBarBG.y + 4, RIGHT_TO_LEFT, Std.int(healthBarBG.width - 8), Std.int(healthBarBG.height - 8), this, "healthLerp", 0, 2);
 		healthBar.scrollFactor.set();
 		reloadHealthBarColors();
 		// healthBar
@@ -1904,6 +1905,8 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 				moveTank();
 		}
 
+		healthLerp = FlxMath.lerp(health, healthLerp, 0.25);
+
 		super.update(elapsed);
 
 		if (controls.PAUSE && startedCountdown && canPause)
@@ -1955,8 +1958,11 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 
 		var iconOffset:Int = 26;
 
-		iconP1.x = healthBar.x + (healthBar.width * (FlxMath.remapToRange(healthBar.percent, 0, 100, 100, 0) * 0.01) - iconOffset);
-		iconP2.x = healthBar.x + (healthBar.width * (FlxMath.remapToRange(healthBar.percent, 0, 100, 100, 0) * 0.01)) - (iconP2.width - iconOffset);
+		// iconP1.x = healthBar.x + (healthBar.width * (FlxMath.remapToRange(healthBar.percent, 0, 100, 100, 0) * 0.01) - iconOffset);
+		// iconP2.x = healthBar.x + (healthBar.width * (FlxMath.remapToRange(healthBar.percent, 0, 100, 100, 0) * 0.01)) - (iconP2.width - iconOffset);
+
+		iconP1.x = FlxMath.lerp(healthBar.x + (healthBar.width * (FlxMath.remapToRange(healthBar.percent, 0, 100, 100, 0) * 0.01) - iconOffset), iconP1.x, 0.25);
+		iconP2.x = FlxMath.lerp(healthBar.x + (healthBar.width * (FlxMath.remapToRange(healthBar.percent, 0, 100, 100, 0) * 0.01)) - (iconP2.width - iconOffset), iconP2.x, 0.25);
 
 		if (health > 2)
 			health = 2;

@@ -74,7 +74,7 @@ class Conductor {
 		var noteDiff:Float = Math.abs(note.strumTime - Conductor.songPosition);
 
 		for (i in ratings) {
-			if (noteDiff < i.window)
+			if (noteDiff <= i.window / 2)
 				return i;
 		}
 

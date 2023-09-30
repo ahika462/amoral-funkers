@@ -16,27 +16,22 @@ class ChartUI extends FlxUI {
         name = "Charts";
         debug = ModdingState.instance.chartDebug;
 
+        var save:FlxButton = new FlxButton(10, 10, "Save", function() {
+            
+        });
+
         nameInputText = new FlxUIInputText(10, 10, 200, debug.json.song);
         add(nameInputText);
 
         var reloadJsonButton:FlxButton = new FlxButton(nameInputText.x + nameInputText.width + 10, nameInputText.y, "Reload JSON", function() {
-            ModdingState.instance.closeSubState();
-            ModdingState.instance.chartDebug = new ChartDebugger(nameInputText.text);
-            debug = ModdingState.instance.chartDebug;
-
+            // потом
+            debug.loadJson(nameInputText.text);
             nameInputText.text = debug.json.song;
         });
         add(reloadJsonButton);
 
         var reloadAudioButton:FlxButton = new FlxButton(reloadJsonButton.x, reloadJsonButton.y + reloadJsonButton.height + 10, "Reload Audio", function() {
-            var time:Float = Conductor.songPosition;
-            
-            FlxG.sound.playMusic(Paths.inst(nameInputText.text.toLowerCase()));
-
-            if (time > FlxG.sound.music.length)
-                time = FlxG.sound.music.length;
-
-            FlxG.sound.music.time = time;
+            debug.loadSong(nameInputText.text);
         });
         add(reloadAudioButton);
     }

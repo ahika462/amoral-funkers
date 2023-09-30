@@ -12,7 +12,6 @@ import openfl.events.UncaughtErrorEvent;
 
 import flixel.FlxGame;
 import openfl.Lib;
-import openfl.display.FPS;
 import openfl.display.Sprite;
 import openfl.events.Event;
 
@@ -39,7 +38,8 @@ class Main extends Sprite {
 
 	static var funnyTitles:Array<String> = [ // названий не может быть больше 10
 		"AUTISM FUNKIN",
-		"FEMBOY FUNKERS"
+		"FEMBOY FUNKERS",
+		"VS SEXISTS 2"
 	];
 
 	public static function main() {
@@ -69,7 +69,7 @@ class Main extends Sprite {
 		setupGame();
 	}
 
-	public static var fpsCounter:FPS;
+	public static var fpsCounter:MemFPS;
 
 	private function setupGame() {
 		Conductor.init();
@@ -77,7 +77,7 @@ class Main extends Sprite {
 		addChild(new FlxGame(game.width, game.height, game.initialState, game.framerate, game.framerate, game.skipSplash, game.startFullscreen));
 
 		#if !mobile
-		fpsCounter = new FPS(10, 3, 0xFFFFFF);
+		fpsCounter = new MemFPS(10, 3, 0xFFFFFF);
 		addChild(fpsCounter);
 		#end
 
