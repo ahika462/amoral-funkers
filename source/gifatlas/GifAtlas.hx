@@ -13,7 +13,7 @@ import flixel.graphics.frames.FlxAtlasFrames;
 
 class GifAtlas {
     public static function build(path:String):FlxAtlasFrames {
-        var folder:String = "assets/amoral/images/" + path + "/";
+        var folder:String = "assets/shared/images/" + path + "/";
         var files:Array<String> = FileSystem.readDirectory(folder);
 
         var bitmapWidth:Int = 0;
@@ -55,7 +55,7 @@ class GifAtlas {
     }
 
     public static function buildSpritesheet(path:String):BitmapData {
-        var folder:String = "assets/amoral/images/" + path + "/";
+        var folder:String = "assets/shared/images/" + path + "/";
         var files:Array<String> = FileSystem.readDirectory(folder);
 
         var bitmapWidth:Int = 0;

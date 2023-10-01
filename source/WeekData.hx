@@ -1,5 +1,7 @@
 import haxe.Json;
 
+using StringTools;
+
 typedef WeekFile = {
     var songs:Array<Dynamic>;
 	var weekCharacters:Array<String>;
@@ -15,7 +17,10 @@ class WeekData {
     public static function loadWeeks() {
         list = [];
 
-        var weekList:Array<String> = Paths.getEmbedText("weeks/weekList.txt").split("\n");
+        var weekList:Array<String> = Paths.getEmbedText("weeks/weekList.txt").trim().split("\n");
+        for (i in 0...weekList.length)
+            weekList[i] = weekList[i].trim();
+
         for (week in weekList) {
             if (Paths.embedExists("weeks/" + week + ".json"))
                list.push(cast Json.parse(Paths.getEmbedText("weeks/" + week + ".json")));

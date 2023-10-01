@@ -122,7 +122,7 @@ class ChartDebugger extends BaseDebugger {
 				{
 					if (_song.notes[sec].sectionNotes[notesse][2] == null)
 					{
-						trace('SUS NULL');
+						Debug.logTrace('SUS NULL');
 						_song.notes[sec].sectionNotes[notesse][2] = 0;
 					}
 				}
@@ -189,7 +189,7 @@ class ChartDebugger extends BaseDebugger {
 	}
 
     function changeSection(sec:Int = 0, ?updateMusic:Bool = true) {
-		trace('changing section' + sec);
+		Debug.logTrace('changing section' + sec);
 
 		if (json.notes[sec] != null) {
 			curSection = sec;

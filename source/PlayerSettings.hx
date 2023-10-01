@@ -50,7 +50,7 @@ class PlayerSettings
 			if (keyData != null)
 			{
 				useDefault = false;
-				trace("loaded key data: " + haxe.Json.stringify(keyData));
+				Debug.logTrace("loaded key data: " + haxe.Json.stringify(keyData));
 				controls.fromSaveData(keyData, Keys);
 			}
 		}
@@ -74,7 +74,7 @@ class PlayerSettings
 			if (padData != null)
 			{
 				useDefault = false;
-				trace("loaded pad data: " + haxe.Json.stringify(padData));
+				Debug.logTrace("loaded pad data: " + haxe.Json.stringify(padData));
 				controls.addGamepadWithSaveData(gamepad.id, padData);
 			}
 		}
@@ -106,7 +106,7 @@ class PlayerSettings
 		if (keyData != null)
 		{
 			playerData.keys = keyData;
-			trace("saving key data: " + haxe.Json.stringify(keyData));
+			Debug.logTrace("saving key data: " + haxe.Json.stringify(keyData));
 		}
 		
 		if (controls.gamepadsAdded.length > 0)
@@ -114,7 +114,7 @@ class PlayerSettings
 			var padData = controls.createSaveData(Gamepad(controls.gamepadsAdded[0]));
 			if (padData != null)
 			{
-				trace("saving pad data: " + haxe.Json.stringify(padData));
+				Debug.logTrace("saving pad data: " + haxe.Json.stringify(padData));
 				playerData.pad = padData;
 			}
 		}

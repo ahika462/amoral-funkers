@@ -50,13 +50,13 @@ class Song
 
 		// FIX THE CASTING ON WINDOWS/NATIVE
 		// Windows???
-		// trace(songData);
+		// Debug.logTrace(songData);
 
-		// trace('LOADED FROM JSON: ' + songData.notes);
+		// Debug.logTrace('LOADED FROM JSON: ' + songData.notes);
 		/* 
 			for (i in 0...songData.notes.length)
 			{
-				trace('LOADED FROM JSON: ' + songData.notes[i].sectionNotes);
+				Debug.logTrace('LOADED FROM JSON: ' + songData.notes[i].sectionNotes);
 				// songData.notes[i].sectionNotes = songData.notes[i].sectionNotes
 			}
 

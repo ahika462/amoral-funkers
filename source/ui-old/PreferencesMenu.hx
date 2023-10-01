@@ -60,7 +60,7 @@ class PreferencesMenu extends Page {
 				createCheckbox(Reflect.field(ClientPrefs.data, variable));
 
 			default:
-				trace("swag");
+				Debug.logTrace("swag");
 		}
 		
 		items.createItem(120, (120 * items.length) + 30, name, AtlasFont.Bold, function()
@@ -72,7 +72,7 @@ class PreferencesMenu extends Page {
 					prefToggle(name);
 
 				default:
-					trace("swag");
+					Debug.logTrace("swag");
 			}
 		}, true);
 	}
@@ -88,7 +88,7 @@ class PreferencesMenu extends Page {
 		daSwap = !daSwap;
 		Reflect.setField(ClientPrefs.data, preferences[name][0], daSwap);
 		checkboxes[items.selectedIndex].daValue = daSwap;
-		trace("toggled?" + Reflect.field(ClientPrefs.data, preferences[name][0]));
+		Debug.logTrace("toggled?" + Reflect.field(ClientPrefs.data, preferences[name][0]));
 
 		if (preferences[name][1] != null)
 			preferences[name][1]();
@@ -245,7 +245,7 @@ class PreferencesMenu extends ui.OptionsState.Page
 					prefToggle(prefString);
 
 				default:
-					trace("swag");
+					Debug.logTrace("swag");
 			}
 		});
 
@@ -255,10 +255,10 @@ class PreferencesMenu extends ui.OptionsState.Page
 				createCheckbox(prefString);
 
 			default:
-				trace("swag");
+				Debug.logTrace("swag");
 		}
 
-		trace(Type.typeof(prefValue).getName());
+		Debug.logTrace(Type.typeof(prefValue).getName());
 	}
 
 	function createCheckbox(prefString:String)
@@ -274,7 +274,7 @@ class PreferencesMenu extends ui.OptionsState.Page
 		daSwap = !daSwap;
 		preferences.set(prefName, daSwap);
 		checkboxes[items.selectedIndex].daValue = daSwap;
-		trace("toggled? " + preferences.get(prefName));
+		Debug.logTrace("toggled? " + preferences.get(prefName));
 
 		switch (prefName)
 		{
@@ -310,11 +310,11 @@ class PreferencesMenu extends ui.OptionsState.Page
 		if (preferences.get(prefString) == null)
 		{
 			preferences.set(prefString, prefValue);
-			trace("set preference!");
+			Debug.logTrace("set preference!");
 		}
 		else
 		{
-			trace("found preference: " + preferences.get(prefString));
+			Debug.logTrace("found preference: " + preferences.get(prefString));
 		}
 	}
 }

@@ -95,7 +95,7 @@ class ModMenu extends ui.OptionsState.Page
 		var modList = [];
 		modFolders = [];
 		
-		trace("mods path:" + FileSystem.absolutePath(MOD_PATH));
+		Debug.logTrace("mods path:" + FileSystem.absolutePath(MOD_PATH));
 		if (!FileSystem.exists(MOD_PATH))
 		{
 			FlxG.log.warn("missing mods folder, expected: " + FileSystem.absolutePath(MOD_PATH));
@@ -112,7 +112,7 @@ class ModMenu extends ui.OptionsState.Page
 
 		// modList = Polymod.scan(MOD_PATH);
 
-		trace(modList);
+		Debug.logTrace(modList);
 
 		var loopNum:Int = 0;
 		for (i in modFolders)

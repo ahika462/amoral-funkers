@@ -175,7 +175,7 @@ class TitleState extends MusicBeatState
 
 	private function netStream_onAsyncError(event:AsyncErrorEvent):Void
 	{
-		trace("Error loading video");
+		Debug.logTrace("Error loading video");
 	}
 
 	private function netConnection_onNetStatus(event:NetStatusEvent):Void
@@ -188,7 +188,7 @@ class TitleState extends MusicBeatState
 			startIntro();
 		}
 
-		trace(event.toString());
+		Debug.logTrace(event.toString());
 	}
 
 	private function overlay_onMouseDown(event:MouseEvent):Void
@@ -236,7 +236,7 @@ class TitleState extends MusicBeatState
 		logoBl.shader = swagShader.shader;
 		// logoBl.shader = alphaShader.shader;
 
-		// trace();
+		// Debug.logTrace();
 		// logoBl.screenCenter();
 		// logoBl.color = FlxColor.BLACK;
 
@@ -348,7 +348,7 @@ class TitleState extends MusicBeatState
 			{
 				#if polymod
 				polymod.Polymod.init({modRoot: "mods", dirs: ['introMod']});
-				trace('reinitialized');
+				Debug.logTrace('reinitialized');
 				#end
 			}
 

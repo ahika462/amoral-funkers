@@ -49,7 +49,7 @@ class AtlasFrameMaker extends FlxFramesCollection
 
 		if (Paths.exists("images/" + key + "/spritemap1.json", TEXT))
 		{
-			trace("Only Spritemaps made with Adobe Animate 2018 are supported");
+			Debug.logTrace("Only Spritemaps made with Adobe Animate 2018 are supported");
 			return null;
 		}
 
@@ -64,9 +64,9 @@ class AtlasFrameMaker extends FlxFramesCollection
 		if(_excludeArray == null)
 		{
 			_excludeArray = t.getFrameLabels();
-			//trace('creating all anims');
+			//Debug.logTrace('creating all anims');
 		}
-		trace('Creating: ' + _excludeArray);
+		Debug.logTrace('Creating: ' + _excludeArray);
 
 		frameCollection = new FlxFramesCollection(graphic, FlxFrameCollectionType.IMAGE);
 		for(x in _excludeArray)
@@ -147,7 +147,7 @@ class AtlasFrameMaker extends FlxFramesCollection
 			theFrame.sourceSize.set(frameSize.x,frameSize.y);
 			theFrame.frame = new FlxRect(0, 0, bitMapArray[i].width, bitMapArray[i].height);
 			daFramez.push(theFrame);
-			//trace(daFramez);
+			//Debug.logTrace(daFramez);
 		}
 		return daFramez;
 	}

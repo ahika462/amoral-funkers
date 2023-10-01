@@ -154,7 +154,7 @@ class FreeplayState extends MusicBeatState
 
 			// scoreText.textField.htmlText = md;
 
-			trace(md);
+			Debug.logTrace(md);
 		 */
 
 		super.create();
@@ -230,7 +230,7 @@ class FreeplayState extends MusicBeatState
 			PlayState.storyDifficulty = curDifficulty;
 
 			PlayState.storyWeek = songs[curSelected].week;
-			trace('CUR WEEK' + PlayState.storyWeek);
+			Debug.logTrace('CUR WEEK' + PlayState.storyWeek);
 			LoadingState.loadAndSwitchState(new PlayState());
 		}
 	}

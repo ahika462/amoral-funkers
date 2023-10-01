@@ -15,7 +15,7 @@ class DebugBoundingState extends FlxState
 
 		FlxG.stage.window.onDropFile.add(function(path:String)
 		{
-			trace("DROPPED FILE FROM: " + Std.string(path));
+			Debug.logTrace("DROPPED FILE FROM: " + Std.string(path));
 			var newPath = "./" + Paths.image('characters/temp');
 			File.copy(path, newPath);
 

@@ -1,5 +1,7 @@
 package;
 
+import haxe.PosInfos;
+import sys.FileSystem;
 import flixel.input.keyboard.FlxKey;
 import flixel.addons.transition.Transition;
 import Conductor.Rating;
@@ -56,26 +58,10 @@ import Discord.DiscordClient;
 
 using StringTools;
 
-class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #end
+class PlayState extends MusicBeatState
 {
-	#if MOD_CORE
-	var script:ModScript;
-
-	function initializeScript(path:String):ModScript {
-		script = new ModScript();
-		return script;
-	}
-
-	function callOnScript(name:String, args:Array<Dynamic>):Dynamic {
-		return script.call(name, args).returnValue;
-	}
-	function setOnScript(name:String, value:Dynamic):Dynamic {
-		script.set(name, value);
-		return value;
-	}
-	#end
-
 	public static var instance:PlayState;
+	public var hscripts:Array<HScript> = [];
 
 	public static var STRUM_X = 48.5;
 	public static var STRUM_X_MIDDLESCROLL = -271;
@@ -829,6 +815,28 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 
 		add(foregroundSprites);
 
+		var files:Array<String> = Paths.getEmbedFiles("scripts");
+		for (file in Paths.getEmbedFiles("scripts/songs"))
+			files.push(file);
+
+		for (file in files) {
+			if (file.endsWith(".hx"))
+				hscripts.push(new HScript(file));
+		}
+
+		#if sys
+		//  var folders:Array<String> = [Paths.getPreloadPath("data/" + PlayState.SONG.song.toLowerCase() + "/"), Paths.getPreloadPath("scripts/")];
+		var folders:Array<String> = [];
+		for (folder in folders) {
+			for (file in FileSystem.readDirectory(folder)) {
+				if (file.endsWith(".hx"))
+					hscripts.push(new HScript(file));
+			}
+		}
+		#end
+
+		callOnScripts("pre_create");
+
 		var doof:DialogueBox = new DialogueBox(false, dialogue);
 		// doof.x += 70;
 		// doof.y = FlxG.height * 0.5;
@@ -988,6 +996,8 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 
 		FlxG.camera.setFilters([new ShaderFilter(missEffect.shader)]);
 		#end
+
+		callOnScripts();
 
 		super.create();
 
@@ -1878,7 +1888,7 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 					songTime = (songTime + Conductor.songPosition) / 2;
 					Conductor.lastSongPos = Conductor.songPosition;
 					// Conductor.songPosition += FlxG.elapsed * 1000;
-					// trace('MISSED FRAME');
+					// Debug.logTrace('MISSED FRAME');
 				}
 			}
 			// Conductor.lastSongPos = FlxG.sound.music.time;
@@ -2055,14 +2065,14 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 			if (controls.RESET)
 			{
 				health = 0;
-				trace("RESET = True");
+				Debug.logTrace("RESET = True");
 			}
 
 			#if CAN_CHEAT // brandon's a pussy
 			if (controls.CHEAT)
 			{
 				health += 1;
-				trace("User is cheating!");
+				Debug.logTrace("User is cheating!");
 			}
 			#end
 
@@ -2290,8 +2300,8 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 				if (storyDifficulty == 2)
 					difficulty = '-hard';
 
-				trace('LOADING NEXT SONG');
-				trace(storyPlaylist[0].toLowerCase() + difficulty);
+				Debug.logTrace('LOADING NEXT SONG');
+				Debug.logTrace(storyPlaylist[0].toLowerCase() + difficulty);
 
 				FlxTransitionableState.skipNextTransIn = true;
 				FlxTransitionableState.skipNextTransOut = true;
@@ -2326,7 +2336,7 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 		}
 		else
 		{
-			trace('WENT BACK TO FREEPLAY??');
+			Debug.logTrace('WENT BACK TO FREEPLAY??');
 			// unloadAssets();
 			FlxG.switchState(new FreeplayState());
 		}
@@ -3076,5 +3086,23 @@ class PlayState extends MusicBeatState #if MOD_CORE implements modcore.Modable #
 
 		scoreTxt.text = "Score:" + songScore + " | " + "Misses: " + songMisses + " | " + "Rating: " + songRank;
 		scoreTxt.screenCenter(X);
+	}
+
+	public function callOnScripts(?name:String = null, ?args:Array<Dynamic> = null, ?pos:PosInfos) {
+		var returnVal:Dynamic = HScript.Function_Continue;
+
+		for (hscript in hscripts) {
+			if (hscript.call(name, args, pos) == HScript.Function_Stop)
+				returnVal = HScript.Function_Stop;
+		}
+
+		return returnVal;
+	}
+
+	public function setOnHScripts(name:String, value:Dynamic):Dynamic {
+		for (hscript in hscripts)
+			hscript.set(name, value);
+
+		return value;
 	}
 }

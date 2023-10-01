@@ -1,119 +1,58 @@
 #if sys
-import sys.io.FileOutput;
+import sys.io.File;
+import sys.FileSystem;
 #end
-import flixel.FlxG;
-import flixel.system.debug.log.LogStyle as FlxLogStyle;
-import haxe.PosInfos;
 import haxe.Log;
+import haxe.PosInfos;
 
 using StringTools;
-using flixel.util.FlxStringUtil;
 
 enum abstract LogStyle(String) from String to String {
-    var ERROR = "ERROR";
-    var TRACE = "TRACE";
+    var TRACE = "[TRACE] ";
+    var ERROR = "[ERROR] ";
 }
 
 class Debug {
-    static var FLX_LOG_ERROR:FlxLogStyle = new FlxLogStyle("[ERROR] ", "FF8888", 12, true, false, false, "flixel/sounds/beep", true);
-    static var FLX_LOG_TRACE:FlxLogStyle = new FlxLogStyle("[TRACE] ", "5CF878", 12, false);
+    static var logFolder:String = "./logs/";
+    static var logName:String;
+    static var logContent:String = "";
 
-    static var initialized:Bool = false;
-    static function initialize() {
-        Log.trace = function(data:Dynamic, ?info:PosInfos) {
-            var paramArray:Array<Dynamic> = [data];
+    static var initialized(default, null):Bool = false;
 
-			if (info != null)
-			{
-				if (info.customParams != null)
-				{
-					for (i in info.customParams)
-					{
-						paramArray.push(i);
-					}
-				}
-			}
+    public static function initialize() {
+        #if sys
+        if (!FileSystem.exists(logFolder))
+            FileSystem.createDirectory(logFolder);
 
-			logTrace(paramArray, info);
-        }
-
+        logName = "Log_" + Std.string(Date.now()).replace(" ", "_").replace(":", "'") + ".txt";
+        #end
         initialized = true;
     }
 
-    static function writeToFlxGLog(data:Array<Dynamic>, logStyle:FlxLogStyle) {
-		if (FlxG != null && FlxG.game != null && FlxG.log != null)
-			FlxG.log.advanced(data, logStyle);
-	}
-
-    static function writeToLogFile(data:Array<Dynamic>, logLevel:String = "TRACE") {
-		if (logFileWriter != null && logFileWriter.isActive())
-			logFileWriter.write(data, logLevel);
-	}
-
-    static function formatOutput(input:Dynamic, pos:PosInfos):Array<Dynamic> {
-		// This code is junk but I kept getting Null Function References.
-		var inArray:Array<Dynamic> = null;
-		if (input == null)
-			inArray = ['<NULL>'];
-		else if (!Std.isOfType(input, Array))
-			inArray = [input];
-		else
-			inArray = input;
-
-		if (pos == null)
-			return inArray;
-
-		// Format the position ourselves.
-		var output:Array<Dynamic> = ['(${pos.className}/${pos.methodName}#${pos.lineNumber}): '];
-
-		return output.concat(inArray);
-	}
-
     public static function logTrace(input:Dynamic, ?pos:PosInfos) {
+        log(TRACE + buildPosInfo(pos) + ": " + Std.string(input));
+    }
+
+    public static function logError(input:Dynamic, ?pos:PosInfos) {
+        log(ERROR + buildPosInfo(pos) + ": " + Std.string(input));
+    }
+
+    public static function log(input:Dynamic) {
         if (!initialized)
             initialize();
-        if (input == null)
-            return;
 
-        var output = formatOutput(input, pos);
-        writeToFlxGLog(output, FLX_LOG_TRACE);
-        writeToLogFile(output, TRACE);
-    }
-}
+        var inputStr:String = Std.string(input);
 
-@:allow(Debug)
-class DebugLogWriter {
-    #if sys
-    static var file:FileOutput;
-    #end
-
-    static function getTime(abs:Bool = false):Float {
+        logContent += inputStr + "\n";
         #if sys
-        return Sys.time();
+        Sys.println(inputStr);
+        File.saveContent(logFolder + logName, logContent);
         #else
-        return Date.now().getTime();
+        Log.trace(inputStr, null);
         #end
     }
 
-    public static function write(input:Array<Dynamic>, logStyle:LogStyle = TRACE) {
-        var ts:String = getTime().formatTime(true);
-        var msg:String = ts + " [" + logStyle.rpad(" ", 5) + "] " + input.join("");
-
-        #if sys
-        if (file != null) {
-            file.writeString(msg + "\n");
-            file.flush();
-        }
-        #end
-
-		printDebug(msg);
+    static function buildPosInfo(pos:PosInfos):String {
+        return "(" + pos.className + ":" + pos.lineNumber + ":" + pos.methodName + ")";
     }
-
-    static function printDebug(msg:String) {
-		#if sys
-		Sys.println(msg);
-		#else
-		Log.trace(msg, null);
-		#end
-	}
 }

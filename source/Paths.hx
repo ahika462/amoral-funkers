@@ -134,6 +134,9 @@ class Paths
 	}
 
 	public static function getEmbedFiles(key:String, ?type:AssetType):Array<String> {
+		if (!key.endsWith("/"))
+			key += "/";
+
 		var files:Array<String> = OpenFlAssets.list(type);
 		for (file in files) {
 			if (!file.startsWith(getEmbedShit(key + "/")))
@@ -148,18 +151,4 @@ class Paths
 	public static function embedExists(key:String, ?type:AssetType):Bool {
 		return OpenFlAssets.exists(getEmbedShit(key), type);
 	}
-
-	#if AMORAL
-	public static function getAmoralStuff(key:String, ?type:AssetType):String {
-		return getPath(key, type, "amoral");
-	}
-
-	public static function getAmoralText(key:String):String {
-		return OpenFlAssets.getText(getAmoralStuff(key, TEXT));
-	}
-
-	public static function getAmoralFile(key:String):String {
-		return "assets/amoral/" + key;
-	}
-	#end
 }

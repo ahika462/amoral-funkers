@@ -84,13 +84,15 @@ class Main extends Sprite {
 		#if sys
 		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onCrash);
 		#end
+
+		Debug.logTrace("game initialized!");
 	}
 
 	#if sys
 	function onCrash(?e:UncaughtErrorEvent) {
 		var errMsg:String = "";
 		var callStack:Array<StackItem> = CallStack.exceptionStack(true);
-		var dateNow:String = Date.now().toString().replace(" ", "_").replace(":", "'");
+		var dateNow:String = Std.string(Date.now()).replace(" ", "_").replace(":", "'");
 		var path:String = "./crashes/Crash_" + dateNow + ".txt";
 
 		for (stackItem in callStack) {
@@ -109,8 +111,8 @@ class Main extends Sprite {
 
 		File.saveContent(path, errMsg + "\n");
 
-		Sys.println(errMsg);
-		Sys.println("Crash dump saved in " + Path.normalize(path));
+		Debug.log(errMsg);
+		Debug.log("Crash dump saved in " + Path.normalize(path));
 
         FlxG.stage.application.window.alert(errMsg, "Error!");
 

@@ -122,7 +122,7 @@ class Alphabet extends FlxSpriteGroup
 		_finalText = text;
 		doSplitWords();
 
-		// trace(arrayShit);
+		// Debug.logTrace(arrayShit);
 
 		var loopNum:Int = 0;
 
@@ -131,7 +131,7 @@ class Alphabet extends FlxSpriteGroup
 
 		new FlxTimer().start(0.05, function(tmr:FlxTimer)
 		{
-			// trace(_finalText.fastCodeAt(loopNum) + " " + _finalText.charAt(loopNum));
+			// Debug.logTrace(_finalText.fastCodeAt(loopNum) + " " + _finalText.charAt(loopNum));
 			if (_finalText.fastCodeAt(loopNum) == "\n".code)
 			{
 				yMulti += 1;
@@ -174,7 +174,7 @@ class Alphabet extends FlxSpriteGroup
 					xPos += 20;
 					lastWasSpace = false;
 				}
-				// trace(_finalText.fastCodeAt(loopNum) + " " + _finalText.charAt(loopNum));
+				// Debug.logTrace(_finalText.fastCodeAt(loopNum) + " " + _finalText.charAt(loopNum));
 
 				// var letter:AlphaCharacter = new AlphaCharacter(30 * loopNum, 0);
 				var letter:AlphaCharacter = new AlphaCharacter(xPos, 55 * yMulti);
