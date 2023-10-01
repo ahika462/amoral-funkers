@@ -16,76 +16,25 @@ class GifAtlas {
         var folder:String = "assets/shared/images/" + path + "/";
         var files:Array<String> = FileSystem.readDirectory(folder);
 
-        var bitmapWidth:Int = 0;
-        var bitmapHeight:Int = 0;
-
-        var bitmaps:Array<Dynamic> = []; // [x, bitmap, name, num]
+        var bitmaps:Array<FlxAtlasFrames> = [];
 
         for (file in files) {
-            var gif:Gif = GifDecoder.parseBytes(ByteArray.fromFile(folder + file));
+            var gif:Gif = GifDecoder.parseByteArray(ByteArray.fromFile(folder + file));
 
             for (frame in gif.frames) {
-                bitmaps.push([bitmapWidth, frame.data, file, gif.frames.indexOf(frame)]);
-                bitmapWidth += frame.data.width;
+                var atlas:FlxAtlasFrames = new FlxAtlasFrames(FlxGraphic.fromBitmapData(frame.data));
+                atlas.addAtlasFrame(new FlxRect(0, 0, frame.data.width, frame.data.height), new FlxPoint(frame.data.width, frame.data.height), new FlxPoint(), file + funnyNum(gif.frames.indexOf(frame)));
 
-                if (frame.data.height > bitmapHeight)
-                    bitmapHeight = frame.data.height;
+                bitmaps.push(atlas);
             }
         }
 
-        var bitmapData:BitmapData = new BitmapData(bitmapWidth, bitmapHeight, true, 0x00000000);
-
-        for (data in bitmaps) {
-            var x:Int = data[0];
-            var bitmap:BitmapData = data[1];
-
-            bitmapData.setPixels(new Rectangle(x, 0, bitmap.width, bitmap.height), bitmap.getPixels(bitmap.rect));
-        }
-
-        var frames:FlxAtlasFrames = new FlxAtlasFrames(FlxGraphic.fromBitmapData(bitmapData));
-        for (i in 0...bitmaps.length) {
-            var x:Int = bitmaps[i][0];
-            var bitmap:BitmapData = bitmaps[i][1];
-            var name:String = bitmaps[i][2].substring(0, bitmaps[i][2].lastIndexOf(".")) + funnyNum(bitmaps[i][3]);
-
-            frames.addAtlasFrame(new FlxRect(x, 0, bitmap.width, bitmap.height), new FlxPoint(bitmap.width, bitmap.height), new FlxPoint(), name);
-        }
+        var frames:FlxAtlasFrames = new FlxAtlasFrames(null);
+        frames.frames = bitmaps[0].frames;
+        for (bitmap in bitmaps)
+            frames.frames = frames.frames.concat(bitmap.frames);
 
         return frames;
-    }
-
-    public static function buildSpritesheet(path:String):BitmapData {
-        var folder:String = "assets/shared/images/" + path + "/";
-        var files:Array<String> = FileSystem.readDirectory(folder);
-
-        var bitmapWidth:Int = 0;
-        var bitmapHeight:Int = 0;
-
-        var bitmaps:Array<Dynamic> = [];
-
-        for (file in files) {
-            var gif:Gif = GifDecoder.parseBytes(ByteArray.fromFile(folder + file));
-
-            for (frame in gif.frames) {
-                bitmaps.push([bitmapWidth, frame.data, gif]);
-                bitmapWidth += frame.data.width;
-            }
-            bitmapWidth += gif.width;
-
-            if (gif.height > bitmapHeight)
-                bitmapHeight = gif.height;
-        }
-
-        var bitmapData:BitmapData = new BitmapData(bitmapWidth, bitmapHeight, true, 0x00000000);
-
-        for (data in bitmaps) {
-            var x:Int = data[0];
-            var bitmap:BitmapData = data[1];
-
-            bitmapData.setPixels(new Rectangle(x, 0, bitmap.width, bitmap.height), bitmap.getPixels(new Rectangle(0, 0, bitmap.width, bitmap.height)));
-        }
-
-        return bitmapData;
     }
 
     static function funnyNum(num:Int):String {

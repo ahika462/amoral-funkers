@@ -1,6 +1,6 @@
+import openfl.utils.Assets;
 import haxe.PosInfos;
 import flixel.FlxCamera;
-import sys.io.File;
 import hscript.Parser;
 import hscript.Interp;
 
@@ -16,7 +16,7 @@ class HScript {
 
     public function new(script:String) {
         try {
-            interp.execute(parser.parseString(File.getContent(script)));
+            interp.execute(parser.parseString(Assets.getText(script)));
         } catch(e:Dynamic) {
             Debug.logError(e);
         }

@@ -1,6 +1,5 @@
 package modding;
 
-import modding.editors.ChartDebugger;
 import flixel.FlxObject;
 import modding.ui.*;
 import flixel.addons.ui.FlxUIInputText;
@@ -10,10 +9,9 @@ import openfl.events.Event;
 import openfl.net.FileReference;
 import haxe.Json;
 import flixel.ui.FlxButton;
-import modding.editors.BaseDebugger;
 import flixel.FlxCamera;
 import flixel.addons.ui.FlxUIDropDownMenu;
-import modding.editors.CharacterDebugger;
+import modding.editors.*;
 import flixel.addons.ui.FlxUI;
 import flixel.input.keyboard.FlxKey;
 import flixel.FlxG;
@@ -32,9 +30,11 @@ class ModdingState extends MusicBeatState {
 
     public var characterDebug:CharacterDebugger;
     public var chartDebug:ChartDebugger;
+    public var stageDebug:StageDebugger;
 
     var characterUI:CharacterUI;
     var chartUI:ChartUI;
+    var stageUI:StageUI;
 
     override function create() {
         instance = this;
@@ -62,6 +62,7 @@ class ModdingState extends MusicBeatState {
         mainTabUI = new FlxUITabMenu([
             {name: "Characters", label: "Characters"},
             {name: "Charts", label: "Charts"},
+            {name: "Stages", label: "Stages"},
             {name: "Weeks", label: "Weeks"}
         ], true);
         mainTabUI.setPosition(10, 10);
@@ -71,9 +72,11 @@ class ModdingState extends MusicBeatState {
 
         characterDebug = cast initDebugger(new CharacterDebugger());
         chartDebug = cast initDebugger(new ChartDebugger());
+        stageDebug = cast initDebugger(new StageDebugger());
 
         addCharacterUI();
         addChartUI();
+        addStageUI();
         addWeekUI();
 
         super.create();
@@ -109,6 +112,12 @@ class ModdingState extends MusicBeatState {
         mainTabUI.addGroup(chartUI);
 
         inputTexts.push(chartUI.nameInputText);
+    }
+
+    function addStageUI() {
+        @:privateAccess {
+            // inputTexts.push(cast stageUI.zoomStepper.text_field);
+        }
     }
 
     function addWeekUI() {
