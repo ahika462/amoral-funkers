@@ -1,5 +1,6 @@
 package modding.editors;
 
+import flixel.util.FlxColor;
 import flixel.FlxSprite;
 import flixel.FlxG;
 import StageData.StageFile;
@@ -40,11 +41,8 @@ class StageDebugger extends BaseDebugger {
         camOverlay.antialiasing = ClientPrefs.data.antialiasing;
         add(camOverlay);
 
-        var files:Array<String> = Paths.getEmbedFiles("scripts/stages");
-        for (file in files) {
-            if (file.endsWith(".hx"))
-                hscripts.push(new HScript(file));
-        }
+        if (Paths.embedExists("scripts/stages/" + stage + ".hx"))
+            hscripts.push(new HScript(Paths.getEmbedShit("scripts/stages/" + stage + ".hx")));
 
         for (hscript in hscripts) {
             hscript.call("pre_create");
@@ -54,11 +52,11 @@ class StageDebugger extends BaseDebugger {
 
     override function update(elapsed:Float) {
         if (FlxG.mouse.justPressed) {
-            if (FlxG.mouse.overlaps(boyfriend))
+            if (FlxG.mouse.overlaps(boyfriend, ModdingState.instance.camEditor))
                 holdingChar = boyfriend;
-            else if (FlxG.mouse.overlaps(dad))
+            else if (FlxG.mouse.overlaps(dad, ModdingState.instance.camEditor))
                 holdingChar = dad;
-            else if (FlxG.mouse.overlaps(gf))
+            else if (FlxG.mouse.overlaps(gf, ModdingState.instance.camEditor))
                 holdingChar = gf;
         }
 

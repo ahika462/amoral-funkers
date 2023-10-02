@@ -2,12 +2,10 @@ package gifatlas;
 
 import openfl.utils.Assets;
 import flixel.graphics.FlxGraphic;
-import openfl.geom.Rectangle;
 import openfl.utils.ByteArray;
 import com.yagp.GifDecoder;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
-import openfl.display.BitmapData;
 import com.yagp.Gif;
 import sys.FileSystem;
 import flixel.graphics.frames.FlxAtlasFrames;
@@ -45,29 +43,21 @@ class GifAtlas {
     }
 
     static function getPath(folder:String, ?library:String):String {
-        if (library != null) {
-            Debug.logTrace(Paths.getLibraryPath(folder, library));
+        if (library != null)
 			return Paths.getLibraryPath(folder, library);
-        }
 
         @:privateAccess {
-            if (Paths.currentLevel != null)
-                {
-                    var levelPath = "assets/" + Paths.currentLevel + "/" + folder;
-                    if (folderExists(levelPath)) {
-                        Debug.logTrace(levelPath);
-                        return levelPath;
-                    }
-        
-                    levelPath = "assets/shared/" + folder;
-                    if (folderExists(levelPath)) {
-                        Debug.logTrace(levelPath);
-                        return levelPath;
-                    }
-                }
+            if (Paths.currentLevel != null) {
+                var levelPath = "assets/" + Paths.currentLevel + "/" + folder;
+                if (folderExists(levelPath))
+                    return levelPath;
+    
+                levelPath = "assets/shared/" + folder;
+                if (folderExists(levelPath))
+                    return levelPath;
+            }
         }
 
-        Debug.logTrace(Paths.getPreloadPath(folder));
 		return Paths.getPreloadPath(folder);
     }
 
@@ -85,9 +75,6 @@ class GifAtlas {
 
             if (fileExt == ".gif" && (filePath.endsWith(folder) || fileFuckedPath.endsWith(folder)))
                 returnVal = true;
-
-            if (fileExt == ".gif")
-                Debug.logTrace(filePath + " :: " + fileFuckedPath + " :: " + returnVal);
         }
 
         return returnVal;

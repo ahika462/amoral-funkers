@@ -37,6 +37,8 @@ class ModdingState extends MusicBeatState {
     var chartUI:ChartUI;
     var stageUI:StageUI;
 
+    public var bg:FlxSprite;
+
     override function create() {
         instance = this;
 
@@ -53,7 +55,7 @@ class ModdingState extends MusicBeatState {
         FlxG.cameras.add(camHUD, false);
         FlxG.cameras.setDefaultDrawTarget(camBG, false);
 
-        var bg:FlxSprite = new FlxSprite(Paths.image("menuDesat"));
+        bg = new FlxSprite(Paths.image("menuDesat"));
         bg.scrollFactor.set();
         bg.setGraphicSize(Std.int(bg.width * 1.2));
 		bg.updateHitbox();
@@ -172,6 +174,13 @@ class ModdingState extends MusicBeatState {
             default: null;
         }
 
+        if (requestedDebug == stageDebug)
+            bg.color = 0xff000000;
+        else {
+            bg.color = 0xff58227A;
+            camEditor.zoom = 1;
+        }
+
         if (requestedDebug != null) {
             if (subState != requestedDebug)
                 openSubState(requestedDebug);
@@ -181,10 +190,9 @@ class ModdingState extends MusicBeatState {
 
     var fileReference:FileReference;
 
-    public function saveFile(data:Dynamic) {
-        var json:Dynamic = {
-            "character": data
-        };
+    public function saveFile(data:Dynamic, type:String, name:String) {
+        var json:Dynamic = {};
+        Reflect.setProperty(json, type, data);
         var content:String = Json.stringify(json);
 
         if (content != null && content.length > 0) {
@@ -192,7 +200,7 @@ class ModdingState extends MusicBeatState {
             fileReference.addEventListener(Event.COMPLETE, onSaveComplete);
             fileReference.addEventListener(Event.CANCEL, onSaveCancel);
             fileReference.addEventListener(IOErrorEvent.IO_ERROR, onSaveError);
-            fileReference.save(content.trim(), characterDebug.curCharacter + ".json");
+            fileReference.save(content.trim(), name + ".json");
         }
     }
     

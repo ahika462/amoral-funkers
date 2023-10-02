@@ -47,7 +47,7 @@ class CharacterUI extends FlxUI {
         var saveButton:FlxButton = new FlxButton(charactersDropdown.x + charactersDropdown.width + 10, 10, "Save", function() {
             debug.json.healthicon = iconInputText.text;
             debug.json.healthbar_colors = [Std.int(redStepper.value), Std.int(greenStepper.value), Std.int(blueStepper.value)];
-            ModdingState.instance.saveFile(debug.json);
+            ModdingState.instance.saveFile(debug.json, "character", debug.curCharacter);
         });
         add(saveButton);
 

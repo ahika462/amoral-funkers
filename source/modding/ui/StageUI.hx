@@ -1,5 +1,6 @@
 package modding.ui;
 
+import flixel.addons.ui.FlxUICheckBox;
 import flixel.FlxG;
 import flixel.ui.FlxButton;
 import flixel.addons.ui.FlxUIDropDownMenu;
@@ -24,11 +25,18 @@ class StageUI extends FlxUI {
         add(stagesDropdown);
 
         var saveButton:FlxButton = new FlxButton(stagesDropdown.x + stagesDropdown.width + 10, stagesDropdown.y, "Save", function() {
-            ModdingState.instance.saveFile(debug.json);
+            ModdingState.instance.saveFile(debug.json, "stage", debug.curStage);
         });
+        insert(0, saveButton);
 
         zoomStepper = new FlxUINumericStepper(10, saveButton.y + saveButton.height + 10, 0.1, debug.json.zoom, 0, 999, 1);
-        add(zoomStepper);
+        insert(0, zoomStepper);
+
+        var pixelCheckBox:FlxUICheckBox = new FlxUICheckBox(zoomStepper.x + zoomStepper.width + 10, zoomStepper.y, null, null, "Pixel");
+        pixelCheckBox.callback = function() {
+            debug.json.pixel = pixelCheckBox.checked;
+        }
+        insert(0, pixelCheckBox);
 
         stagesDropdown.callback = function(choice:String) {
             ModdingState.instance.closeSubState();
