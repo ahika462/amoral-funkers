@@ -60,25 +60,25 @@ class CharacterDebugger extends BaseDebugger {
 
             if (character.animation.curAnim != null) {
                 if (FlxG.keys.justPressed.W) {
-                    var curAnim:Int = character.animation.getNameList().indexOf(character.animation.curAnim.name);
+                    var curAnim:Int = character.getAnimNames().indexOf(character.animation.curAnim.name);
                     curAnim--;
                     if (curAnim < 0)
-                        curAnim = character.animation.getNameList().length - 1;
-                    else if (curAnim > character.animation.getNameList().length - 1)
+                        curAnim = character.getAnimNames().length - 1;
+                    else if (curAnim > character.getAnimNames().length - 1)
                         curAnim = 0;
         
-                    character.playAnim(character.animation.getNameList()[curAnim]);
+                    character.playAnim(character.getAnimNames()[curAnim]);
                 }
                 
                 if (FlxG.keys.justPressed.S) {
-                    var curAnim:Int = character.animation.getNameList().indexOf(character.animation.curAnim.name);
+                    var curAnim:Int = character.getAnimNames().indexOf(character.animation.curAnim.name);
                     curAnim++;
                     if (curAnim < 0)
-                        curAnim = character.animation.getNameList().length - 1;
-                    else if (curAnim > character.animation.getNameList().length - 1)
+                        curAnim = character.getAnimNames().length - 1;
+                    else if (curAnim > character.getAnimNames().length - 1)
                         curAnim = 0;
         
-                    character.playAnim(character.animation.getNameList()[curAnim]);
+                    character.playAnim(character.getAnimNames()[curAnim]);
                 }
 
                 var offsetAdd:Int = FlxG.keys.pressed.SHIFT ? 10 : 1;

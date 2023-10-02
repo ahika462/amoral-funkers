@@ -1,5 +1,6 @@
 package gifatlas;
 
+import openfl.utils.Assets;
 import flixel.graphics.FlxGraphic;
 import openfl.geom.Rectangle;
 import openfl.utils.ByteArray;
@@ -11,12 +12,17 @@ import com.yagp.Gif;
 import sys.FileSystem;
 import flixel.graphics.frames.FlxAtlasFrames;
 
+using StringTools;
+
 class GifAtlas {
-    public static function build(path:String):FlxAtlasFrames {
-        var folder:String = "assets/shared/images/" + path + "/";
+    public static function build(path:String, ?library:String):FlxAtlasFrames {
+        var folder:String = getPath("images/" + path + "/", library);
         var files:Array<String> = FileSystem.readDirectory(folder);
 
-        var bitmaps:Array<FlxAtlasFrames> = [];
+        var atlases:Array<FlxAtlasFrames> = [];
+
+        if (files == null)
+            return null;
 
         for (file in files) {
             var gif:Gif = GifDecoder.parseByteArray(ByteArray.fromFile(folder + file));
@@ -25,16 +31,66 @@ class GifAtlas {
                 var atlas:FlxAtlasFrames = new FlxAtlasFrames(FlxGraphic.fromBitmapData(frame.data));
                 atlas.addAtlasFrame(new FlxRect(0, 0, frame.data.width, frame.data.height), new FlxPoint(frame.data.width, frame.data.height), new FlxPoint(), file + funnyNum(gif.frames.indexOf(frame)));
 
-                bitmaps.push(atlas);
+                atlases.push(atlas);
             }
         }
 
         var frames:FlxAtlasFrames = new FlxAtlasFrames(null);
-        frames.frames = bitmaps[0].frames;
-        for (bitmap in bitmaps)
-            frames.frames = frames.frames.concat(bitmap.frames);
+        frames.frames = atlases[0].frames;
+        atlases.shift();
+        for (atlas in atlases)
+            frames.frames = frames.frames.concat(atlas.frames);
 
         return frames;
+    }
+
+    static function getPath(folder:String, ?library:String):String {
+        if (library != null) {
+            Debug.logTrace(Paths.getLibraryPath(folder, library));
+			return Paths.getLibraryPath(folder, library);
+        }
+
+        @:privateAccess {
+            if (Paths.currentLevel != null)
+                {
+                    var levelPath = "assets/" + Paths.currentLevel + "/" + folder;
+                    if (folderExists(levelPath)) {
+                        Debug.logTrace(levelPath);
+                        return levelPath;
+                    }
+        
+                    levelPath = "assets/shared/" + folder;
+                    if (folderExists(levelPath)) {
+                        Debug.logTrace(levelPath);
+                        return levelPath;
+                    }
+                }
+        }
+
+        Debug.logTrace(Paths.getPreloadPath(folder));
+		return Paths.getPreloadPath(folder);
+    }
+
+    static function folderExists(folder:String):Bool {
+        folder = folder.substr(folder.indexOf(":") + 1);
+        Debug.logTrace(folder);
+
+        var returnVal:Bool = false;
+
+        var files:Array<String> = Assets.list(IMAGE);
+        for (file in files) {
+            var fileExt:String = file.substr(file.lastIndexOf("."));
+            var filePath:String = file.substring(0, file.lastIndexOf("/"));
+            var fileFuckedPath:String = file.substring(0, file.lastIndexOf("/") + 1);
+
+            if (fileExt == ".gif" && (filePath.endsWith(folder) || fileFuckedPath.endsWith(folder)))
+                returnVal = true;
+
+            if (fileExt == ".gif")
+                Debug.logTrace(filePath + " :: " + fileFuckedPath + " :: " + returnVal);
+        }
+
+        return returnVal;
     }
 
     static function funnyNum(num:Int):String {

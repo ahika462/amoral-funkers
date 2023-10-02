@@ -1,5 +1,6 @@
 package modding.ui;
 
+import flixel.FlxG;
 import flixel.addons.ui.StrNameLabel;
 import flixel.util.FlxColor;
 import modding.editors.CharacterDebugger;
@@ -245,6 +246,13 @@ class CharacterUI extends FlxUI {
         if (debug.character.scale.x != scaleStepper.value) {
             debug.json.scale = scaleStepper.value;
             debug.character.updateCharacter();
+        }
+
+        if (!ModdingState.instance.anyFocused) {
+            if (FlxG.keys.pressed.Q)
+                FlxG.camera.zoom -= elapsed * 0.3;
+            if (FlxG.keys.pressed.E)
+                FlxG.camera.zoom += elapsed * 0.3;
         }
 
         super.update(elapsed);

@@ -25,7 +25,8 @@ class ModdingState extends MusicBeatState {
 
     public var mainTabUI:FlxUITabMenu;
 
-    var camEditor:FlxCamera = new FlxCamera();
+    var camBG:FlxCamera = new FlxCamera();
+    public var camEditor:FlxCamera = new FlxCamera();
     var camHUD:FlxCamera = new FlxCamera();
 
     public var characterDebug:CharacterDebugger;
@@ -45,10 +46,12 @@ class ModdingState extends MusicBeatState {
         persistentDraw = true;
 		persistentUpdate = true;
 
+        camEditor.bgColor.alpha = 0;
         camHUD.bgColor.alpha = 0;
-        FlxG.cameras.reset(camEditor);
+        FlxG.cameras.reset(camBG);
+        FlxG.cameras.add(camEditor, true);
         FlxG.cameras.add(camHUD, false);
-        FlxG.cameras.setDefaultDrawTarget(camEditor, true);
+        FlxG.cameras.setDefaultDrawTarget(camBG, false);
 
         var bg:FlxSprite = new FlxSprite(Paths.image("menuDesat"));
         bg.scrollFactor.set();
@@ -57,6 +60,7 @@ class ModdingState extends MusicBeatState {
 		bg.screenCenter();
 		bg.antialiasing = ClientPrefs.data.antialiasing;
         bg.color = 0xff58227A;
+        bg.cameras = [camBG];
         add(bg);
         
         mainTabUI = new FlxUITabMenu([
@@ -115,8 +119,10 @@ class ModdingState extends MusicBeatState {
     }
 
     function addStageUI() {
+        stageUI = new StageUI();
+        mainTabUI.addGroup(stageUI);
         @:privateAccess {
-            // inputTexts.push(cast stageUI.zoomStepper.text_field);
+            inputTexts.push(cast stageUI.zoomStepper.text_field);
         }
     }
 
@@ -159,24 +165,18 @@ class ModdingState extends MusicBeatState {
     }
 
     function updateEditor() {
-        var requestedDebug:BaseDebugger = null;
-        switch(mainTabUI.selected_tab_id) {
-            case "Characters":
-                requestedDebug = characterDebug;
+        var requestedDebug:BaseDebugger = switch(mainTabUI.selected_tab_id) {
+            case "Characters": characterDebug;
+            case "Charts": chartDebug;
+            case "Stages": stageDebug;
+            default: null;
         }
 
-        switch(mainTabUI.selected_tab_id) {
-            case "Characters":
-                if (subState != characterDebug)
-                    openSubState(characterDebug);
-            case "Charts":
-                if (subState != chartDebug)
-                    openSubState(chartDebug);
-            case "Chars":
-                closeSubState();
-            case "Weeks":
-                closeSubState();
-        }
+        if (requestedDebug != null) {
+            if (subState != requestedDebug)
+                openSubState(requestedDebug);
+        } else
+            closeSubState();
     }
 
     var fileReference:FileReference;

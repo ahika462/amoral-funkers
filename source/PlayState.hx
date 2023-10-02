@@ -815,8 +815,7 @@ class PlayState extends MusicBeatState
 
 		add(foregroundSprites);
 
-		var files:Array<String> = Paths.getEmbedFiles("scripts");
-		for (file in files) {
+		for (file in Paths.getEmbedFiles("scripts")) {
 			if (file.endsWith(".hx"))
 				hscripts.push(new HScript(file));
 		}
