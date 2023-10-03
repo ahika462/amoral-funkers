@@ -1,12 +1,11 @@
 package;
 
+import StageData.StageFile;
 import haxe.PosInfos;
 import sys.FileSystem;
 import flixel.input.keyboard.FlxKey;
 import flixel.addons.transition.Transition;
 import Conductor.Rating;
-import openfl.events.KeyboardEvent;
-import openfl.events.Event;
 import Section.SwagSection;
 import Song.SwagSong;
 import WiggleEffect.WiggleEffectType;
@@ -185,10 +184,7 @@ class PlayState extends MusicBeatState
 
 	public static var singAnims:Array<String> = ["singLEFT", "singDOWN", "singUP", "singRIGHT"];
 
-	public static var isPixelStage(get, never):Bool;
-	public static function get_isPixelStage():Bool {
-		return curStage.startsWith("school");
-	}
+	public static var isPixelStage:Bool = false;
 
 	#if AMORAL
 	var missEffect:MissEffect;
@@ -257,10 +253,44 @@ class PlayState extends MusicBeatState
 		initDiscord();
 		#end
 
-		switch (SONG.song.toLowerCase())
-		{
-			case 'spookeez' | 'monster' | 'south':
-				curStage = "spooky";
+		curStage = switch(SONG.song.toLowerCase()) {
+			case "spookeez" | "south" | "monster": "spooky";
+			case "pico" | "philly" | "blammed": "philly";
+			case "satin-panties" | "high" | "milf": "limo";
+			case "cocoa" | "eggnog": "mall";
+			case "winter-horrorland": "mallEvil";
+			case "senpai"| "roses": "school";
+			case "thorns": "schoolEvil";
+			case "ugh" | "guns" | "stress": "tank";
+			default: "stage";
+		}
+		var stageFile:StageFile = StageData.get(curStage);
+		defaultCamZoom = stageFile.zoom;
+		isPixelStage = stageFile.pixel;
+
+		switch(curStage) {
+			case "stage":
+				var bg:BGSprite = new BGSprite('stageback', -600, -200, 0.9, 0.9);
+				add(bg);
+
+				var stageFront:FlxSprite = new FlxSprite(-650, 600).loadGraphic(Paths.image('stagefront'));
+				stageFront.setGraphicSize(Std.int(stageFront.width * 1.1));
+				stageFront.updateHitbox();
+				stageFront.antialiasing = true;
+				stageFront.scrollFactor.set(0.9, 0.9);
+				stageFront.active = false;
+				add(stageFront);
+
+				var stageCurtains:FlxSprite = new FlxSprite(-500, -300).loadGraphic(Paths.image('stagecurtains'));
+				stageCurtains.setGraphicSize(Std.int(stageCurtains.width * 0.9));
+				stageCurtains.updateHitbox();
+				stageCurtains.antialiasing = true;
+				stageCurtains.scrollFactor.set(1.3, 1.3);
+				stageCurtains.active = false;
+
+				add(stageCurtains);
+
+			case "spooky":
 				halloweenLevel = true;
 
 				var hallowTex = Paths.getSparrowAtlas('halloween_bg');
@@ -274,8 +304,7 @@ class PlayState extends MusicBeatState
 				add(halloweenBG);
 
 				isHalloween = true;
-			case 'pico' | 'blammed' | 'philly':
-				curStage = 'philly';
+			case "philly":
 
 				var bg:FlxSprite = new FlxSprite(-100).loadGraphic(Paths.image('philly/sky'));
 				bg.scrollFactor.set(0.1, 0.1);
@@ -317,10 +346,7 @@ class PlayState extends MusicBeatState
 
 				var street:FlxSprite = new FlxSprite(-40, streetBehind.y).loadGraphic(Paths.image('philly/street'));
 				add(street);
-			case "milf" | 'satin-panties' | 'high':
-				curStage = 'limo';
-				defaultCamZoom = 0.90;
-
+			case "limo":
 				var skyBG:FlxSprite = new FlxSprite(-120, -50).loadGraphic(Paths.image('limo/limoSunset'));
 				skyBG.scrollFactor.set(0.1, 0.1);
 				add(skyBG);
@@ -357,11 +383,8 @@ class PlayState extends MusicBeatState
 
 				fastCar = new FlxSprite(-300, 160).loadGraphic(Paths.image('limo/fastCarLol'));
 			// add(limo);
-			case "cocoa" | 'eggnog':
-				curStage = 'mall';
 
-				defaultCamZoom = 0.80;
-
+			case "mall":
 				var bg:FlxSprite = new FlxSprite(-1000, -500).loadGraphic(Paths.image('christmas/bgWalls'));
 				bg.antialiasing = true;
 				bg.scrollFactor.set(0.2, 0.2);
@@ -411,8 +434,8 @@ class PlayState extends MusicBeatState
 				santa.animation.addByPrefix('idle', 'santa idle in fear', 24, false);
 				santa.antialiasing = true;
 				add(santa);
-			case 'winter-horrorland':
-				curStage = 'mallEvil';
+
+			case "mallEvil":
 				var bg:FlxSprite = new FlxSprite(-400, -500).loadGraphic(Paths.image('christmas/evilBG'));
 				bg.antialiasing = true;
 				bg.scrollFactor.set(0.2, 0.2);
@@ -429,9 +452,8 @@ class PlayState extends MusicBeatState
 				var evilSnow:FlxSprite = new FlxSprite(-200, 700).loadGraphic(Paths.image("christmas/evilSnow"));
 				evilSnow.antialiasing = true;
 				add(evilSnow);
-			case 'senpai' | 'roses':
-				curStage = 'school';
 
+			case "school":
 				// defaultCamZoom = 0.9;
 
 				var bgSky = new FlxSprite().loadGraphic(Paths.image('weeb/weebSky'));
@@ -494,9 +516,8 @@ class PlayState extends MusicBeatState
 				bgGirls.setGraphicSize(Std.int(bgGirls.width * daPixelZoom));
 				bgGirls.updateHitbox();
 				add(bgGirls);
-			case 'thorns':
-				curStage = 'schoolEvil';
-
+				
+			case "schoolEvil":
 				var waveEffectBG = new FlxWaveEffect(FlxWaveMode.ALL, 2, -1, 3, 2);
 				var waveEffectFG = new FlxWaveEffect(FlxWaveMode.ALL, 2, -1, 5, 2);
 
@@ -555,10 +576,7 @@ class PlayState extends MusicBeatState
 				add(waveSpriteFG);
 			 */
 
-			case 'guns' | 'stress' | 'ugh':
-				defaultCamZoom = 0.90;
-				curStage = 'tank';
-
+			case "tank":
 				var bg:BGSprite = new BGSprite('tankSky', -400, -400, 0, 0);
 				add(bg);
 
@@ -627,30 +645,6 @@ class PlayState extends MusicBeatState
 
 				var fgTank3:BGSprite = new BGSprite('tank3', 1300, 1200, 3.5, 2.5, ['fg']);
 				foregroundSprites.add(fgTank3);
-
-			default:
-				defaultCamZoom = 0.9;
-				curStage = 'stage';
-
-				var bg:BGSprite = new BGSprite('stageback', -600, -200, 0.9, 0.9);
-				add(bg);
-
-				var stageFront:FlxSprite = new FlxSprite(-650, 600).loadGraphic(Paths.image('stagefront'));
-				stageFront.setGraphicSize(Std.int(stageFront.width * 1.1));
-				stageFront.updateHitbox();
-				stageFront.antialiasing = true;
-				stageFront.scrollFactor.set(0.9, 0.9);
-				stageFront.active = false;
-				add(stageFront);
-
-				var stageCurtains:FlxSprite = new FlxSprite(-500, -300).loadGraphic(Paths.image('stagecurtains'));
-				stageCurtains.setGraphicSize(Std.int(stageCurtains.width * 0.9));
-				stageCurtains.updateHitbox();
-				stageCurtains.antialiasing = true;
-				stageCurtains.scrollFactor.set(1.3, 1.3);
-				stageCurtains.active = false;
-
-				add(stageCurtains);
 		}
 
 		var gfVersion:String = 'gf';
@@ -676,9 +670,6 @@ class PlayState extends MusicBeatState
 		switch (gfVersion)
 		{
 			case 'pico-speaker':
-				gf.x -= 50;
-				gf.y -= 200;
-
 				var tempTankman:TankmenBG = new TankmenBG(20, 500, true);
 				tempTankman.strumTime = 10;
 				tempTankman.resetShit(20, 600, true);
@@ -724,52 +715,33 @@ class PlayState extends MusicBeatState
 					camFollow.x += 600;
 					tweenCamIn();
 				}
-			case "spooky":
-				dad.y += 200;
-			case "monster":
-				dad.y += 100;
-			case 'monster-christmas':
-				dad.y += 130;
 			case 'dad':
 				camFollow.x += 400;
 			case 'pico':
 				camFollow.x += 600;
-				dad.y += 300;
-			case 'parents-christmas':
-				dad.x -= 500;
 			case 'senpai' | 'senpai-angry':
-				dad.x += 150;
-				dad.y += 360;
 				camFollow.setPosition(dad.getGraphicMidpoint().x + 300, dad.getGraphicMidpoint().y);
 			case 'spirit':
-				dad.x -= 150;
-				dad.y += 100;
 				camFollow.setPosition(dad.getGraphicMidpoint().x + 300, dad.getGraphicMidpoint().y);
-			case 'tankman':
-				dad.y += 180;
 		}
 
 		boyfriend = new Boyfriend(770, 450, SONG.player1);
+
+		gf.x += stageFile.gf[0] + gf.json.position[0];
+		gf.y += stageFile.gf[1] + gf.json.position[1];
+
+		dad.x += stageFile.dad[0] + dad.json.position[0];
+		dad.y += stageFile.dad[1] + dad.json.position[1];
+		
+		boyfriend.x += stageFile.boyfriend[0] + boyfriend.json.position[0];
+		boyfriend.y += stageFile.boyfriend[1] + boyfriend.json.position[1];
 
 		// REPOSITIONING PER STAGE
 		switch (curStage)
 		{
 			case 'limo':
-				boyfriend.y -= 220;
-				boyfriend.x += 260;
-
 				resetFastCar();
 				add(fastCar);
-			case 'mall':
-				boyfriend.x += 200;
-			case 'mallEvil':
-				boyfriend.x += 320;
-				dad.y -= 80;
-			case 'school':
-				boyfriend.x += 200;
-				boyfriend.y += 220;
-				gf.x += 180;
-				gf.y += 300;
 			case 'schoolEvil':
 				// trailArea.scrollFactor.set();
 
@@ -778,19 +750,7 @@ class PlayState extends MusicBeatState
 				// evilTrail.changeGraphic()
 				add(evilTrail);
 				// evilTrail.scrollFactor.set(1.1, 1.1);
-
-				boyfriend.x += 200;
-				boyfriend.y += 220;
-				gf.x += 180;
-				gf.y += 300;
 			case "tank":
-				gf.y += 10;
-				gf.x -= 30;
-				boyfriend.x += 40;
-				boyfriend.y += 0;
-				dad.y += 60;
-				dad.x -= 80;
-
 				if (gfVersion != 'pico-speaker')
 				{
 					gf.x -= 170;
@@ -971,9 +931,9 @@ class PlayState extends MusicBeatState
 		} 
 
 		// input fix
-		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyJustPressed);
-		FlxG.stage.addEventListener(Event.ENTER_FRAME, onKeyPressed);
-		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyJustReleased);
+		KeyUtils.addCallback(JUST_PRESSED, onKeyJustPressed);
+		KeyUtils.addCallback(PRESSED, onKeyPressed);
+		KeyUtils.addCallback(JUST_RELEASED, onKeyJustReleased);
 
 		#if AMORAL
 		missEffect = new MissEffect();
@@ -2479,7 +2439,21 @@ class PlayState extends MusicBeatState
 
 	function cameraMovement()
 	{
-		if (camFollow.x != dad.getMidpoint().x + 150 && !cameraRightSide)
+		var needX:Float = !cameraRightSide ? (dad.getMidpoint().x + 150 + dad.json.camera_position[0]) : (boyfriend.getMidpoint().x - 100 - boyfriend.json.camera_position[0]);
+		var needY:Float = !cameraRightSide ? (dad.getMidpoint().y - 100 + dad.json.camera_position[1]) : (boyfriend.getMidpoint().y - 100 + boyfriend.json.camera_position[1]);
+
+		if (camFollow.x != needX || camFollow.y != needY) {
+			camFollow.setPosition(needX, needY);
+
+			if (SONG.song.toLowerCase() == "tutorial") {
+				if (!cameraRightSide)
+					tweenCamIn();
+				else
+					FlxTween.tween(FlxG.camera, {zoom: 1}, (Conductor.stepCrochet * 4 / 1000), {ease: FlxEase.elasticInOut});
+			}
+		}
+
+		/*if (camFollow.x != dad.getMidpoint().x + 150 && !cameraRightSide)
 		{
 			camFollow.setPosition(dad.getMidpoint().x + 150, dad.getMidpoint().y - 100);
 			// camFollow.setPosition(lucky.getMidpoint().x - 120, lucky.getMidpoint().y + 210);
@@ -2517,15 +2491,15 @@ class PlayState extends MusicBeatState
 
 			if (SONG.song.toLowerCase() == 'tutorial')
 				FlxTween.tween(FlxG.camera, {zoom: 1}, (Conductor.stepCrochet * 4 / 1000), {ease: FlxEase.elasticInOut});
-		}
+		}*/
 	}
 
-	function onKeyJustPressed(?e:KeyboardEvent) {
+	function onKeyJustPressed(keyCode:Int) {
 		var keyID:Int = -1;
 		var binds:Array<Array<FlxKey>> = [ClientPrefs.data.keyBinds["note_left"], ClientPrefs.data.keyBinds["note_down"], ClientPrefs.data.keyBinds["note_up"], ClientPrefs.data.keyBinds["note_right"]];
 		for (i in 0...binds.length) {
 			for (key in binds[i]) {
-				if (e.keyCode == key)
+				if (keyCode == key)
 					keyID = i;
 			}
 		}
@@ -2586,49 +2560,57 @@ class PlayState extends MusicBeatState
 				noteMissPress(keyID);
 		}
 
-		playerStrums.forEach(function(spr:StrumNote) {
-			if (spr.animation.curAnim.name != "confirm" && keyID == spr.ID)
-				spr.playAnim("pressed");
-		});
+		var spr:StrumNote = playerStrums.members[keyID];
 
-		recalculateRatings();
-	}
-
-	function onKeyPressed(?e:Event) {
-		var holdArray:Array<Bool> = [controls.NOTE_LEFT, controls.NOTE_DOWN, controls.NOTE_UP, controls.NOTE_RIGHT];
-
-		if (!holdArray.contains(true))
+		if (spr == null)
 			return;
 
-		if (/*!boyfriend.stunned && */ generatedMusic) {
-			notes.forEachAlive(function(daNote:Note) {
-				if (daNote.isSustainNote && daNote.canBeHit && daNote.mustPress && holdArray[daNote.noteData])
-					goodNoteHit(daNote);
-			});
-		}
-
-		playerStrums.forEach(function(spr:StrumNote) {
-			if (spr.animation.curAnim.name != "confirm" && spr.animation.curAnim.name != "pressed" && holdArray[spr.ID])
-				spr.playAnim("pressed");
-		});
-
-		recalculateRatings();
+		if (spr.animation.curAnim.name != "confirm")
+			spr.playAnim("pressed");
 	}
 
-	function onKeyJustReleased(?e:KeyboardEvent) {
+	function onKeyPressed(keyCode:Int) {
 		var keyID:Int = -1;
 		var binds:Array<Array<FlxKey>> = [ClientPrefs.data.keyBinds["note_left"], ClientPrefs.data.keyBinds["note_down"], ClientPrefs.data.keyBinds["note_up"], ClientPrefs.data.keyBinds["note_right"]];
 		for (i in 0...binds.length) {
 			for (key in binds[i]) {
-				if (e.keyCode == key)
+				if (keyCode == key)
 					keyID = i;
 			}
 		}
 
-		if (keyID >= 0)
-			playerStrums.members[keyID].playAnim("static", true);
+		if (/*!boyfriend.stunned && */ generatedMusic) {
+			notes.forEachAlive(function(daNote:Note) {
+				if (daNote.isSustainNote && daNote.canBeHit && daNote.mustPress && daNote.noteData == keyID)
+					goodNoteHit(daNote);
+			});
+		}
 
-		recalculateRatings();
+		var spr:StrumNote = playerStrums.members[keyID];
+
+		if (spr == null)
+			return;
+
+		if (spr.animation.curAnim.name != "confirm" && spr.animation.curAnim.name != "pressed")
+			spr.playAnim("pressed");
+	}
+
+	function onKeyJustReleased(keyCode:Int) {
+		var keyID:Int = -1;
+		var binds:Array<Array<FlxKey>> = [ClientPrefs.data.keyBinds["note_left"], ClientPrefs.data.keyBinds["note_down"], ClientPrefs.data.keyBinds["note_up"], ClientPrefs.data.keyBinds["note_right"]];
+		for (i in 0...binds.length) {
+			for (key in binds[i]) {
+				if (keyCode == key)
+					keyID = i;
+			}
+		}
+
+		var spr:StrumNote = playerStrums.members[keyID];
+		
+		if (spr == null)
+			return;
+
+		spr.playAnim("static", true);
 	}
 
 	function noteMissPress(direction:Int = 1) {
@@ -2736,6 +2718,8 @@ class PlayState extends MusicBeatState
 				note.destroy();
 			}
 		}
+
+		recalculateRatings();
 	}
 
 	function opponentNoteHit(daNote:Note) {
@@ -2769,6 +2753,8 @@ class PlayState extends MusicBeatState
 		daNote.kill();
 		notes.remove(daNote, true);
 		daNote.destroy();
+
+		recalculateRatings();
 	}
 
 	var fastCarCanDrive:Bool = true;
@@ -3045,9 +3031,9 @@ class PlayState extends MusicBeatState
 	}
 
 	override function destroy() {
-		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyJustPressed);
-		FlxG.stage.removeEventListener(Event.ENTER_FRAME, onKeyPressed);
-		FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyJustReleased);
+		KeyUtils.removeCallback(JUST_PRESSED, onKeyJustPressed);
+		KeyUtils.removeCallback(PRESSED, onKeyPressed);
+		KeyUtils.removeCallback(JUST_RELEASED, onKeyJustReleased);
 
 		super.destroy();
 	}

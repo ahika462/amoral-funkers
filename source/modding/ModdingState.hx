@@ -110,6 +110,10 @@ class ModdingState extends MusicBeatState {
             inputTexts.push(cast characterUI.redStepper.text_field);
             inputTexts.push(cast characterUI.greenStepper.text_field);
             inputTexts.push(cast characterUI.blueStepper.text_field);
+            inputTexts.push(cast characterUI.xStepper.text_field);
+            inputTexts.push(cast characterUI.yStepper.text_field);
+            inputTexts.push(cast characterUI.xCamStepper.text_field);
+            inputTexts.push(cast characterUI.yCamStepper.text_field);
         }
     }
     

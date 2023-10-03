@@ -22,6 +22,8 @@ typedef CharacterFile = {
 	var flip_x:Bool;
 	var scale:Float;
 	var healthbar_colors:Array<Int>;
+	var position:Array<Float>;
+	var camera_position:Array<Float>;
 }
 
 typedef AnimArray = {
@@ -50,6 +52,8 @@ class Character extends FlxSprite
 
 	public var healthColor:FlxColor = FlxColor.WHITE;
 
+	public var json:CharacterFile;
+
 	public function new(x:Float, y:Float, ?character:String = "bf", ?isPlayer:Bool = false)
 	{
 		super(x, y);
@@ -62,7 +66,7 @@ class Character extends FlxSprite
 
 		switch(curCharacter) {
 			default:
-				var json:CharacterFile = cast Json.parse(Paths.getEmbedText("characters/" + character + ".json")).character;
+				json = cast Json.parse(Paths.getEmbedText("characters/" + character + ".json")).character;
 		
 				if (Paths.exists("images/" + json.image + ".xml", TEXT))
 					frames = Paths.getSparrowAtlas(json.image);

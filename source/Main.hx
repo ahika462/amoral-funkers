@@ -93,8 +93,6 @@ class Main extends Sprite {
 	function onCrash(?e:UncaughtErrorEvent) {
 		var errMsg:String = "";
 		var callStack:Array<StackItem> = CallStack.exceptionStack(true);
-		var dateNow:String = Std.string(Date.now()).replace(" ", "_").replace(":", "'");
-		var path:String = "./crashes/Crash_" + dateNow + ".txt";
 
 		for (stackItem in callStack) {
 			switch (stackItem) {
@@ -107,14 +105,7 @@ class Main extends Sprite {
 
 		errMsg += "\nUncaught Error: " + e.error;
 
-		if (!FileSystem.exists("./crashes/"))
-			FileSystem.createDirectory("./crashes/");
-
-		File.saveContent(path, errMsg + "\n");
-
 		Debug.log(errMsg);
-		Debug.log("Crash dump saved in " + Path.normalize(path));
-
         FlxG.stage.application.window.alert(errMsg, "Error!");
 
 		#if discord_rpc

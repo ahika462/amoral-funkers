@@ -34,8 +34,7 @@ class GifAtlas {
         }
 
         var frames:FlxAtlasFrames = new FlxAtlasFrames(null);
-        frames.frames = atlases[0].frames;
-        atlases.shift();
+        frames.frames = [];
         for (atlas in atlases)
             frames.frames = frames.frames.concat(atlas.frames);
 

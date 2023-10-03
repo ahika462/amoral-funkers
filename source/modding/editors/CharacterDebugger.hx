@@ -1,5 +1,7 @@
 package modding.editors;
 
+import flixel.system.debug.interaction.tools.Pointer.GraphicCursorCross;
+import flixel.graphics.FlxGraphic;
 import flixel.addons.display.FlxGridOverlay;
 import flixel.util.FlxColor;
 import flixel.text.FlxText;
@@ -16,17 +18,24 @@ class CharacterDebugger extends BaseDebugger {
 
     public var json(get, set):CharacterFile;
 
+    var cross:FlxSprite;
     var offsetTxt:FlxText;
 
     public function new(char:String = "bf") {
         super();
 
-        var bg:FlxSprite = FlxGridOverlay.create(10, 10);
+        var bg:FlxSprite = FlxGridOverlay.create(10, 10, -1, -1, true, 0xff808080, 0xff404040);
         bg.scrollFactor.set(0.5, 0.5);
         add(bg);
 
         character = new EditorCharacter(400, 130, cast Json.parse(Paths.getEmbedText("characters/" + curCharacter + ".json")).character, false);
         add(character);
+
+        cross = new FlxSprite(FlxGraphic.fromClass(GraphicCursorCross));
+        cross.setGraphicSize(40, 40);
+        cross.updateHitbox();
+		cross.color = FlxColor.WHITE;
+		add(cross);
 
         curCharacter = char;
 
@@ -57,6 +66,9 @@ class CharacterDebugger extends BaseDebugger {
                 character.velocity.y = -300;
             else
                 character.velocity.y = 0;
+
+            if (FlxG.keys.anyPressed([J, L, I, K]))
+                updateCrossPosition();
 
             if (character.animation.curAnim != null) {
                 if (FlxG.keys.justPressed.W) {
@@ -108,6 +120,7 @@ class CharacterDebugger extends BaseDebugger {
         character.json = cast Json.parse(Paths.getEmbedText("characters/" + value + ".json")).character;
         this.curCharacter = value;
         character.updateCharacter();
+        updateCrossPosition();
 
         return curCharacter = value;
     }
@@ -118,6 +131,14 @@ class CharacterDebugger extends BaseDebugger {
 
     function get_json():CharacterFile {
         return character.json;
+    }
+
+    public function updateCrossPosition() {
+        if (!character.isPlayer) {
+            cross.setPosition(character.getMidpoint().x + 150 + character.json.camera_position[0], character.getMidpoint().y - 100 + character.json.camera_position[1]);
+        } else {
+            cross.setPosition(character.getMidpoint().x - 100 - character.json.camera_position[0], character.getMidpoint().y - 100 + character.json.camera_position[1]);
+        }
     }
 }
 

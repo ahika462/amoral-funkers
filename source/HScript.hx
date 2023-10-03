@@ -1,3 +1,6 @@
+#if (!final && sys)
+import sys.io.File;
+#end
 import openfl.utils.Assets;
 import haxe.PosInfos;
 import flixel.FlxCamera;
@@ -16,7 +19,11 @@ class HScript {
 
     public function new(script:String) {
         try {
+            #if (final || !sys)
             interp.execute(parser.parseString(Assets.getText(script)));
+            #else
+            interp.execute(parser.parseString(File.getContent(script)));
+            #end
         } catch(e:Dynamic) {
             Debug.logError(e);
         }
@@ -42,7 +49,7 @@ class HScript {
         // сука блять нахуй блять
 
         /*var pavapepeGemabody:Dynamic = {};
-        Reflect.setProperty(pavapepeGemabody, funcName, interp.variables[funcName]);
+        Reflect.setProperty(pavapepeGemabody, funcName, interp.variables.get(funcName));
 
         return Reflect.callMethod(pavapepeGemabody, Reflect.getProperty(pavapepeGemabody, funcName), funcArgs);*/
 

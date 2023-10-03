@@ -42,29 +42,19 @@ class Song
 	{
 		var rawJson = Assets.getText(Paths.json(folder.toLowerCase() + '/' + jsonInput.toLowerCase())).trim();
 
-		while (!rawJson.endsWith("}"))
+		/*while (!rawJson.endsWith("}"))
 		{
 			rawJson = rawJson.substr(0, rawJson.length - 1);
 			// LOL GOING THROUGH THE BULLSHIT TO CLEAN IDK WHATS STRANGE
-		}
+		}*/
+		
+		var song:Dynamic = parseJSONshit(rawJson);
+		/*if (song.notes[0].sectionBeats != null) {
+			for (i in 0...song.notes.length)
+				song.notes[i] = Std.int(song.notes[i].sectionBeats * 4);
+		}*/
 
-		// FIX THE CASTING ON WINDOWS/NATIVE
-		// Windows???
-		// Debug.logTrace(songData);
-
-		// Debug.logTrace('LOADED FROM JSON: ' + songData.notes);
-		/* 
-			for (i in 0...songData.notes.length)
-			{
-				Debug.logTrace('LOADED FROM JSON: ' + songData.notes[i].sectionNotes);
-				// songData.notes[i].sectionNotes = songData.notes[i].sectionNotes
-			}
-
-				daNotes = songData.notes;
-				daSong = songData.song;
-				daBpm = songData.bpm; */
-
-		return parseJSONshit(rawJson);
+		return song;
 	}
 
 	public static function parseJSONshit(rawJson:String):SwagSong

@@ -1,5 +1,9 @@
 package;
 
+#if (!final && sys)
+import sys.FileSystem;
+import sys.io.File;
+#end
 import flixel.FlxG;
 import flixel.graphics.frames.FlxAtlasFrames;
 import openfl.utils.AssetType;
@@ -130,25 +134,65 @@ class Paths
 	}
 
 	public static function getEmbedText(key:String):String {
+		#if (final || !sys)
 		return OpenFlAssets.getText(getEmbedShit(key));
+		#else
+		return File.getContent(getEmbedShit(key));
+		#end
 	}
 
 	public static function getEmbedFiles(key:String, ?type:AssetType):Array<String> {
 		if (!key.endsWith("/"))
 			key += "/";
-
+		
+		#if (final || !sys)
 		var files:Array<String> = OpenFlAssets.list(type);
 		for (file in files) {
-			if (!file.startsWith(getEmbedShit(key + "/")))
+			if (!file.startsWith(getEmbedShit(key)))
 				files.remove(file);
 
 			var array:Array<String> = file.split("/");
 			file = array[array.length - 1];
 		}
 		return files;
+		#else
+		var files:Array<String> = FileSystem.readDirectory(getEmbedShit(key));
+		if (files == null)
+			files = [];
+
+		var folders:Array<String> = [];
+		for (file in files) {
+			if (FileSystem.isDirectory(file)) {
+				files.remove(file);
+				folders.push(file);
+			}
+		}
+
+		while (folders.length > 0) {
+			var curFiles:Array<String> = FileSystem.readDirectory(getEmbedShit(key) + folders[0]);
+			files = files.concat(curFiles);
+
+			var folders:Array<String> = [];
+			for (file in files) {
+				if (FileSystem.isDirectory(file)) {
+					files.remove(file);
+					folders.push(file);
+				}
+			}
+		}
+
+		for (i in 0...files.length)
+			files[0] = getEmbedShit(key + files[0]);
+		
+		return files;
+		#end
 	}
 
 	public static function embedExists(key:String, ?type:AssetType):Bool {
+		#if (final || !sys)
 		return OpenFlAssets.exists(getEmbedShit(key), type);
+		#else
+		return FileSystem.exists(getEmbedShit(key));
+		#end
 	}
 }

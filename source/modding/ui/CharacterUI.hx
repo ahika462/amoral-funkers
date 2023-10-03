@@ -33,6 +33,12 @@ class CharacterUI extends FlxUI {
     public var greenStepper:FlxUINumericStepper;
     public var blueStepper:FlxUINumericStepper;
 
+    public var xStepper:FlxUINumericStepper;
+    public var yStepper:FlxUINumericStepper;
+
+    public var xCamStepper:FlxUINumericStepper;
+    public var yCamStepper:FlxUINumericStepper;
+
     var debug:CharacterDebugger;
 
     public function new() {
@@ -47,6 +53,7 @@ class CharacterUI extends FlxUI {
         var saveButton:FlxButton = new FlxButton(charactersDropdown.x + charactersDropdown.width + 10, 10, "Save", function() {
             debug.json.healthicon = iconInputText.text;
             debug.json.healthbar_colors = [Std.int(redStepper.value), Std.int(greenStepper.value), Std.int(blueStepper.value)];
+            debug.json.position = [xStepper.value, yStepper.value];
             ModdingState.instance.saveFile(debug.json, "character", debug.curCharacter);
         });
         add(saveButton);
@@ -59,6 +66,7 @@ class CharacterUI extends FlxUI {
         var playerCheckBox:FlxUICheckBox = new FlxUICheckBox(iconInputText.x + iconInputText.width + 10, editorOffset, null, null, "Is Player");
         playerCheckBox.callback = function() {
             debug.character.isPlayer = playerCheckBox.checked;
+            debug.updateCrossPosition();
         }
         insert(0, playerCheckBox);
 
@@ -88,13 +96,13 @@ class CharacterUI extends FlxUI {
         colorShow = new FlxUIInputText(10, flipCheckBox.y + flipCheckBox.height + 10, 30, "");
         insert(0, colorShow);
 
-        redStepper = new FlxUINumericStepper(colorShow.x + colorShow.width + 10, flipCheckBox.y + flipCheckBox.height + 10, 1, 255, 0, 255);
+        redStepper = new FlxUINumericStepper(colorShow.x + colorShow.width + 10, flipCheckBox.y + flipCheckBox.height + 10, 1, 255, debug.json.healthbar_colors[0], 255);
         insert(0, redStepper);
 
-        greenStepper = new FlxUINumericStepper(redStepper.x + redStepper.width + 10, redStepper.y, 1, 255, 0, 255);
+        greenStepper = new FlxUINumericStepper(redStepper.x + redStepper.width + 10, redStepper.y, 1, 255, debug.json.healthbar_colors[1], 255);
         insert(0, greenStepper);
 
-        blueStepper = new FlxUINumericStepper(greenStepper.x + greenStepper.width + 10, greenStepper.y, 1, 255, 0, 255);
+        blueStepper = new FlxUINumericStepper(greenStepper.x + greenStepper.width + 10, greenStepper.y, 1, 255, debug.json.healthbar_colors[2], 255);
         insert(0, blueStepper);
 
         updateColor();
@@ -102,8 +110,8 @@ class CharacterUI extends FlxUI {
         editorOffset = 250;
 
         var daArray:Array<StrNameLabel> = [new StrNameLabel("-1", "")];
-            for (anim in debug.character.getAnimNames())
-                daArray.push(new StrNameLabel(Std.string(debug.character.getAnimNames().indexOf(anim)), anim));
+        for (anim in debug.character.getAnimNames())
+            daArray.push(new StrNameLabel(Std.string(debug.character.getAnimNames().indexOf(anim)), anim));
 
         var animationsDropDown:FlxUIDropDownMenu = new FlxUIDropDownMenu(10, editorOffset, daArray, function(choice:String) {
             var anim:AnimArray = null;
@@ -221,6 +229,18 @@ class CharacterUI extends FlxUI {
         loopCheckBox = new FlxUICheckBox(fpsStepper.x + fpsStepper.width + 10, fpsStepper.y, null, null, "Loop");
         insert(0, loopCheckBox);
 
+        xStepper = new FlxUINumericStepper(10, loopCheckBox.y + loopCheckBox.height + 10, 1, debug.json.position[0], Math.NEGATIVE_INFINITY, Math.POSITIVE_INFINITY);
+        insert(0, xStepper);
+
+        yStepper = new FlxUINumericStepper(xStepper.x + xStepper.width + 10, xStepper.y, 1, debug.json.position[1], Math.NEGATIVE_INFINITY, Math.POSITIVE_INFINITY);
+        insert(0, yStepper);
+
+        xCamStepper = new FlxUINumericStepper(10, yStepper.y + yStepper.height + 10, 1, debug.json.camera_position[0], Math.NEGATIVE_INFINITY, Math.POSITIVE_INFINITY);
+        insert(0, xCamStepper);
+
+        yCamStepper = new FlxUINumericStepper(xCamStepper.x + xCamStepper.width + 10, xCamStepper.y, 1, debug.json.camera_position[1], Math.NEGATIVE_INFINITY, Math.POSITIVE_INFINITY);
+        insert(0, yCamStepper);
+
         charactersDropdown.callback = function(choice:String) {
             debug.curCharacter = characterList[Std.parseInt(choice)];
 
@@ -228,6 +248,11 @@ class CharacterUI extends FlxUI {
             imageInputText.text = debug.json.image;
             flipCheckBox.checked = debug.json.flip_x;
             scaleStepper.value = debug.json.scale;
+
+            xStepper.value = debug.json.position[0];
+            yStepper.value = debug.json.position[1];
+            xCamStepper.value = debug.json.camera_position[0];
+            yCamStepper.value = debug.json.camera_position[1];
 
             var daArray:Array<StrNameLabel> = [new StrNameLabel("-1", "")];
             for (anim in debug.character.getAnimNames())
@@ -243,9 +268,15 @@ class CharacterUI extends FlxUI {
     override function update(elapsed:Float) {
         updateColor();
 
-        if (debug.character.scale.x != scaleStepper.value) {
+        if (debug.json.scale != scaleStepper.value) {
             debug.json.scale = scaleStepper.value;
-            debug.character.updateCharacter();
+            debug.character.scale.set(scaleStepper.value, scaleStepper.value);
+            debug.character.updateHitbox();
+        }
+
+        if (debug.json.camera_position[0] != xCamStepper.value || debug.json.camera_position[1] != yCamStepper.value) {
+            debug.json.camera_position = [xCamStepper.value, yCamStepper.value];
+            debug.updateCrossPosition();
         }
 
         if (!ModdingState.instance.anyFocused) {

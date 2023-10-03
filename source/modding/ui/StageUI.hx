@@ -33,6 +33,7 @@ class StageUI extends FlxUI {
         insert(0, zoomStepper);
 
         var pixelCheckBox:FlxUICheckBox = new FlxUICheckBox(zoomStepper.x + zoomStepper.width + 10, zoomStepper.y, null, null, "Pixel");
+        pixelCheckBox.checked = debug.json.pixel;
         pixelCheckBox.callback = function() {
             debug.json.pixel = pixelCheckBox.checked;
         }
@@ -45,6 +46,7 @@ class StageUI extends FlxUI {
             ModdingState.instance.openSubState(debug);
 
             zoomStepper.value = debug.json.zoom;
+            pixelCheckBox.checked = debug.json.pixel;
         }
     }
 
