@@ -5,14 +5,23 @@ import flixel.text.FlxText;
 
 class CredtitsState extends MusicBeatState {
     static var creditsStuff:Array<CreditMetadata> = [
-        new CreditMetadata("temmie")
+        new CreditMetadata("temmie"),
+        new CreditMetadata("BBQ")
     ];
 
     override function create() {
         for (i in creditsStuff) {
-            var text:FlxText = new FlxText(300, 300, i.name, 64);
+            var text:Alphabet = new Alphabet(0, (130 * creditsStuff.indexOf(i)) + 100, i.name, true);
+            text.screenCenter(X);
             add(text);
-            var icon:FlxSprite = new FlxSprite(i.name == "temmie" ? Assets.getBitmapData("amoral/e705aac6-6fb4-4ccc-945c-df2950a1d972.png") : Paths.image("credits/" + i.icon));
+
+            var icon:FlxSprite = new FlxSprite();
+            if (i.name == "temmie")
+                icon.loadGraphic(Assets.getBitmapData("amoral/e705aac6-6fb4-4ccc-945c-df2950a1d972.png"));
+            else if (i.name == "BBQ")
+                icon.loadGraphic(Assets.getBitmapData("amoral/-.png"));
+            else
+                icon.loadGraphic(Paths.image("credits/" + i.icon));
             icon.setGraphicSize(0, 300);
             icon.updateHitbox();
             icon.x = text.x + text.width + 10;
@@ -38,12 +47,14 @@ class CreditMetadata {
     public var name:String;
     public var icon:String;
     public var description:String;
+    public var image:String;
     public var link:String;
 
-    public function new(name:String, ?icon:String, ?description:String, ?link:String) {
+    public function new(name:String, ?icon:String, ?description:String, ?image:String, ?link:String) {
         this.name = name;
         this.icon = icon;
         this.description = description;
+        this.image = image;
         this.link = link;
     }
 }

@@ -146,12 +146,14 @@ class Rating {
 	public var name:String;
 	public var image:String;
 	public var window:Int;
+	public var rating:Float;
 	public var sick:Bool;
 	
-	public function new(name:String, window:Int, sick:Bool) {
+	public function new(name:String, window:Int, rating:Float, sick:Bool) {
 		this.name = name;
 		this.image = name;
 		this.window = window;
+		this.rating = rating;
 		this.sick = sick;
 	}
 }

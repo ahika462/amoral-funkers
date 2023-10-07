@@ -154,11 +154,17 @@ class PlayState extends MusicBeatState
 	var songMisses:Int = 0;
 	var scoreTxt:FlxText;
 
-	var songRank:String = "N/A";
-	var sicks:Int = 0;
-	var goods:Int = 0;
-	var bads:Int = 0;
-	var shits:Int = 0;
+	var ratingPercent(get, never):Float;
+	var noteHits:Int = 0;
+	var noteRatings:Float = 0;
+
+	function get_ratingPercent():Float {
+		var returnVal:Float = CoolUtil.floorDecimal(Math.min(1, Math.max(0, noteRatings / noteHits)) * 100, 2);
+		if (returnVal < 0)
+			returnVal = 0;
+		
+		return returnVal;
+	}
 
 	public var grpNoteSplashes:FlxTypedGroup<NoteSplash>;
 
@@ -835,12 +841,6 @@ class PlayState extends MusicBeatState
 		// healthBar
 		add(healthBar);
 
-		scoreTxt = new FlxText(healthBarBG.x + healthBarBG.width - 190, healthBarBG.y + 30, 0, "", 20);
-		scoreTxt.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		scoreTxt.scrollFactor.set();
-		add(scoreTxt);
-		recalculateRatings();
-
 		iconP1 = new HealthIcon(boyfriend.healthIcon, true);
 		iconP1.y = healthBar.y - (iconP1.height / 2);
 		add(iconP1);
@@ -848,6 +848,12 @@ class PlayState extends MusicBeatState
 		iconP2 = new HealthIcon(dad.healthIcon, false);
 		iconP2.y = healthBar.y - (iconP2.height / 2);
 		add(iconP2);
+
+		scoreTxt = new FlxText(healthBarBG.x + healthBarBG.width - 190, healthBarBG.y + 30, 0, "", 20);
+		scoreTxt.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		scoreTxt.scrollFactor.set();
+		add(scoreTxt);
+		recalculateRatings();
 
 		grpNoteSplashes.cameras = [camHUD];
 		strumLineNotes.cameras = [camHUD];
@@ -2295,22 +2301,14 @@ class PlayState extends MusicBeatState
 		var rating:FlxSprite = new FlxSprite();
 
 		var daRating:Rating = Conductor.judgeNote(daNote, [
-			new Rating("sick", ClientPrefs.data.sickWindow, true),
-			new Rating("good", ClientPrefs.data.goodWindow, false),
-			new Rating("bad", ClientPrefs.data.badWindow, false),
-			new Rating("shit", Std.int(Conductor.safeZoneOffset), false)
+			new Rating("sick", ClientPrefs.data.sickWindow, 1, true),
+			new Rating("good", ClientPrefs.data.goodWindow, 0.7, false),
+			new Rating("bad", ClientPrefs.data.badWindow, 0.4, false),
+			new Rating("shit", Std.int(Conductor.safeZoneOffset), 0, false)
 		]);
 
-		switch(daRating.name) {
-			case "sick":
-				sicks++;
-			case "good":
-				goods++;
-			case "bad":
-				bads++;
-			case "shit":
-				shits++;
-		}
+		noteHits++;
+		noteRatings += daRating.rating;
 
 		if (daRating.sick) {
 			var noteSplash:NoteSplash = grpNoteSplashes.recycle(NoteSplash);
@@ -2625,6 +2623,7 @@ class PlayState extends MusicBeatState
 		health -= 0.04;
 		killCombo();
 		songMisses++;
+		noteHits++;
 
 		if (!practiceMode)
 			songScore -= 10;
@@ -2654,6 +2653,7 @@ class PlayState extends MusicBeatState
 		vocals.volume = 0;
 		killCombo();
 		songMisses++;
+		noteHits++;
 
 		daNote.active = false;
 		daNote.visible = false;
@@ -3043,19 +3043,8 @@ class PlayState extends MusicBeatState
 	}
 
 	function recalculateRatings() {
-		songRank = "N/A";
-		if (sicks > 0)
-			songRank = "SFC";
-		if (goods > 0)
-			songRank = "GFC";
-		if (bads > 0 || shits > 0)
-			songRank = "FC";
-		if (songMisses > 0)
-			songRank = "SDCB";
-		if (songMisses >= 10)
-			songRank = "Clear";
 
-		scoreTxt.text = "Score:" + songScore + " | " + "Misses: " + songMisses + " | " + "Rating: " + songRank;
+		scoreTxt.text = "Score:" + songScore + " | " + "Misses: " + songMisses + " | " + "Accuracy: " + ratingPercent + "%";
 		scoreTxt.screenCenter(X);
 	}
 

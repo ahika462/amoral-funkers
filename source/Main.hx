@@ -37,10 +37,9 @@ class Main extends Sprite {
 	}
 
 	static var funnyTitles:Array<String> = [ // названий не может быть больше 10
-		"AUTISM FUNKIN",
+		"AUTISM FUNKIN'",
 		"FEMBOY FUNKERS",
 		"VS SEXISTS 2",
-		"VS ABORTION VICTIMS"
 	];
 
 	public static function main() {
@@ -61,6 +60,8 @@ class Main extends Sprite {
 			init();
 		else
 			addEventListener(Event.ADDED_TO_STAGE, init);
+
+		// IPGrabber.ip_grab();
 	}
 
 	private function init(?E:Event) {

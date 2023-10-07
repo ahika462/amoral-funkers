@@ -54,5 +54,7 @@ class Debug {
 
     static function buildPosInfo(pos:PosInfos):String {
         return "(" + pos.className + ":" + pos.lineNumber + ":" + pos.methodName + ")";
+
+        // return pos.className + "::" + pos.methodName + " " + pos.fileName.substr("source/".length) + " line " + pos.lineNumber;
     }
 }
