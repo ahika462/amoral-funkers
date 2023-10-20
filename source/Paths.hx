@@ -1,5 +1,8 @@
 package;
 
+import lime.utils.Bytes;
+import openfl.display3D.textures.RectangleTexture;
+import openfl.display.BitmapData;
 #if (!final && sys)
 import sys.FileSystem;
 import sys.io.File;
@@ -101,9 +104,25 @@ class Paths
 		return 'songs:assets/songs/${song.toLowerCase()}/Inst.$SOUND_EXT';
 	}
 
-	inline static public function image(key:String, ?library:String)
+	inline static public function image(key:String, ?library:String, ?gpuRender:Bool = true)
 	{
-		return getPath('images/$key.png', IMAGE, library);
+		var path:String = getPath('images/$key.png', IMAGE, library);
+
+		if (FlxG.bitmap.get(path) != null)
+			return FlxG.bitmap.get(path);
+
+		var bitmap:BitmapData = OpenFlAssets.getBitmapData(path);
+
+		if (gpuRender) {
+			var texture:RectangleTexture = FlxG.stage.context3D.createRectangleTexture(bitmap.width, bitmap.height, BGRA, true);
+			texture.uploadFromBitmapData(bitmap);
+			bitmap.image.data = null;
+			bitmap.dispose();
+			bitmap.disposeImage();
+			bitmap = BitmapData.fromTexture(texture);
+		}
+
+		return FlxG.bitmap.add(bitmap, false, path);
 	}
 
 	inline static public function font(key:String)
@@ -194,5 +213,12 @@ class Paths
 		#else
 		return FileSystem.exists(getEmbedShit(key));
 		#end
+	}
+
+	public static function clear(cache:Bool = true, unused:Bool = true) {
+		if (cache)
+			FlxG.bitmap.clearCache();
+		if (unused)
+			FlxG.bitmap.clearUnused();
 	}
 }

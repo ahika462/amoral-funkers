@@ -68,6 +68,8 @@ class TitleState extends MusicBeatState
 
 	override public function create():Void
 	{
+		Paths.clear();
+
 		#if polymod
 		polymod.Polymod.init({modRoot: "mods", dirs: ['introMod'], framework: OPENFL});
 		// FlxG.bitmap.clearCache();
@@ -287,18 +289,10 @@ class TitleState extends MusicBeatState
 
 		credTextShit.visible = false;
 
-		var ngGraphic:FlxGraphicAsset = Paths.image('newgrounds_logo');
-		if (#if AMORAL FlxG.random.bool(100) #else false #end)
-			ngGraphic = Assets.getBitmapData("amoral/e705aac6-6fb4-4ccc-945c-df2950a1d972.png");
-
-		ngSpr = new FlxSprite(0, FlxG.height * 0.52, ngGraphic);
+		ngSpr = new FlxSprite(0, FlxG.height * 0.52, Paths.image('newgrounds_logo'));
 		add(ngSpr);
 		ngSpr.visible = false;
-		// ngSpr.setGraphicSize(Std.int(ngSpr.width * 0.8));
-		ngSpr.setGraphicSize(
-			Std.int(Assets.getBitmapData(Paths.image('newgrounds_logo')).width * 0.8),
-			Std.int(Assets.getBitmapData(Paths.image('newgrounds_logo')).height * 0.8)
-		);
+		ngSpr.setGraphicSize(Std.int(ngSpr.width * 0.8));
 		ngSpr.updateHitbox();
 		ngSpr.screenCenter(X);
 		ngSpr.antialiasing = true;

@@ -13,7 +13,13 @@ import Song.SwagSong;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.FlxSprite;
 
+using flixel.util.FlxStringUtil;
+using StringTools;
+
 class ChartDebugger extends BaseDebugger {
+	public var undos:Array<SwagSong> = [];
+	public var redos:Array<SwagSong> = [];
+
     var curSection:Int = 0;
     public static var lastSection:Int = 0;
 
@@ -182,34 +188,36 @@ class ChartDebugger extends BaseDebugger {
 			}
 		});
 
+		var mouseY:Float = ModdingState.instance.camEditor.viewY + FlxG.mouse.y;
+
 		if (FlxG.mouse.justPressed) {
-			if (FlxG.mouse.overlaps(curRenderedNotes)) {
-				curRenderedNotes.forEach(function(note:Note) {
-					if (FlxG.mouse.overlaps(note)) {
-						if (FlxG.keys.pressed.CONTROL) {
-							selectNote(note);
-						}
-						else {
-							Debug.logTrace('tryin to delete note...');
-							deleteNote(note);
-						}
-					}
-				});
-			}
-			else {
-				if (FlxG.mouse.x > gridBG.x && FlxG.mouse.x < gridBG.x + gridBG.width && FlxG.mouse.y > gridBG.y && FlxG.mouse.y < gridBG.y + (GRID_SIZE * json.notes[curSection].lengthInSteps)) {
+			var overlappedNote:Note = null;
+			curRenderedNotes.forEach(function(note:Note) {
+				if (FlxG.mouse.x > note.x && FlxG.mouse.x < note.x + note.width && mouseY > note.y && mouseY < note.y + note.height)
+					overlappedNote = note;
+			});
+
+			if (overlappedNote != null) {
+				if (FlxG.keys.pressed.CONTROL)
+					selectNote(overlappedNote);
+				else {
+					Debug.logTrace('tryin to delete note...');
+					deleteNote(overlappedNote);
+				}
+			} else {
+				if (FlxG.mouse.x > gridBG.x && FlxG.mouse.x < gridBG.x + gridBG.width && mouseY > gridBG.y && mouseY < gridBG.y + (GRID_SIZE * json.notes[curSection].lengthInSteps)) {
 					FlxG.log.add('added note');
 					addNote();
 				}
 			}
 		}
-
-		if (FlxG.mouse.x > gridBG.x && FlxG.mouse.x < gridBG.x + gridBG.width && FlxG.mouse.y > gridBG.y && FlxG.mouse.y < gridBG.y + (GRID_SIZE * json.notes[curSection].lengthInSteps)) {
+		
+		if (FlxG.mouse.x > gridBG.x && FlxG.mouse.x < gridBG.x + gridBG.width && mouseY > gridBG.y && mouseY < gridBG.y + (GRID_SIZE * json.notes[curSection].lengthInSteps)) {
 			dummyArrow.x = Math.floor(FlxG.mouse.x / GRID_SIZE) * GRID_SIZE;
 			if (FlxG.keys.pressed.SHIFT)
-				dummyArrow.y = FlxG.mouse.y;
+				dummyArrow.y = mouseY;
 			else
-				dummyArrow.y = Math.floor(FlxG.mouse.y / GRID_SIZE) * GRID_SIZE;
+				dummyArrow.y = Math.floor(mouseY / GRID_SIZE) * GRID_SIZE;
 		}
 
 		if (FlxG.keys.justPressed.ENTER) {
@@ -293,7 +301,12 @@ class ChartDebugger extends BaseDebugger {
 		if (FlxG.keys.justPressed.LEFT || FlxG.keys.justPressed.A)
 			changeSection(curSection - shiftThing);
 
-		bpmTxt.text = bpmTxt.text = Std.string(FlxMath.roundDecimal(Conductor.songPosition / 1000, 2)) + " / " + Std.string(FlxMath.roundDecimal(FlxG.sound.music.length / 1000, 2)) + "\nSection: " + curSection;
+		bpmTxt.text = "Time: " + (Conductor.songPosition / 1000).formatTime() + " / " + (Conductor.followSound.length / 1000).formatTime() + "\n(" + Std.string(FlxMath.roundDecimal(Conductor.songPosition / 1000, 2)) + " / " + Std.string(FlxMath.roundDecimal(FlxG.sound.music.length / 1000, 2)) + ")\n\nSection: " + curSection;
+
+		ModdingState.instance.camFollow.y = strumLine.y;
+
+		if (curSelectedNote != null && curSelectedNote[2] != ModdingState.instance.chartUI.sustainStepper.value)
+			curSelectedNote[2] = ModdingState.instance.chartUI.sustainStepper.value;
 
 		super.update(elapsed);
 	}
@@ -415,11 +428,11 @@ class ChartDebugger extends BaseDebugger {
 	}
 
 	function updateNoteUI() {
-		/*if (curSelectedNote != null)
-			stepperSusLength.value = curSelectedNote[2];*/
+		if (curSelectedNote != null)
+			ModdingState.instance.chartUI.sustainStepper.value = curSelectedNote[2];
 	}
 
-	function updateGrid() {
+	public function updateGrid() {
 		curRenderedNotes.clear();
 		curRenderedSustains.clear();
 
@@ -490,6 +503,8 @@ class ChartDebugger extends BaseDebugger {
 	}
 
 	function deleteNote(note:Note) {
+		addUndo();
+
 		for (i in json.notes[curSection].sectionNotes)
 		{
 			if (i[0] == note.strumTime && i[1] % 4 == note.noteData)
@@ -516,8 +531,10 @@ class ChartDebugger extends BaseDebugger {
 	}
 
 	private function addNote() {
+		addUndo();
+
 		var noteStrum:Float = getStrumTime(dummyArrow.y) + sectionStartTime();
-		var noteData:Int = Math.floor(FlxG.mouse.x / GRID_SIZE);
+		var noteData:Int = Math.floor((FlxG.mouse.x - gridBG.x) / GRID_SIZE);
 		var noteSus:Float = 0;
 		var noteAlt:Bool = false;
 
@@ -580,101 +597,19 @@ class ChartDebugger extends BaseDebugger {
 		});
 		FlxG.save.flush();
 	}
+
+	function addUndo() {
+		var cont:SwagSong = {
+			song: json.song,
+			notes: json.notes,
+			bpm: json.bpm,
+			needsVoices: json.needsVoices,
+			speed: json.speed,
+
+			player1: json.player1,
+			player2: json.player2,
+			validScore: json.validScore
+		};
+		undos.insert(0, cont);
+	}
 }
-
-/*import flixel.group.FlxSpriteGroup;
-import flixel.math.FlxMath;
-import flixel.sound.FlxSound;
-import flixel.math.FlxPoint;
-import flixel.FlxG;
-import haxe.Json;
-import Character.CharacterFile;
-import flixel.addons.display.FlxGridOverlay;
-import flixel.FlxSprite;
-import Song.SwagSong;
-
-class ChartDebugger extends BaseDebugger {
-    public var curSong:String = "test";
-    public var json(get, set):SwagSong;
-
-    public var player1Json(get, never):CharacterFile;
-    public var player2Json(get, never):CharacterFile;
-
-    inline public static var GRID_SIZE:Int = 40;
-    public var grid:FlxSprite;
-
-    var leftIcon:HealthIcon;
-    var rightIcon:HealthIcon;
-
-    var curSection:Int = 0;
-
-    var vocals:FlxSound;
-
-    var notes:Array<Note> = [];
-
-    public function new(song:String = "test") {
-        super();
-        curSong = song;
-        loadJson(song);
-        vocals = new FlxSound().loadEmbedded(Paths.voices(json.song.toLowerCase()));
-
-        grid = FlxGridOverlay.create(GRID_SIZE, GRID_SIZE, GRID_SIZE * 8, GRID_SIZE * 16);
-        grid.x = FlxG.width / 2;
-        grid.y = FlxG.height / 2;
-        add(grid);
-
-        leftIcon = new HealthIcon();
-        leftIcon.setGraphicSize(0, 45);
-        leftIcon.updateHitbox();
-        leftIcon.setPosition(grid.x + grid.width / 4 - leftIcon.width / 2, grid.y - leftIcon.height / 2 - 30);
-        add(leftIcon);
-        
-        rightIcon = new HealthIcon();
-        rightIcon.setGraphicSize(0, 45);
-        rightIcon.updateHitbox();
-        rightIcon.setPosition(grid.x + grid.width / 4 * 3 - rightIcon.width / 2, grid.y - rightIcon.height / 2 - 30);
-        add(rightIcon);
-
-        reloadSection();
-    }
-
-    function get_json():SwagSong {
-        return PlayState.SONG;
-    }
-
-    function set_json(value:SwagSong):SwagSong {
-        return PlayState.SONG = value;
-    }
-
-    function get_player1Json():CharacterFile {
-        return cast Json.parse(Paths.getEmbedText("characters/" + json.player1 + ".json")).character;
-    }
-
-    function get_player2Json():CharacterFile {
-        return cast Json.parse(Paths.getEmbedText("characters/" + json.player2 + ".json")).character;
-    }
-
-    function reloadSection(step:Int = 0, force:Bool = false) {
-        curSection = step + (force ? 0 : curSection);
-
-        leftIcon.changeIcon(json.notes[curSection].mustHitSection ? player1Json.healthicon : player2Json.healthicon);
-        rightIcon.changeIcon(!json.notes[curSection].mustHitSection ? player1Json.healthicon : player2Json.healthicon);
-
-        for (i in json.notes[curSection].sectionNotes) {
-            var daNoteData:Int = i[1];
-			var daStrumTime:Float = i[0];
-			var daSus:Float = i[2];
-
-            var note:EditorNote = new EditorNote(daNoteData, daStrumTime, daSus);
-        }
-    }
-
-    public function loadJson(song:String) {
-        var songFile:SwagSong = Song.loadFromJson(song, song);
-        json = songFile;
-    }
-
-    public function loadSong(song:String) {
-
-    }
-}*/

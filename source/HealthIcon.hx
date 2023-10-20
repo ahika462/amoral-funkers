@@ -39,9 +39,6 @@ class HealthIcon extends FlxSprite
 
 	public function changeIcon(newChar:String):Void
 	{
-		if (newChar != 'bf-pixel' && newChar != 'bf-old')
-			newChar = newChar.split('-')[0].trim();
-
 		if (newChar != char)
 		{
 			if (animation.getByName(newChar) == null)

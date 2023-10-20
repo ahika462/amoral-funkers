@@ -1,7 +1,14 @@
+import flixel.FlxG;
+import flixel.util.FlxColor;
 import openfl.system.System;
 import openfl.display.FPS;
 
 class MemFPS extends FPS {
+    public function new(x:Float = 10, y:Float = 10, color:FlxColor = FlxColor.BLACK) {
+        super(x, y, color);
+        width = FlxG.width;
+    }
+
     override function __enterFrame(deltaTime:Float) {
         super.__enterFrame(deltaTime);
         

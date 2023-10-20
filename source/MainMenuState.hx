@@ -27,6 +27,8 @@ class MainMenuState extends MusicBeatState {
 	var camFollow:FlxObject;
 
 	override function create() {
+		Paths.clear();
+
 		#if discord_rpc
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("In the Menus", null);
@@ -111,7 +113,7 @@ class MainMenuState extends MusicBeatState {
 								case "credits":
 									FlxG.switchState(new CredtitsState());
 								case "options":
-									FlxG.switchState(new ui.OptionsState());
+									// FlxG.switchState(new ui.OptionsState());
 							}
 						});
 					}

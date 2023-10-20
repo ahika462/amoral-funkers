@@ -87,4 +87,8 @@ class CoolUtil
 		var newValue:Float = Math.floor(value * tempMult);
 		return newValue / tempMult;
 	}
+
+	public static function boundTo(value:Float, min:Float, max:Float):Float {
+		return Math.max(min, Math.min(max, value));
+	}
 }

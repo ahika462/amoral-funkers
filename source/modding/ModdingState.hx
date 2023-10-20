@@ -34,10 +34,12 @@ class ModdingState extends MusicBeatState {
     public var stageDebug:StageDebugger;
 
     var characterUI:CharacterUI;
-    var chartUI:ChartUI;
+    public var chartUI:ChartUI;
     var stageUI:StageUI;
 
     public var bg:FlxSprite;
+
+    public var camFollow:FlxObject = new FlxObject();
 
     override function create() {
         instance = this;
@@ -64,6 +66,9 @@ class ModdingState extends MusicBeatState {
         bg.color = 0xff58227A;
         bg.cameras = [camBG];
         add(bg);
+
+        camFollow.screenCenter();
+        camEditor.follow(camFollow);
         
         mainTabUI = new FlxUITabMenu([
             {name: "Characters", label: "Characters"},
@@ -122,6 +127,11 @@ class ModdingState extends MusicBeatState {
         mainTabUI.addGroup(chartUI);
 
         inputTexts.push(chartUI.nameInputText);
+        @:privateAccess {
+            inputTexts.push(cast chartUI.speedStepper.text_field);
+            inputTexts.push(cast chartUI.bpmStepper.text_field);
+            inputTexts.push(cast chartUI.sustainStepper.text_field);
+        }
     }
 
     function addStageUI() {
@@ -184,6 +194,8 @@ class ModdingState extends MusicBeatState {
             bg.color = 0xff58227A;
             camEditor.zoom = 1;
         }
+
+        camFollow.screenCenter();
 
         if (requestedDebug != null) {
             if (subState != requestedDebug)

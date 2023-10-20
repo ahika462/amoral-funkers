@@ -105,7 +105,6 @@ class PlayState extends MusicBeatState
 
 	public var healthBarBG:FlxSprite;
 	public var healthBar:FlxBar;
-
 	public var healthLerp:Float;
 
 	private var generatedMusic:Bool = false;
@@ -115,6 +114,7 @@ class PlayState extends MusicBeatState
 	public var iconP2:HealthIcon;
 
 	public var camGame:SwagCamera = new SwagCamera();
+	public var camTime:FlxCamera = new FlxCamera();
 	public var camHUD:FlxCamera = new FlxCamera();
 	public var camOther:FlxCamera = new FlxCamera();
 
@@ -196,9 +196,12 @@ class PlayState extends MusicBeatState
 	var missEffect:MissEffect;
 	#end
 
+	var timeSpectrum:TimeSpectrum;
+
 	override public function create()
 	{
 		instance = this;
+		Paths.clear();
 
 		Conductor.followSound = null;
 		if (FlxG.sound.music != null)
@@ -208,10 +211,12 @@ class PlayState extends MusicBeatState
 		FlxG.sound.cache(Paths.voices(PlayState.SONG.song));
 
 		// var gameCam:FlxCamera = FlxG.camera;
+		camTime.bgColor.alpha = 0;
 		camHUD.bgColor.alpha = 0;
 		camOther.bgColor.alpha = 0;
 
 		FlxG.cameras.reset(camGame);
+		FlxG.cameras.add(camTime, false);
 		FlxG.cameras.add(camHUD, false);
 		FlxG.cameras.add(camOther, false);
 
@@ -787,6 +792,10 @@ class PlayState extends MusicBeatState
 		}
 
 		callOnScripts("pre_create");
+
+		timeSpectrum = new TimeSpectrum();
+		timeSpectrum.cameras = [camTime];
+		add(timeSpectrum);
 
 		var doof:DialogueBox = new DialogueBox(false, dialogue);
 		// doof.x += 70;
@@ -2097,8 +2106,7 @@ class PlayState extends MusicBeatState
 						else
 							daNote.y += daNote.height / 2;
 
-						if ((!daNote.mustPress || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit)))
-							&& daNote.y - daNote.offset.y * daNote.scale.y + daNote.height >= strumLineMid)
+						if ((!daNote.mustPress || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit))) && daNote.y - daNote.offset.y * daNote.scale.y + daNote.height >= strumLineMid)
 						{
 							// clipRect is applied to graphic itself so use frame Heights
 							var swagRect:FlxRect = new FlxRect(0, 0, daNote.frameWidth, daNote.frameHeight);
@@ -2628,7 +2636,10 @@ class PlayState extends MusicBeatState
 		if (!practiceMode)
 			songScore -= 10;
 
-		vocals.volume = 0;
+		@:privateAccess {
+			if (vocals._transform != null)
+				vocals.volume = 0;
+		}
 		FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
 
 		/* boyfriend.stunned = true;
@@ -2709,7 +2720,10 @@ class PlayState extends MusicBeatState
 			});
 
 			note.wasGoodHit = true;
-			vocals.volume = 1;
+			@:privateAccess {
+				if (vocals._transform != null)
+					vocals.volume = 1;
+			}
 
 			if (!note.isSustainNote)
 			{
@@ -2748,7 +2762,10 @@ class PlayState extends MusicBeatState
 		dad.holdTimer = 0;
 
 		if (SONG.needsVoices)
-			vocals.volume = 1;
+			@:privateAccess {
+				if (vocals._transform != null)
+					vocals.volume = 1;
+			}
 
 		daNote.kill();
 		notes.remove(daNote, true);

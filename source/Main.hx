@@ -80,7 +80,7 @@ class Main extends Sprite {
 
 		#if !mobile
 		fpsCounter = new MemFPS(10, 3, 0xFFFFFF);
-		addChild(fpsCounter);
+		FlxG.game.addChild(fpsCounter);
 		#end
 
 		#if sys
@@ -106,7 +106,7 @@ class Main extends Sprite {
 
 		errMsg += "\nUncaught Error: " + e.error;
 
-		Debug.log(errMsg);
+		Debug.logCrash(errMsg);
         FlxG.stage.application.window.alert(errMsg, "Error!");
 
 		#if discord_rpc

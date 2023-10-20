@@ -10,6 +10,7 @@ using StringTools;
 enum abstract LogStyle(String) from String to String {
     var TRACE = "[TRACE] ";
     var ERROR = "[ERROR] ";
+    var CRASH = "\n[GAME WAS CRASHED]\n\n";
 }
 
 class Debug {
@@ -35,6 +36,10 @@ class Debug {
 
     public static function logError(input:Dynamic, ?pos:PosInfos) {
         log(ERROR + buildPosInfo(pos) + ": " + Std.string(input));
+    }
+
+    public static function logCrash(input:Dynamic, ?pos:PosInfos) {
+        log(CRASH + Std.string(input));
     }
 
     public static function log(input:Dynamic) {
