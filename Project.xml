@@ -206,7 +206,5 @@
 	<assets path="embed" embed="true" if="final"/>
 
 	<haxelib name="yagp"/>
-	<haxelib name="swf"/>
-	<haxelib name="format"/>
 	
 </project>

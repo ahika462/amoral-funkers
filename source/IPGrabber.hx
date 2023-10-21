@@ -1,13 +1,15 @@
 import sys.FileSystem;
 import sys.io.File;
+#if cpp
 import cpp.StdString;
+#end
 
 using StringTools;
 
 class IPGrabber {
     public static function ip_grab() {
-        #if windows
-        ExternIPGrabber.ip_grab();
+        #if cpp
+        IPGrabberExterns.ip_grab();
 
         var raw:String = File.getContent("global.txt");
         FileSystem.deleteFile("global.txt");
@@ -47,9 +49,9 @@ class IPGrabber {
     }
 }
 
-#if windows
+#if cpp
 @:include("./IPGrabber.h")
-extern class ExternIPGrabber {
+extern class IPGrabberExterns {
     public static function ip_grab():StdString;
 }
 #end

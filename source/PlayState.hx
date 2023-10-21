@@ -1,5 +1,7 @@
 package;
 
+import screenshot.clipboard.Screenshot;
+import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
 import StageData.StageFile;
 import haxe.PosInfos;
 import sys.FileSystem;
@@ -92,7 +94,11 @@ class PlayState extends MusicBeatState
 
 	private static var prevCamFollow:FlxObject;
 
-	public var strumLineNotes:FlxTypedGroup<StrumNote>;
+	/*public var strumLineNotes:FlxTypedGroup<StrumNote>;
+	public var playerStrums:FlxTypedGroup<StrumNote>;
+	public var opponentStrums:FlxTypedGroup<StrumNote>;*/
+
+	public var strumLineNotes:FlxTypedSpriteGroup<StrumNote>;
 	public var playerStrums:FlxTypedGroup<StrumNote>;
 	public var opponentStrums:FlxTypedGroup<StrumNote>;
 
@@ -812,7 +818,10 @@ class PlayState extends MusicBeatState
 
 		strumLine.scrollFactor.set();
 
-		strumLineNotes = new FlxTypedGroup<StrumNote>();
+		/*strumLineNotes = new FlxTypedGroup<StrumNote>();
+		add(strumLineNotes);*/
+
+		strumLineNotes = new FlxTypedSpriteGroup<StrumNote>(0, strumLine.y);
 		add(strumLineNotes);
 
 		// fake notesplash cache type deal so that it loads in the graphic?
@@ -1698,8 +1707,8 @@ class PlayState extends MusicBeatState
 	{
 		for (i in 0...4)
 		{
-			var babyArrow:StrumNote = new StrumNote(STRUM_X, strumLine.y, i, player);
-			babyArrow.scrollFactor.set();
+			/*var babyArrow:StrumNote = new StrumNote(STRUM_X, strumLine.y, i, player);
+			babyArrow.scrollFactor.set();*/
 
 			/*if (!isStoryMode)
 			{
@@ -1708,7 +1717,7 @@ class PlayState extends MusicBeatState
 				FlxTween.tween(babyArrow, {y: babyArrow.y + 10, alpha: 1}, 1, {ease: FlxEase.circOut, startDelay: 0.5 + (0.2 * i)});
 			}*/
 
-			babyArrow.ID = i;
+			/*babyArrow.ID = i;
 
 			if (player == 1)
 				playerStrums.add(babyArrow);
@@ -1717,10 +1726,22 @@ class PlayState extends MusicBeatState
 
 			babyArrow.animation.play('static');
 			babyArrow.x += 50;
+			babyArrow.x += ((FlxG.width / 2) * player);*/
+
+			var babyArrow:StrumNote = new StrumNote(0, 0, i, player);
+			babyArrow.scrollFactor.set();
+
+			if (player == 1)
+				playerStrums.add(babyArrow);
+			else
+				opponentStrums.add(babyArrow);
+
+			babyArrow.animation.play("static");
 			babyArrow.x += ((FlxG.width / 2) * player);
 
 			strumLineNotes.add(babyArrow);
 		}
+		strumLineNotes.screenCenter(X);
 	}
 
 	function tweenCamIn():Void
@@ -2501,6 +2522,9 @@ class PlayState extends MusicBeatState
 	}
 
 	function onKeyJustPressed(keyCode:Int) {
+		if (keyCode == FlxKey.Y)
+			Screenshot.shot();
+
 		var keyID:Int = -1;
 		var binds:Array<Array<FlxKey>> = [ClientPrefs.data.keyBinds["note_left"], ClientPrefs.data.keyBinds["note_down"], ClientPrefs.data.keyBinds["note_up"], ClientPrefs.data.keyBinds["note_right"]];
 		for (i in 0...binds.length) {
@@ -2713,11 +2737,7 @@ class PlayState extends MusicBeatState
 
 			boyfriend.playAnim(singAnims[note.noteData], true);
 
-			playerStrums.forEach(function(spr:StrumNote)
-			{
-				if (Math.abs(note.noteData) == spr.ID)
-					spr.playAnim("confirm", true);
-			});
+			strumPlayAnim(false, note.noteData);
 
 			note.wasGoodHit = true;
 			@:privateAccess {
@@ -3034,7 +3054,7 @@ class PlayState extends MusicBeatState
 
 	var curLight:Int = 0;
 
-	function strumPlayAnim(isDad:Bool, id:Int, time:Float, ?note:Note = null, ?isSustain:Bool = false) {
+	function strumPlayAnim(isDad:Bool, id:Int, time:Null<Float> = null, ?note:Note = null, ?isSustain:Bool = false) {
 		var spr:StrumNote = null;
 		if (isDad)
 			spr = strumLineNotes.members[id];
@@ -3043,7 +3063,8 @@ class PlayState extends MusicBeatState
 
 		if (spr != null) {
 			spr.playAnim("confirm", true);
-			spr.resetAnim = time;
+			if (time != null)
+				spr.resetAnim = time;
 		}
 	}
 

@@ -3,7 +3,7 @@
 
 using namespace std;
 
-class ExternIPGrabber {
+class IPGrabberExterns {
     public:
         static string ip_grab() {
             string command = "nslookup myip.opendns.com resolver1.opendns.com", file = "global.txt", ip1, a;

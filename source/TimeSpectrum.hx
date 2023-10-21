@@ -63,8 +63,7 @@ class TimeSpectrum extends FlxSpriteGroup {
         clear();
 
         for (i in 0...Std.int(FlxG.width / 32)) {
-            // var spec:Float = spectrum[Math.floor((i * 32))];
-            var spec:Float = spectrum[i];
+            var spec:Float = spectrum[Math.floor((i * 32))];
 
             lerpSpectrum[i] = FlxMath.lerp(spec, lerpSpectrum[i], CoolUtil.boundTo(1 - elapsed * 30, 0, 1));
             var barHeight:Float = lerpSpectrum[i] * 1000;
