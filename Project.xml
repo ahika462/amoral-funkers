@@ -206,5 +206,6 @@
 	<assets path="embed" embed="true" if="final"/>
 
 	<haxelib name="yagp"/>
+	<haxedef name="hscriptPos"/>
 	
 </project>

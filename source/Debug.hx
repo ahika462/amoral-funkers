@@ -1,3 +1,10 @@
+import openfl.display.BitmapData;
+import openfl.display.Bitmap;
+import flixel.util.FlxColor;
+import openfl.text.TextFormat;
+import openfl.text.TextField;
+import lime.app.Application;
+import lime.ui.Window;
 #if sys
 import sys.io.File;
 import sys.FileSystem;
@@ -28,6 +35,8 @@ class Debug {
         logName = "Log_" + Std.string(Date.now()).replace(" ", "_").replace(":", "'") + ".txt";
         #end
         initialized = true;
+
+        // DebugOutput.init();
     }
 
     public static function logTrace(input:Dynamic, ?pos:PosInfos) {

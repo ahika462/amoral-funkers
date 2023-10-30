@@ -5,50 +5,65 @@ import openfl.events.KeyboardEvent;
 import flixel.FlxG;
 import openfl.events.Event;
 
-enum KeyEvent {
-    JUST_PRESSED;
-    PRESSED;
-    JUST_RELEASED;
+using StringTools;
+
+enum abstract KeyEvent(String) from String to String {
+    var JUST_PRESSED = "JUST_PRESSED";
+    var PRESSED = "PRESSED";
+    var JUST_RELEASED = "JUST_RELEASED";
 }
 
 class KeyUtils {
-    public static function addCallback(event:KeyEvent, func:Int->Void) {
+    @:noPrivateAccess static var callbacks:Map<String, Event->Void> = [];
+    
+    public static function addCallback(event:KeyEvent, func:Int->Void):String {
+        var settedKey:String = "__amoral_key_input_callback_" + event;
+        var counter:Int = 0;
+        for (i in callbacks.keys()) {
+            if (i.startsWith(settedKey))
+                counter++;
+        }
+        settedKey += counter;
+
+        var callback:Event->Void = null;
+
         switch(event) {
             case JUST_PRESSED:
-                FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, function(e:KeyboardEvent) {
-                    func(e.keyCode);
-                });
+                callback = function(e:Event) {
+                    func(cast(e, KeyboardEvent).keyCode);
+                }
+                FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, callback);
             case PRESSED:
-                FlxG.stage.addEventListener(Event.ENTER_FRAME, function(e:Event) {
+                callback = function(e:Event) {
                     for (key in FlxKey.fromStringMap) {
-                        if (FlxG.keys.anyPressed([key]))
+                        if (FlxG.keys.anyPressed([key])) {
                             func(key);
+                        }
                     }
-                });
+                }
+                FlxG.stage.addEventListener(Event.ENTER_FRAME, callback);
             case JUST_RELEASED:
-                FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, function(e:KeyboardEvent) {
-                    func(e.keyCode);
-                });
+                callback = function(e:Event) {
+                    func(cast(e, KeyboardEvent).keyCode);
+                }
+                FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, callback);
         }
+
+        callbacks.set(settedKey, callback);
+        return settedKey;
     }
 
-    public static function removeCallback(event:KeyEvent, func:Int->Void) {
+    public static function removeCallback(event:KeyEvent, key:String) {
+        if (!callbacks.exists(key))
+            return;
+
         switch(event) {
             case JUST_PRESSED:
-                FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, function(e:KeyboardEvent) {
-                    func(e.keyCode);
-                });
+                FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, callbacks.get(key));
             case PRESSED:
-                FlxG.stage.addEventListener(Event.ENTER_FRAME, function(e:Event) {
-                    for (key in FlxKey.fromStringMap) {
-                        if (FlxG.keys.anyPressed([key]))
-                            func(key);
-                    }
-                });
+                FlxG.stage.addEventListener(Event.ENTER_FRAME, callbacks.get(key));
             case JUST_RELEASED:
-                FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, function(e:KeyboardEvent) {
-                    func(e.keyCode);
-                });
+                FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, callbacks.get(key));
         }
     }
 }

@@ -163,48 +163,28 @@ class Paths
 	public static function getEmbedFiles(key:String, ?type:AssetType):Array<String> {
 		if (!key.endsWith("/"))
 			key += "/";
+
+		var returnVal:Array<String> = [];
 		
 		#if (final || !sys)
-		var files:Array<String> = OpenFlAssets.list(type);
-		for (file in files) {
+		returnVal = OpenFlAssets.list(type);
+		for (file in returnVal) {
 			if (!file.startsWith(getEmbedShit(key)))
-				files.remove(file);
-
-			var array:Array<String> = file.split("/");
-			file = array[array.length - 1];
+				returnVal.remove(file);
 		}
-		return files;
 		#else
-		var files:Array<String> = FileSystem.readDirectory(getEmbedShit(key));
-		if (files == null)
-			files = [];
+		returnVal = FileSystem.readDirectory(getEmbedShit(key));
+		if (returnVal == null)
+			returnVal = [];
 
-		var folders:Array<String> = [];
-		for (file in files) {
-			if (FileSystem.isDirectory(file)) {
-				files.remove(file);
-				folders.push(file);
-			}
+		for (i in 0...returnVal.length) {
+			returnVal[i] = getEmbedShit(key) + returnVal[i];
+			if (FileSystem.isDirectory(returnVal[i]))
+				returnVal = returnVal.concat(getEmbedFiles(returnVal[i]));
 		}
-
-		while (folders.length > 0) {
-			var curFiles:Array<String> = FileSystem.readDirectory(getEmbedShit(key) + folders[0]);
-			files = files.concat(curFiles);
-
-			var folders:Array<String> = [];
-			for (file in files) {
-				if (FileSystem.isDirectory(file)) {
-					files.remove(file);
-					folders.push(file);
-				}
-			}
-		}
-
-		for (i in 0...files.length)
-			files[0] = getEmbedShit(key + files[0]);
-		
-		return files;
 		#end
+
+		return returnVal;
 	}
 
 	public static function embedExists(key:String, ?type:AssetType):Bool {
@@ -220,5 +200,13 @@ class Paths
 			FlxG.bitmap.clearCache();
 		if (unused)
 			FlxG.bitmap.clearUnused();
+	}
+
+	public static function shaderFragment(key:String):String {
+		return embedExists("shaders/" + key + ".frag", TEXT) ? getEmbedText("shaders/" + key + ".frag") : null;
+	}
+
+	public static function shaderVertex(key:String):String {
+		return embedExists("shaders/" + key + ".vert", TEXT) ? getEmbedText("shaders/" + key + ".vert") : null;
 	}
 }

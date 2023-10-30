@@ -10,7 +10,7 @@ import haxe.display.Display.Package;
 
 class GameOverSubstate extends MusicBeatSubstate
 {
-	public static var instance:GameOverSubstate;
+	public static var instance:GameOverSubstate = null;
 
 	var bf:Boyfriend;
 	var camFollow:FlxObject;
@@ -163,5 +163,10 @@ class GameOverSubstate extends MusicBeatSubstate
 				});
 			});
 		}
+	}
+
+	override function destroy() {
+		instance = null;
+		super.destroy();
 	}
 }

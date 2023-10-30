@@ -55,7 +55,7 @@ class ChartDebugger extends BaseDebugger {
 
         curSection = lastSection;
 
-        gridBG = FlxGridOverlay.create(GRID_SIZE, GRID_SIZE, GRID_SIZE * 8, GRID_SIZE * 16);
+        gridBG = FlxGridOverlay.create(GRID_SIZE, GRID_SIZE, GRID_SIZE * 9, GRID_SIZE * 16);
 		gridBG.setPosition(FlxG.width / 2 - gridBG.width / 2, FlxG.height / 2);
 		add(gridBG);
 
@@ -602,6 +602,7 @@ class ChartDebugger extends BaseDebugger {
 		var cont:SwagSong = {
 			song: json.song,
 			notes: json.notes,
+			events: json.events,
 			bpm: json.bpm,
 			needsVoices: json.needsVoices,
 			speed: json.speed,

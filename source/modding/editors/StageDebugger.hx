@@ -1,5 +1,6 @@
 package modding.editors;
 
+import flixel.FlxBasic;
 import flixel.util.FlxColor;
 import flixel.FlxSprite;
 import flixel.FlxG;
@@ -7,13 +8,13 @@ import StageData.StageFile;
 
 using StringTools;
 
-class StageDebugger extends BaseDebugger {
+class StageDebugger extends BaseDebugger implements IHScriptable {
     public var curStage:String = "stage";
     public var json:StageFile;
 
-    var gf:Character;
-    var dad:Character;
-    var boyfriend:Character;
+    public var gf:Character;
+    public var dad:Character;
+    public var boyfriend:Character;
     var holdingChar:Character = null;
 
     public var camOverlay:FlxSprite;
@@ -42,7 +43,7 @@ class StageDebugger extends BaseDebugger {
         add(camOverlay);
 
         if (Paths.embedExists("scripts/stages/" + stage + ".hx"))
-            hscripts.push(new HScript(Paths.getEmbedShit("scripts/stages/" + stage + ".hx")));
+            hscripts.push(new HScript(Paths.getEmbedShit("scripts/stages/" + stage + ".hx"), this));
 
         for (hscript in hscripts) {
             hscript.call("pre_create");
@@ -80,5 +81,26 @@ class StageDebugger extends BaseDebugger {
     public function updateZoomShit(newZoom:Float) {
         json.zoom = newZoom;
         camOverlay.scale.set((FlxG.camera.width * json.zoom) / camOverlay.width, (FlxG.camera.height * json.zoom) / camOverlay.height);
+    }
+
+    public function addBehindGf(obj:FlxBasic):FlxBasic {
+		return insert(members.indexOf(gf), obj);
+	}
+
+	public function addBehindDad(obj:FlxBasic):FlxBasic {
+		return insert(members.indexOf(dad), obj);
+	}
+
+	public function addBehindBoyfriend(obj:FlxBasic):FlxBasic {
+		return insert(members.indexOf(boyfriend), obj);
+	}
+
+    override function add(obj:FlxBasic):FlxBasic {
+        if (members.contains(camOverlay))
+            insert(members.indexOf(camOverlay) - 1, obj);
+        else
+            super.add(obj);
+
+        return obj;
     }
 }

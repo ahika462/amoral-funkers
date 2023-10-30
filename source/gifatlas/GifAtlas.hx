@@ -62,7 +62,6 @@ class GifAtlas {
 
     static function folderExists(folder:String):Bool {
         folder = folder.substr(folder.indexOf(":") + 1);
-        Debug.logTrace(folder);
 
         var returnVal:Bool = false;
 

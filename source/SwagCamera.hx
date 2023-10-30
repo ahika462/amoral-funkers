@@ -46,7 +46,7 @@ class SwagCamera extends FlxCamera
 	 * most of this just copied from FlxCamera,
 	 * only lines 96 and 97 are changed
 	 */
-	override public function updateFollow():Void
+	/*override public function updateFollow():Void
 	{
 		// Either follow the object closely,
 		// or double check our deadzone and update accordingly.
@@ -131,5 +131,5 @@ class SwagCamera extends FlxCamera
 				scroll.y += (_scrollTarget.y - scroll.y) * CoolUtil.camLerpShit(followLerp);
 			}
 		}
-	}
+	}*/
 }

@@ -51,6 +51,9 @@ class Note extends FlxSprite
 
 	public var score:Int = 350;
 
+	public var distance:Float = 2000; //plan on doing scroll directions soon -bb
+	public var speedMult:Float = 1;
+
 	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false)
 	{
 		super();

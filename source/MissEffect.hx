@@ -8,7 +8,7 @@ class MissEffect extends FlxBasic {
 
     public function new() {
         super();
-        shader = new FlxRuntimeShader(Paths.getTextFromFile("shaders/miss.frag"));
+        shader = new FlxRuntimeShader(Paths.getEmbedText("shaders/miss.frag"));
         percent = 0;
     }
 
