@@ -62,13 +62,17 @@ class TimeSpectrum extends FlxSpriteGroup {
 
         clear();
 
-        for (i in 0...Std.int(FlxG.width / 32)) {
-            var spec:Float = spectrum[Math.floor((i * 32))];
+        for (i in 0...Std.int(FlxG.width / 19)) {
+            var spec:Float = spectrum[Math.floor((i * 19))];
 
-            lerpSpectrum[i] = FlxMath.lerp(spec, lerpSpectrum[i], CoolUtil.boundTo(1 - elapsed * 30, 0, 1));
+            // if (spec > lerpSpectrum[i])
+                lerpSpectrum[i] = FlxMath.lerp(spec, lerpSpectrum[i], 0.8);
+            // else
+                // lerpSpectrum[i] = FlxMath.lerp(spec, lerpSpectrum[i], 1);
+            
             var barHeight:Float = lerpSpectrum[i] * 1000;
-            if (barHeight > maxHeight)
-                barHeight = maxHeight;
+            /*if (barHeight > maxHeight)
+                barHeight = maxHeight;*/
 
             var emptyColor:FlxColor = FlxColor.BLACK;
             emptyColor.alphaFloat = 0.35;
@@ -76,8 +80,8 @@ class TimeSpectrum extends FlxSpriteGroup {
             var fillColor:FlxColor = FlxColor.WHITE;
             fillColor.alphaFloat = 0.75;
 
-            var isThis:Bool = (barShit.width > i * 33) && (barShit.width < i * 33 + 15);
-            var spr:FlxSprite = new FlxSprite(i * 33).makeGraphic(15, 1, (barShit.width < i * 33 + 15) ? emptyColor : fillColor);
+            var isThis:Bool = (barShit.width > i * 20) && (barShit.width < i * 20 + 15);
+            var spr:FlxSprite = new FlxSprite(i * 20).makeGraphic(15, 1, (barShit.width < i * 20 + 15) ? emptyColor : fillColor);
             spr.scale.y = barHeight;
             spr.updateHitbox();
             add(spr);

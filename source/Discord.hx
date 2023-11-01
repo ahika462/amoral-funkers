@@ -15,7 +15,7 @@ class DiscordClient
 	{
 		Debug.logTrace("Discord Client starting...");
 		DiscordRpc.start({
-			clientID: "814588678700924999",
+			clientID: "1168507180559913030",
 			onReady: onReady,
 			onError: onError,
 			onDisconnected: onDisconnected
@@ -42,8 +42,8 @@ class DiscordClient
 		DiscordRpc.presence({
 			details: "In the Menus",
 			state: null,
-			largeImageKey: 'icon',
-			largeImageText: "Friday Night Funkin'"
+			largeImageKey: "icon",
+			largeImageText: ""
 		});
 	}
 
@@ -54,7 +54,7 @@ class DiscordClient
 
 	static function onDisconnected(_code:Int, _message:String)
 	{
-		traDebug.logTracece('Disconnected! $_code : $_message');
+		Debug.logTrace('Disconnected! $_code : $_message');
 	}
 
 	public static function initialize()

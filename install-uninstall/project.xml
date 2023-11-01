@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	
+	<meta title="AMORAL FUNKERS" package="com.sample.amoralinstaller" version="1.0.0" company="Company Name" />
+	<app main="Main" path="export" file="AMORAL FUNKERS"/>
+	<window resizable="false" borderless="true" width="1280" height="730"/>
+	
+	<source path="source"/>
+	
+	<haxelib name="flixel"/>
+
+	<library name="build"/>
+	
+	<assets path="assets" embed="true"/>
+
+	<haxedef name="FLX_NO_SAVE"/>
+	
+</project>

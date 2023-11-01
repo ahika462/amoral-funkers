@@ -36,12 +36,14 @@ class ChartDebugger extends BaseDebugger {
 
 	var curRenderedNotes:FlxTypedGroup<Note>;
 	var curRenderedSustains:FlxTypedGroup<FlxSprite>;
+	var curRenderedEvents:FlxTypedGroup<FlxSprite>;
 
 	var gridBG:FlxSprite;
 
     public var json:SwagSong;
 
     var curSelectedNote:Array<Dynamic>;
+	var curSelectedEvent:Array<Dynamic>;
 
     var vocals:FlxSound;
 
@@ -56,7 +58,7 @@ class ChartDebugger extends BaseDebugger {
         curSection = lastSection;
 
         gridBG = FlxGridOverlay.create(GRID_SIZE, GRID_SIZE, GRID_SIZE * 9, GRID_SIZE * 16);
-		gridBG.setPosition(FlxG.width / 2 - gridBG.width / 2, FlxG.height / 2);
+		gridBG.setPosition(FlxG.width / 2 - GRID_SIZE * 4, FlxG.height / 2);
 		add(gridBG);
 
         leftIcon = new HealthIcon('bf');
@@ -76,7 +78,10 @@ class ChartDebugger extends BaseDebugger {
 
 		waveform = new Waveform(Paths.voices(song));
 
-        var gridBlackLine:FlxSprite = new FlxSprite(gridBG.x + gridBG.width / 2 - 1, gridBG.y).makeGraphic(2, Std.int(gridBG.height), FlxColor.BLACK);
+        var gridBlackLine:FlxSprite = new FlxSprite(gridBG.x + GRID_SIZE * 4 - 1, gridBG.y).makeGraphic(2, Std.int(gridBG.height), FlxColor.BLACK);
+		add(gridBlackLine);
+
+		var gridBlackLine:FlxSprite = new FlxSprite(gridBG.x + GRID_SIZE * 8 - 1, gridBG.y).makeGraphic(2, Std.int(gridBG.height), FlxColor.BLACK);
 		add(gridBlackLine);
 
         if (PlayState.SONG != null)
@@ -90,11 +95,12 @@ class ChartDebugger extends BaseDebugger {
 
 		curRenderedNotes = new FlxTypedGroup<Note>();
 		curRenderedSustains = new FlxTypedGroup<FlxSprite>();
+		curRenderedEvents = new FlxTypedGroup<FlxSprite>();
 
         updateGrid();
 
         loadSong(json.song);
-		Conductor.changeBPM(json.bpm);
+		Conductor.bpm = json.bpm;
 		Conductor.mapBPMChanges(json);
 		Conductor.followSound = FlxG.sound.music;
 		Conductor.followSound.time = 0;
@@ -111,6 +117,7 @@ class ChartDebugger extends BaseDebugger {
 
 		add(curRenderedNotes);
 		add(curRenderedSustains);
+		add(curRenderedEvents);
     }
 
 	public function loadSong(daSong:String) {
@@ -435,11 +442,12 @@ class ChartDebugger extends BaseDebugger {
 	public function updateGrid() {
 		curRenderedNotes.clear();
 		curRenderedSustains.clear();
+		curRenderedEvents.clear();
 
 		var sectionInfo:Array<Dynamic> = json.notes[curSection].sectionNotes;
 
 		if (json.notes[curSection].changeBPM && json.notes[curSection].bpm > 0) {
-			Conductor.changeBPM(json.notes[curSection].bpm);
+			Conductor.bpm = json.notes[curSection].bpm;
 			FlxG.log.add('CHANGED BPM!');
 		} else {
 			// get last bpm
@@ -447,7 +455,7 @@ class ChartDebugger extends BaseDebugger {
 			for (i in 0...curSection)
 				if (json.notes[i].changeBPM)
 					daBPM = json.notes[i].bpm;
-			Conductor.changeBPM(daBPM);
+			Conductor.bpm = daBPM;
 		}
 
 		for (i in sectionInfo) {
@@ -467,6 +475,16 @@ class ChartDebugger extends BaseDebugger {
 			if (daSus > 0) {
 				var sustainVis:FlxSprite = new FlxSprite(note.x + (GRID_SIZE / 2) - 4, note.y + GRID_SIZE).makeGraphic(8, Math.floor(FlxMath.remapToRange(daSus, 0, Conductor.stepCrochet * 16, 0, gridBG.height)));
 				curRenderedSustains.add(sustainVis);
+			}
+		}
+
+		if (json.events == null)
+			json.events = [];
+
+		for (i in json.events) {
+			if (i[0] >= getSectionStartTime(Conductor.curSection) && i[0] < getSectionStartTime(Conductor.curSection + 1)) {
+				var event:FlxSprite = new FlxSprite(Math.floor(gridBG.x + GRID_SIZE * 8), Math.floor(getYfromStrum((i[0] - sectionStartTime()) % (Conductor.stepCrochet * json.notes[curSection].lengthInSteps))), Paths.image("eventArrow"));
+				curRenderedEvents.add(event);
 			}
 		}
 	}
@@ -505,10 +523,8 @@ class ChartDebugger extends BaseDebugger {
 	function deleteNote(note:Note) {
 		addUndo();
 
-		for (i in json.notes[curSection].sectionNotes)
-		{
-			if (i[0] == note.strumTime && i[1] % 4 == note.noteData)
-			{
+		for (i in json.notes[curSection].sectionNotes) {
+			if (i[0] == note.strumTime && i[1] % 4 == note.noteData && i[1] < 4 == json.notes[curSection].mustHitSection ? note.mustPress : !note.mustPress) {
 				FlxG.log.add('FOUND EVIL NUMBER');
 				json.notes[curSection].sectionNotes.remove(i);
 			}
@@ -538,13 +554,16 @@ class ChartDebugger extends BaseDebugger {
 		var noteSus:Float = 0;
 		var noteAlt:Bool = false;
 
-		json.notes[curSection].sectionNotes.push([noteStrum, noteData, noteSus, noteAlt]);
-
-		curSelectedNote = json.notes[curSection].sectionNotes[json.notes[curSection].sectionNotes.length - 1];
-
-		if (FlxG.keys.pressed.CONTROL)
-		{
-			json.notes[curSection].sectionNotes.push([noteStrum, (noteData + 4) % 8, noteSus, noteAlt]);
+		if (noteData == 8) {
+			json.events.push([noteStrum, "", "", ""]);
+			curSelectedEvent = json.events[json.events.length - 1];
+		} else {
+			json.notes[curSection].sectionNotes.push([noteStrum, noteData, noteSus, noteAlt]);
+			curSelectedNote = json.notes[curSection].sectionNotes[json.notes[curSection].sectionNotes.length - 1];
+			if (FlxG.keys.pressed.CONTROL)
+			{
+				json.notes[curSection].sectionNotes.push([noteStrum, (noteData + 4) % 8, noteSus, noteAlt]);
+			}
 		}
 
 		Debug.logTrace(noteStrum);
@@ -612,5 +631,13 @@ class ChartDebugger extends BaseDebugger {
 			validScore: json.validScore
 		};
 		undos.insert(0, cont);
+	}
+
+	function getSectionStartTime(sec:Int) {
+		var doneSteps:Int = 0;
+		for (i in 0...sec - 1)
+			doneSteps += json.notes[i].lengthInSteps;
+
+		return doneSteps * Conductor.stepCrochet;
 	}
 }

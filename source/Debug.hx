@@ -1,3 +1,5 @@
+import openfl.events.UncaughtErrorEvent;
+import haxe.CallStack;
 import openfl.display.BitmapData;
 import openfl.display.Bitmap;
 import flixel.util.FlxColor;
@@ -39,24 +41,26 @@ class Debug {
         // DebugOutput.init();
     }
 
-    public static function logTrace(input:Dynamic, ?pos:PosInfos) {
-        log(TRACE + buildPosInfo(pos) + ": " + Std.string(input));
+    public static function logTrace(input:Dynamic, ?pos:PosInfos):String {
+        return log(TRACE + buildPosInfo(pos) + ": " + Std.string(input));
     }
 
-    public static function logError(input:Dynamic, ?pos:PosInfos) {
-        log(ERROR + buildPosInfo(pos) + ": " + Std.string(input));
+    public static function logError(input:Dynamic, ?pos:PosInfos):String {
+        return log(ERROR + buildPosInfo(pos) + ": " + Std.string(input));
     }
 
-    public static function logCrash(input:Dynamic, ?pos:PosInfos) {
-        log(CRASH + Std.string(input));
+    public static function logCrash(e:UncaughtErrorEvent):String {
+        // log(CRASH + Std.string(input));
+        return log(CRASH + buildErrorInfo(e));
     }
 
-    public static function log(input:Dynamic) {
+    public static function log(input:Dynamic):String {
         if (!initialized)
             initialize();
 
-        var inputStr:String = Std.string(input);
+        var returnVal:String = Std.string(input);
 
+        var inputStr:String = Std.string(input);
         logContent += inputStr + "\n";
         #if sys
         Sys.println(inputStr);
@@ -64,11 +68,33 @@ class Debug {
         #else
         Log.trace(inputStr, null);
         #end
+
+        return returnVal;
     }
 
     static function buildPosInfo(pos:PosInfos):String {
-        return "(" + pos.className + ":" + pos.lineNumber + ":" + pos.methodName + ")";
+        return "(" + pos.fileName + ":" + pos.lineNumber + ")";
+    }
 
-        // return pos.className + "::" + pos.methodName + " " + pos.fileName.substr("source/".length) + " line " + pos.lineNumber;
+    static function buildErrorInfo(e:UncaughtErrorEvent):String {
+        var returnVal:String = "";
+        var callstack:Array<Dynamic> = CallStack.exceptionStack(true);
+        while (callstack.length > 0) {
+            switch(callstack[0]) {
+                case FilePos(s, file, line, column):
+                    returnVal += "[CRASH] (" + file + ":" + line + ")\n";
+                    callstack.shift();
+
+                default: // я хз зачем и почему
+                    var raw:String = Std.string(callstack[0]).substr("Called from ".length);
+                    var file:String = raw.split(" ")[1];
+                    var line:Int = Std.parseInt(raw.split(" ")[3]);
+                    callstack.shift();
+                    callstack.insert(0, FilePos(null, file, line, 0));
+            }
+        }
+		returnVal += "\n" + Std.string(e.error) + "\n";
+
+        return returnVal;
     }
 }

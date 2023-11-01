@@ -72,8 +72,11 @@ class HScript {
             return PlayState.instance.noteHits;
         });
 
-        set("getRating", function():Float {
-            return PlayState.instance.ratingPercent;
+        set("getAccuracy", function():Float {
+            return PlayState.instance.accuracy;
+        });
+        set("getRatingFC", function():String {
+            return PlayState.instance.ratingFC;
         });
 
         set("inGameOver", false);
@@ -96,6 +99,7 @@ class HScript {
 
         set("RuntimeGroup", RuntimeGroup);
         set("RuntimeSprite", RuntimeSprite);
+        set("RuntimeShader", RuntimeShader);
 
         set("random", FlxG.random);
         set("playSound", function(sound:String, volume:Float = 1):FlxSound {
@@ -210,19 +214,41 @@ class RuntimeSprite extends FlxSprite {
         antialiasing = ClientPrefs.data.antialiasing;
     }
 
-    override function loadGraphic(image:String, animated:Bool = false, frameWidth:Int = 0, frameHeight:Int = 0, unique:Bool = false, key:String = null):FlxSprite {
-        return super.loadGraphic(Paths.image(image), animated, frameWidth, frameHeight, false, null);
+    override function loadGraphic(image:String, animated:Bool = false, frameWidth:Int = 0, frameHeight:Int = 0, /*ебучий override*/ unique:Bool = false, key:String = null):FlxSprite {
+        var lib:String = null;
+        var asset:String = null;
+
+        var arr:Array<String> = image.split(":");
+        if (arr.length == 1)
+            asset = arr[0];
+        else {
+            lib = arr[0];
+            asset = arr[1];
+        }
+
+        return super.loadGraphic(Paths.image(asset, lib), animated, frameWidth, frameHeight, false, null);
     }
 
     public function loadFrames(image:String) {
-        if (Paths.exists("images/" + image + ".xml", TEXT))
-            frames = Paths.getSparrowAtlas(image);
-        else if (Paths.exists("images/" + image + ".txt", TEXT))
-            frames = Paths.getPackerAtlas(image);
-        else if (Paths.exists("images/" + image + "/Animation.json", TEXT))
-            frames = AtlasFrameMaker.construct(image);
+        var lib:String = null;
+        var asset:String = null;
+
+        var arr:Array<String> = image.split(":");
+        if (arr.length == 1)
+            asset = arr[0];
+        else {
+            lib = arr[0];
+            asset = arr[1];
+        }
+
+        if (Paths.exists("images/" + asset + ".xml", TEXT, lib))
+            frames = Paths.getSparrowAtlas(asset, lib);
+        else if (Paths.exists("images/" + asset + ".txt", TEXT, lib))
+            frames = Paths.getPackerAtlas(asset, lib);
+        else if (Paths.exists("images/" + asset + "/Animation.json", TEXT, lib))
+            frames = AtlasFrameMaker.construct(asset);
         else
-            frames = GifAtlas.build(image);
+            frames = GifAtlas.build(image, lib);
     }
 
     public function setScale(x:Float = 1, y:Null<Float> = null, needUpdateHitbox:Bool = true) {

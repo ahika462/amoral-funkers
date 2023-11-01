@@ -111,17 +111,7 @@ class Paths
 		if (FlxG.bitmap.get(path) != null)
 			return FlxG.bitmap.get(path);
 
-		var bitmap:BitmapData = OpenFlAssets.getBitmapData(path);
-
-		if (gpuRender) {
-			var texture:RectangleTexture = FlxG.stage.context3D.createRectangleTexture(bitmap.width, bitmap.height, BGRA, true);
-			texture.uploadFromBitmapData(bitmap);
-			bitmap.image.data = null;
-			bitmap.dispose();
-			bitmap.disposeImage();
-			bitmap = BitmapData.fromTexture(texture);
-		}
-
+		var bitmap:BitmapData = gpuRender ? CoolUtil.loadByGPU(OpenFlAssets.getBitmapData(path)) : OpenFlAssets.getBitmapData(path);
 		return FlxG.bitmap.add(bitmap, false, path);
 	}
 

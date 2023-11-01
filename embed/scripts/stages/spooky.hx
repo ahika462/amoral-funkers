@@ -2,7 +2,7 @@ var halloweenBG = null;
 
 function create() {
     halloweenBG = new RuntimeSprite(null, -200, -100);
-    halloweenBG.loadFrames("halloween_bg");
+    halloweenBG.loadFrames("week2:halloween_bg");
     halloweenBG.animation.addByPrefix("idle", "halloweem bg0");
     halloweenBG.animation.addByPrefix("lightning", "halloweem bg lightning strike", 24, false);
     halloweenBG.animation.play("idle");

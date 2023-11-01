@@ -207,5 +207,6 @@
 
 	<haxelib name="yagp"/>
 	<haxedef name="hscriptPos"/>
+	<haxelib name="discord_rpc" if="desktop"/>
 	
 </project>

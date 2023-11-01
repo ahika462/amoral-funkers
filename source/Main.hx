@@ -90,29 +90,11 @@ class Main extends Sprite {
 		Debug.logTrace("game initialized!");
 	}
 
-	#if sys
-	function onCrash(?e:UncaughtErrorEvent) {
-		var errMsg:String = "";
-		var callStack:Array<StackItem> = CallStack.exceptionStack(true);
-
-		for (stackItem in callStack) {
-			switch (stackItem) {
-				case FilePos(s, file, line, column):
-					errMsg += file + " (line " + line + ")\n";
-				default:
-					Sys.println(stackItem);
-			}
-		}
-
-		errMsg += "\nUncaught Error: " + e.error;
-
-		Debug.logCrash(errMsg);
-        FlxG.stage.application.window.alert(errMsg, "Error!");
-
-		#if discord_rpc
-		DiscordClient.shutdown();
-		#end
+	function onCrash(e:UncaughtErrorEvent) {
+		var crashDump:String = Debug.logCrash(e);
+		#if sys
+		Application.current.window.alert(crashDump, "AMORAL ENGINE DEBUG");
 		Sys.exit(1);
+		#end
 	}
-	#end
 }

@@ -1,5 +1,7 @@
 package;
 
+import openfl.display3D.textures.RectangleTexture;
+import openfl.display.BitmapData;
 import flixel.FlxG;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
@@ -90,5 +92,17 @@ class CoolUtil
 
 	public static function boundTo(value:Float, min:Float, max:Float):Float {
 		return Math.max(min, Math.min(max, value));
+	}
+
+	public static function loadByGPU(bmp:BitmapData):BitmapData {
+		var texture:RectangleTexture = FlxG.stage.context3D.createRectangleTexture(bmp.width, bmp.height, BGRA, true);
+		texture.uploadFromBitmapData(bmp);
+
+		bmp.image.data = null;
+		bmp.dispose();
+		bmp.disposeImage();
+		bmp = BitmapData.fromTexture(texture);
+
+		return bmp;
 	}
 }

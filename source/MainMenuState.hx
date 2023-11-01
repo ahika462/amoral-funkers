@@ -84,14 +84,15 @@ class MainMenuState extends MusicBeatState {
 		}
 		menuItems.onSelect = function() {
 			if (optionShit[menuItems.selectedIndex] == "donate")
-				CoolUtil.coolOpenURL("https://ninja-muffin24.itch.io/funkin");
-			else
-			{
+				CoolUtil.coolOpenURL("https://www.kickstarter.com/projects/funkin/friday-night-funkin-the-full-ass-game/");
+			else {
 				if (menuItems.selected)
 					return;
 
 				menuItems.selected = true;
 				lastSelected = menuItems.selectedIndex;
+
+				FlxG.sound.play(Paths.sound("confirmMenu"));
 
 				FlxFlicker.flicker(magenta, 1.1, 0.15, false);
 
@@ -175,10 +176,8 @@ class MainMenuState extends MusicBeatState {
 				FlxG.switchState(new TitleState());
 			}
 
-			if (controls.ACCEPT) {
-				FlxG.sound.play(Paths.sound("confirmMenu"));
+			if (controls.ACCEPT)
 				menuItems.select(false);
-			}
 
 			if (FlxG.keys.justPressed.SEVEN)
 				LoadingState.loadAndSwitchState(new modding.ModdingState());

@@ -32,7 +32,7 @@ class LatencyState extends FlxState
 		strumLine = new FlxSprite(FlxG.width / 2, 100).makeGraphic(FlxG.width, 5);
 		add(strumLine);
 
-		Conductor.changeBPM(120);
+		Conductor.bpm = 120;
 
 		super.create();
 	}
@@ -41,7 +41,7 @@ class LatencyState extends FlxState
 	{
 		offsetText.text = "Offset: " + Conductor.offset + "ms";
 
-		Conductor.songPosition = FlxG.sound.music.time - Conductor.offset;
+		// Conductor.songPosition = FlxG.sound.music.time - Conductor.offset;
 
 		var multiply:Float = 1;
 

@@ -12,7 +12,8 @@ typedef BPMChangeEvent =
 }
 
 class Conductor {
-    public static var bpm:Float = 100;
+    public static var bpm(default, set):Float = 100;
+
     public static var crochet:Float = ((60 / bpm) * 1000); // beats in milliseconds
 	public static var stepCrochet:Float = crochet / 4; // steps in milliseconds
     
@@ -63,11 +64,13 @@ class Conductor {
 		Debug.logTrace("new BPM map BUDDY " + bpmChangeMap);
 	}
 
-    public static function changeBPM(newBpm:Float) {
-		bpm = newBpm;
+	static function set_bpm(value:Float):Float {
+		bpm = value;
 
 		crochet = ((60 / bpm) * 1000);
 		stepCrochet = crochet / 4;
+
+		return value;
 	}
 
 	public static function judgeNote(note:Note, ratings:Array<Rating>) {
@@ -136,9 +139,9 @@ class Conductor {
 
 	static function get_songPosition():Float {
 		if (followSound != null)
-			return followSound.time;
+			return followSound.time - offset;
 		else
-			return songPosition;
+			return songPosition - offset;
 	}
 }
 

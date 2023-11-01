@@ -159,15 +159,38 @@ class PlayState extends MusicBeatState implements IHScriptable {
 	public var songMisses:Int = 0;
 	public var scoreTxt:FlxText;
 
-	public var ratingPercent(get, never):Float;
+	public var accuracy(get, never):Float;
 	public var noteHits:Int = 0;
 	public var noteRatings:Float = 0;
 
-	function get_ratingPercent():Float {
+	public var sickHits:Int = 0;
+	public var goodHits:Int = 0;
+	public var badHits:Int = 0;
+	public var shitHits:Int = 0;
+	public var ratingFC(get, never):String;
+
+	function get_accuracy():Float {
 		var returnVal:Float = CoolUtil.floorDecimal(Math.min(1, Math.max(0, noteRatings / noteHits)) * 100, 2);
 		if (returnVal < 0)
 			returnVal = 0;
 		
+		return returnVal;
+	}
+
+	function get_ratingFC():String {
+		var returnVal:String = "N/A";
+		
+		if (sickHits > 0)
+			returnVal = "SFC";
+		if (goodHits > 0)
+			returnVal = "GFC";
+		if (badHits > 0 || shitHits > 0)
+			returnVal = "FC";
+		if (songMisses > 0)
+			returnVal = "SDCB";
+		if (songMisses >= 10)
+			returnVal = "Clear";
+
 		return returnVal;
 	}
 
@@ -203,6 +226,8 @@ class PlayState extends MusicBeatState implements IHScriptable {
 
 	var timeSpectrum:TimeSpectrum;
 
+	var lastRatingCombo:FlxTypedGroup<FlxSprite>;
+
 	override public function create()
 	{
 		instance = this;
@@ -234,7 +259,7 @@ class PlayState extends MusicBeatState implements IHScriptable {
 			SONG = Song.loadFromJson('tutorial');
 
 		Conductor.mapBPMChanges(SONG);
-		Conductor.changeBPM(SONG.bpm);
+		Conductor.bpm = SONG.bpm;
 
 		foregroundSprites = new FlxTypedGroup<BGSprite>();
 
@@ -1580,7 +1605,7 @@ class PlayState extends MusicBeatState implements IHScriptable {
 
 			previousFrameTime = FlxG.game.ticks;
 
-			if (!paused)
+			if (!paused && !isDead)
 				FlxG.sound.playMusic(Paths.inst(SONG.song), 1, false);
 			FlxG.sound.music.onComplete = endSong;
 			Conductor.followSound = FlxG.sound.music;
@@ -1601,7 +1626,7 @@ class PlayState extends MusicBeatState implements IHScriptable {
 		// FlxG.log.add(ChartParser.parse());
 
 		var songData = SONG;
-		Conductor.changeBPM(songData.bpm);
+		Conductor.bpm = songData.bpm;
 
 		curSong = songData.song;
 
@@ -1744,8 +1769,8 @@ class PlayState extends MusicBeatState implements IHScriptable {
 	override function openSubState(SubState:FlxSubState)
 	{
 		if (callOnScripts([SubState]) != HScript.Function_Stop) {
-			if (paused) {
-				if (FlxG.sound.music != null) {
+			if (paused || isDead) {
+				if (FlxG.sound.music != null && !isDead) {
 					FlxG.sound.music.pause();
 					vocals.pause();
 				}
@@ -1824,6 +1849,7 @@ class PlayState extends MusicBeatState implements IHScriptable {
 	}
 
 	public var paused:Bool = false;
+	public var isDead:Bool = false;
 	var startedCountdown:Bool = false;
 	var canPause:Bool = true;
 
@@ -1855,7 +1881,7 @@ class PlayState extends MusicBeatState implements IHScriptable {
 			// Conductor.songPosition = FlxG.sound.music.time + Conductor.offset; // 20 is THE MILLISECONDS??
 			// Conductor.songPosition += FlxG.elapsed * 1000;
 
-			if (!paused)
+			if (!paused && !isDead)
 			{
 				songTime += FlxG.game.ticks - previousFrameTime;
 				previousFrameTime = FlxG.game.ticks;
@@ -2064,10 +2090,7 @@ class PlayState extends MusicBeatState implements IHScriptable {
 
 				persistentUpdate = false;
 				persistentDraw = false;
-				paused = true;
-
-				vocals.stop();
-				FlxG.sound.music.stop();
+				isDead = true;
 
 				// unloadAssets();
 
@@ -2362,6 +2385,8 @@ class PlayState extends MusicBeatState implements IHScriptable {
 			new Rating("shit", Std.int(Conductor.safeZoneOffset), 0, false)
 		]);
 
+		Reflect.setField(instance, daRating.name + "Hits", Reflect.field(instance, daRating.name + "Hits") + 1);
+
 		noteHits++;
 		noteRatings += daRating.rating;
 
@@ -2377,6 +2402,16 @@ class PlayState extends MusicBeatState implements IHScriptable {
 		var pixelShitPart1:String = isPixelStage ? "weeb/pixelUI/" : "";
 		var pixelShitPart2:String = isPixelStage ? "-pixel" : "";
 
+		if (lastRatingCombo == null) {
+			lastRatingCombo = new FlxTypedGroup();
+			add(lastRatingCombo);
+		} else {
+			remove(lastRatingCombo);
+			if (!ClientPrefs.data.comboStacking)
+				lastRatingCombo.clear();
+			add(lastRatingCombo);
+		}
+
 		rating.loadGraphic(Paths.image(pixelShitPart1 + daRating.image + pixelShitPart2));
 		rating.x = FlxG.width * 0.55 - 40;
 		if (rating.x < FlxG.camera.scroll.x)
@@ -2389,7 +2424,7 @@ class PlayState extends MusicBeatState implements IHScriptable {
 		rating.velocity.y -= FlxG.random.int(140, 175);
 		rating.velocity.x -= FlxG.random.int(0, 10);
 
-		add(rating);
+		lastRatingCombo.add(rating);
 
 		if (isPixelStage)
 			rating.setGraphicSize(Std.int(rating.width * daPixelZoom * 0.7));
@@ -2428,7 +2463,7 @@ class PlayState extends MusicBeatState implements IHScriptable {
 		comboSpr.velocity.y -= 150;
 		comboSpr.velocity.x += FlxG.random.int(1, 10);
 
-		add(comboSpr);
+		lastRatingCombo.add(comboSpr);
 
 		if (isPixelStage)
 			comboSpr.setGraphicSize(Std.int(comboSpr.width * daPixelZoom * 0.7));
@@ -2475,7 +2510,7 @@ class PlayState extends MusicBeatState implements IHScriptable {
 			numScore.velocity.y -= FlxG.random.int(140, 160);
 			numScore.velocity.x = FlxG.random.float(-5, 5);
 
-			add(numScore);
+			lastRatingCombo.add(numScore);
 
 			FlxTween.tween(numScore, {alpha: 0}, 0.2, {
 				onComplete: function(tween:FlxTween) {
@@ -2921,11 +2956,11 @@ class PlayState extends MusicBeatState implements IHScriptable {
 		{
 			if (SONG.notes[Math.floor(Conductor.curStep / 16)].changeBPM)
 			{
-				Conductor.changeBPM(SONG.notes[Math.floor(Conductor.curStep / 16)].bpm);
+				Conductor.bpm = SONG.notes[Math.floor(Conductor.curStep / 16)].bpm;
 				FlxG.log.add('CHANGED BPM!');
 			}
 			// else
-			// Conductor.changeBPM(SONG.bpm);
+			// Conductor.bpm = SONG.bpm;
 		}
 		// FlxG.log.add('change bpm' + SONG.notes[Std.int(curStep / 16)].changeBPM);
 		wiggleShit.update(Conductor.crochet);
@@ -3073,7 +3108,7 @@ class PlayState extends MusicBeatState implements IHScriptable {
 	}
 
 	function recalculateRatings() {
-		scoreTxt.text = "Score:" + songScore + " | " + "Misses: " + songMisses + " | " + "Accuracy: " + ratingPercent + "%";
+		scoreTxt.text = "Score:" + songScore + " | " + "Misses: " + songMisses + " | " + "Accuracy: " + accuracy + "% | Rating: " + ratingFC;
 		scoreTxt.screenCenter(X);
 
 		callOnScripts();
