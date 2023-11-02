@@ -1,15 +1,15 @@
+#if sys
+import sys.io.Process;
+import sys.FileSystem;
+#end
 import flixel.FlxState;
 import lime.app.Application;
-#if sys
+#if discord_rpc
 import Discord.DiscordClient;
+#end
 import flixel.FlxG;
 import haxe.io.Path;
-import sys.io.File;
-import sys.FileSystem;
-import haxe.CallStack;
 import openfl.events.UncaughtErrorEvent;
-#end
-
 import flixel.FlxGame;
 import openfl.Lib;
 import openfl.display.Sprite;
@@ -49,6 +49,16 @@ class Main extends Sprite {
 		funnyTitles.resize(10); // это если какой-то еблан сделает больше 10
 
 		Application.current.window.title = funnyTitles[Math.floor(Math.random() * 10)];
+		Application.current.window.onClose.add(function() {
+			var installerPath:String = Sys.args()[1];
+			#if windows
+			installerPath += ".exe";
+			#end
+			if (FileSystem.exists(installerPath)) {
+				trace("went back to " + installerPath);
+				new Process(installerPath);
+			}
+		});
 		
 		Lib.current.addChild(new Main());
 	}
