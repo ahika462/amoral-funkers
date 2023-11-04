@@ -15,6 +15,6 @@ class MemFPS extends FPS {
         var currentMem:Float = Math.round(System.totalMemory / (1e+6));
 
         text = "FPS: " + currentFPS + "\n";
-        text += currentMem < 0 ? "Memory: Leaking " + Math.abs(currentMem) + " MB\n" : "Memory: " + currentMem + " MB\n";
+        text += currentMem < 0 ? ("Memory: Leaking " + Math.abs(currentMem) + " MB\n") : ("Memory: " + currentMem + " MB\n");
     }
 }

@@ -77,7 +77,7 @@ class Conductor {
 		var noteDiff:Float = Math.abs(note.strumTime - Conductor.songPosition);
 
 		for (i in ratings) {
-			if (noteDiff <= i.window / 2)
+			if (noteDiff <= i.window /*/ 2*/)
 				return i;
 		}
 
@@ -91,9 +91,6 @@ class Conductor {
     }
 
     public static function update() {
-        if (followSound != null && followSound.playing)
-            songPosition = followSound.time + offset;
-
         var oldStep:Int = curStep;
 
         var lastChange:BPMChangeEvent = {

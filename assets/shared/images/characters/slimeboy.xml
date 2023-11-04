@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="slimeboy.png">
+	<!-- Created with Adobe Animate version 22.0.1.105 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="bf-d0000" x="5" y="5" width="502" height="680" frameX="-1" frameY="-20" frameWidth="503" frameHeight="703"/>
+	<SubTexture name="bf-d0001" x="5" y="5" width="502" height="680" frameX="-1" frameY="-20" frameWidth="503" frameHeight="703"/>
+	<SubTexture name="bf-d0002" x="512" y="5" width="500" height="703" frameX="0" frameY="0" frameWidth="503" frameHeight="703"/>
+	<SubTexture name="bf-d0003" x="512" y="5" width="500" height="703" frameX="0" frameY="0" frameWidth="503" frameHeight="703"/>
+	<SubTexture name="bf-i0000" x="1017" y="5" width="373" height="729" frameX="-13" frameY="-24" frameWidth="388" frameHeight="756"/>
+	<SubTexture name="bf-i0001" x="1017" y="5" width="373" height="729" frameX="-13" frameY="-24" frameWidth="388" frameHeight="756"/>
+	<SubTexture name="bf-i0002" x="1395" y="5" width="382" height="733" frameX="-2" frameY="-22" frameWidth="388" frameHeight="756"/>
+	<SubTexture name="bf-i0003" x="1395" y="5" width="382" height="733" frameX="-2" frameY="-22" frameWidth="388" frameHeight="756"/>
+	<SubTexture name="bf-i0004" x="1782" y="5" width="386" height="748" frameX="0" frameY="-8" frameWidth="388" frameHeight="756"/>
+	<SubTexture name="bf-i0005" x="1782" y="5" width="386" height="748" frameX="0" frameY="-8" frameWidth="388" frameHeight="756"/>
+	<SubTexture name="bf-i0006" x="2173" y="5" width="383" height="754" frameX="-4" frameY="-2" frameWidth="388" frameHeight="756"/>
+	<SubTexture name="bf-i0007" x="2173" y="5" width="383" height="754" frameX="-4" frameY="-2" frameWidth="388" frameHeight="756"/>
+	<SubTexture name="bf-i0008" x="2561" y="5" width="383" height="756" frameX="-5" frameY="0" frameWidth="388" frameHeight="756"/>
+	<SubTexture name="bf-i0009" x="2561" y="5" width="383" height="756" frameX="-5" frameY="0" frameWidth="388" frameHeight="756"/>
+	<SubTexture name="bf-l0000" x="2949" y="5" width="457" height="762" frameX="0" frameY="0" frameWidth="459" frameHeight="762"/>
+	<SubTexture name="bf-l0001" x="2949" y="5" width="457" height="762" frameX="0" frameY="0" frameWidth="459" frameHeight="762"/>
+	<SubTexture name="bf-l0002" x="3411" y="5" width="445" height="760" frameX="-14" frameY="-2" frameWidth="459" frameHeight="762"/>
+	<SubTexture name="bf-l0003" x="3411" y="5" width="445" height="760" frameX="-14" frameY="-2" frameWidth="459" frameHeight="762"/>
+	<SubTexture name="bf-r0000" x="5" y="772" width="458" height="741" frameX="-3" frameY="-5" frameWidth="461" frameHeight="746"/>
+	<SubTexture name="bf-r0001" x="5" y="772" width="458" height="741" frameX="-3" frameY="-5" frameWidth="461" frameHeight="746"/>
+	<SubTexture name="bf-r0002" x="468" y="772" width="448" height="746" frameX="0" frameY="0" frameWidth="461" frameHeight="746"/>
+	<SubTexture name="bf-r0003" x="468" y="772" width="448" height="746" frameX="0" frameY="0" frameWidth="461" frameHeight="746"/>
+	<SubTexture name="bf-u0000" x="921" y="772" width="432" height="773" frameX="0" frameY="0" frameWidth="434" frameHeight="773"/>
+	<SubTexture name="bf-u0001" x="921" y="772" width="432" height="773" frameX="0" frameY="0" frameWidth="434" frameHeight="773"/>
+	<SubTexture name="bf-u0002" x="1358" y="772" width="432" height="765" frameX="-2" frameY="-6" frameWidth="434" frameHeight="773"/>
+	<SubTexture name="bf-u0003" x="1358" y="772" width="432" height="765" frameX="-2" frameY="-6" frameWidth="434" frameHeight="773"/>
+</TextureAtlas>

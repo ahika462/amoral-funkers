@@ -46,7 +46,7 @@ class CharacterUI extends FlxUI {
         name = "Characters";
         debug = ModdingState.instance.characterDebug;
 
-        characterList = CoolUtil.coolTextFile(Paths.txt("characterList"));
+        characterList = CoolUtil.coolTextFile(Paths.getEmbedShit("characters/characterList.txt"));
         var charactersDropdown:FlxUIDropDownMenu = new FlxUIDropDownMenu(10, 10, FlxUIDropDownMenu.makeStrIdLabelArray(characterList, true));
         add(charactersDropdown);
 

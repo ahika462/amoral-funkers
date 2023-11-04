@@ -1,5 +1,6 @@
 package;
 
+import WeekData.WeekFile;
 #if discord_rpc
 import Discord.DiscordClient;
 #end
@@ -38,6 +39,8 @@ class StoryMenuState extends MusicBeatState {
 	var sprDifficulty:FlxSprite;
 	var leftArrow:FlxSprite;
 	var rightArrow:FlxSprite;
+
+	var weekList:Array<WeekFile> = [];
 
 	override function create() {
 		if (FlxG.sound.music != null)
@@ -83,6 +86,11 @@ class StoryMenuState extends MusicBeatState {
 		#end
 
 		for (i in 0...WeekData.list.length) {
+			if (WeekData.list[i].hideStoryMode)
+				continue;
+
+			weekList.push(WeekData.list[i]);
+
 			var weekThing:MenuItem = new MenuItem(0, yellowBG.y + yellowBG.height + 10, i);
 			weekThing.y += ((weekThing.height + 20) * i);
 			weekThing.targetY = i;
@@ -163,7 +171,7 @@ class StoryMenuState extends MusicBeatState {
 
 		scoreText.text = "WEEK SCORE:" + Math.round(lerpScore);
 
-		txtWeekTitle.text = WeekData.list[curWeek].storyName.toUpperCase();
+		txtWeekTitle.text = weekList[curWeek].storyName.toUpperCase();
 		txtWeekTitle.x = FlxG.width - (txtWeekTitle.width + 10);
 
 		// FlxG.watch.addQuick('font', scoreText.font);
@@ -239,7 +247,7 @@ class StoryMenuState extends MusicBeatState {
 			}
 
 			PlayState.storyPlaylist = [];
-			for (i in WeekData.list[curWeek].songs)
+			for (i in weekList[curWeek].songs)
 				PlayState.storyPlaylist.push(i[0]);
 
 			PlayState.isStoryMode = true;
@@ -307,10 +315,10 @@ class StoryMenuState extends MusicBeatState {
 	{
 		curWeek += change;
 
-		if (curWeek >= WeekData.list.length)
+		if (curWeek >= weekList.length)
 			curWeek = 0;
 		if (curWeek < 0)
-			curWeek = WeekData.list.length - 1;
+			curWeek = weekList.length - 1;
 
 		var bullShit:Int = 0;
 
@@ -332,12 +340,12 @@ class StoryMenuState extends MusicBeatState {
 	function updateText()
 	{
 		for (char in 0...3)
-			grpWeekCharacters.members[char].character = WeekData.list[curWeek].weekCharacters[char];
+			grpWeekCharacters.members[char].character = weekList[curWeek].weekCharacters[char];
 
 		txtTracklist.text = "Tracks\n";
 
 		var stringThing:Array<String> = [];
-		for (i in WeekData.list[curWeek].songs)
+		for (i in weekList[curWeek].songs)
 			stringThing.push(i[0]);
 
 		for (i in stringThing)

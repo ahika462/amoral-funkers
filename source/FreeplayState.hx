@@ -72,6 +72,9 @@ class FreeplayState extends MusicBeatState
 		}
 
 		for (i in 0...WeekData.list.length) {
+			if (WeekData.list[i].hideFreeplay)
+				continue;
+			
 			var songs:Array<String> = [];
 			for (j in WeekData.list[i].songs)
 				songs.push(j[0]);

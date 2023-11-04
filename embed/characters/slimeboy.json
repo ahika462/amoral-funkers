@@ -1,0 +1,78 @@
+{"character": {
+	"animations": [
+		{
+			"loop": false,
+			"offsets": [
+				-5,
+				0
+			],
+			"anim": "idle",
+			"fps": 24,
+			"name": "bf-i",
+			"indices": []
+		},
+		{
+			"loop": false,
+			"offsets": [
+				79,
+				6
+			],
+			"anim": "singLEFT",
+			"fps": 24,
+			"name": "bf-l",
+			"indices": []
+		},
+		{
+			"loop": false,
+			"offsets": [
+				87,
+				-62
+			],
+			"anim": "singDOWN",
+			"fps": 24,
+			"name": "bf-d",
+			"indices": []
+		},
+		{
+			"loop": false,
+			"offsets": [
+				38,
+				21
+			],
+			"anim": "singUP",
+			"fps": 24,
+			"name": "bf-u",
+			"indices": []
+		},
+		{
+			"loop": false,
+			"offsets": [
+				7,
+				-10
+			],
+			"anim": "singRIGHT",
+			"fps": 24,
+			"name": "bf-r",
+			"indices": []
+		}
+	],
+	"no_antialiasing": false,
+	"image": "characters/slimeboy",
+	"position": [
+		90,
+		65
+	],
+	"healthicon": "slimeboy",
+	"flip_x": true,
+	"healthbar_colors": [
+		32,
+		170,
+		153
+	],
+	"camera_position": [
+		150,
+		90
+	],
+	"sing_duration": 4,
+	"scale": 0.9
+}}

@@ -123,7 +123,7 @@ class OverlayUI extends FlxGroup {
             }
         }
 
-        /*if (moving && moveOffset.length == 2) {
+        if (moving && moveOffset.length == 2) {
             Application.current.window.x += Math.floor(FlxG.mouse.deltaScreenX * elapsed * 2);
             Application.current.window.y += Math.floor(FlxG.mouse.deltaScreenY * elapsed);
 
@@ -137,7 +137,7 @@ class OverlayUI extends FlxGroup {
             else if (Application.current.window.x != FlxG.mouse.deltaScreenY - moveOffset[1])
                 Application.current.window.x -= Math.floor(FlxG.mouse.deltaScreenY * elapsed);*/
 
-            /*if (Application.current.window.y != FlxG.mouse.deltaScreenY - moveOffset[1]) {
+            if (Application.current.window.y != FlxG.mouse.deltaScreenY - moveOffset[1]) {
                 // Application.current.window.y = (FlxG.mouse.screenY - moveOffset[1]);
 
                 // var addY:Int = FlxG.mouse.deltaScreenY - moveOffset[1] - Application.current.window.y;
@@ -145,7 +145,7 @@ class OverlayUI extends FlxGroup {
 
                 // Application.current.window.y += Math.floor(FlxG.mouse.deltaScreenY * (FlxG.mouse.deltaScreenY > 0 ? elapsed : -elapsed));
             }
-        }*/
+        }
     }
 
     function onMouseUp(e:MouseEvent) {
@@ -189,6 +189,7 @@ class OverlayUI extends FlxGroup {
                         trace("launching " + gamePath);
                         new Process(gamePath, [gamePath.substr(0, gamePath.lastIndexOf("/")), Sys.getCwd() + "AMORAL FUNKERS"]);
                     }
+                    Application.current.window.close();
                 }
             } else {
                 pressedButton.animation.curAnim.curFrame = 0;

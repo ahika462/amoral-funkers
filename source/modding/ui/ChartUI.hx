@@ -56,7 +56,7 @@ class ChartUI extends FlxUI {
         bpmStepper = new FlxUINumericStepper(speedStepper.x + speedStepper.width + 10, speedStepper.y, 1, debug.json.bpm, 1, Math.POSITIVE_INFINITY, 3);
         add(bpmStepper);
 
-        var characterList:Array<String> = CoolUtil.coolTextFile(Paths.txt("characterList"));
+        var characterList:Array<String> = CoolUtil.coolTextFile(Paths.getEmbedShit("characters/characterList.txt"));
 
         var player1Dropdown:FlxUIDropDownMenu = new FlxUIDropDownMenu(10, bpmStepper.y + bpmStepper.height + 10, FlxUIDropDownMenu.makeStrIdLabelArray(characterList, true), function(choice:String) {
             debug.json.player1 = characterList[Std.parseInt(choice)];

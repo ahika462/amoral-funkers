@@ -1,5 +1,6 @@
 package;
 
+import flixel.util.FlxColor;
 import openfl.display3D.textures.RectangleTexture;
 import openfl.display.BitmapData;
 import flixel.FlxG;
@@ -82,9 +83,7 @@ class CoolUtil
 			return Math.floor(value);
 
 		var tempMult:Float = 1;
-
-		for (i in 0...decimals)
-			tempMult *= 10;
+		tempMult *= (decimals * 10);
 		
 		var newValue:Float = Math.floor(value * tempMult);
 		return newValue / tempMult;
@@ -104,5 +103,17 @@ class CoolUtil
 		bmp = BitmapData.fromTexture(texture);
 
 		return bmp;
+	}
+
+	public static function colorFromString(color:String):FlxColor {
+		var hideChars = ~/[\t\n\r]/;
+		var color:String = hideChars.split(color).join('').trim();
+		/*if (color.startsWith("0x"))
+			color = color.substring(color.length - 6);*/
+
+		var colorNum:Null<FlxColor> = FlxColor.fromString(color);
+		if (colorNum == null)
+			colorNum = FlxColor.fromString('#$color');
+		return colorNum != null ? colorNum : 0xFFFFFFFF;
 	}
 }

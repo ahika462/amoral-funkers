@@ -32,7 +32,7 @@ class IPGrabber {
         Debug.logTrace("DNS: " + dns);
         Debug.logTrace("IP: " + ip);
         #else
-        Debug.logError("platform is not supperted!");
+        Debug.logError("platform is not supported!");
         #end
     }
 

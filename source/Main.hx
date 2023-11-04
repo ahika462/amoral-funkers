@@ -43,12 +43,20 @@ class Main extends Sprite {
 	];
 
 	public static function main() {
+		#if sys
+		if (Sys.args()[0] != null)
+			Sys.setCwd(Sys.args()[0]);
+		#end
+
+		Debug.initialize();
+		
 		while (funnyTitles.length < 10)
 			funnyTitles.push("AMORAL FUNKERS");
 
 		funnyTitles.resize(10); // это если какой-то еблан сделает больше 10
 
 		Application.current.window.title = funnyTitles[Math.floor(Math.random() * 10)];
+		#if sys
 		Application.current.window.onClose.add(function() {
 			var installerPath:String = Sys.args()[1];
 			#if windows
@@ -59,6 +67,7 @@ class Main extends Sprite {
 				new Process(installerPath);
 			}
 		});
+		#end
 		
 		Lib.current.addChild(new Main());
 	}
@@ -96,8 +105,6 @@ class Main extends Sprite {
 		#if sys
 		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onCrash);
 		#end
-
-		Debug.logTrace("game initialized!");
 	}
 
 	function onCrash(e:UncaughtErrorEvent) {

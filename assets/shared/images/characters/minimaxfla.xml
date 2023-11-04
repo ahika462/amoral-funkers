@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="minimaxfla.png">
+	<!-- Created with Adobe Animate version 22.0.1.105 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="maxfla-d0000" x="5" y="5" width="688" height="780" frameX="0" frameY="-15" frameWidth="688" frameHeight="799"/>
+	<SubTexture name="maxfla-d0001" x="5" y="5" width="688" height="780" frameX="0" frameY="-15" frameWidth="688" frameHeight="799"/>
+	<SubTexture name="maxfla-d0002" x="698" y="5" width="678" height="799" frameX="-6" frameY="0" frameWidth="688" frameHeight="799"/>
+	<SubTexture name="maxfla-d0003" x="698" y="5" width="678" height="799" frameX="-6" frameY="0" frameWidth="688" frameHeight="799"/>
+	<SubTexture name="maxfla-d0004" x="698" y="5" width="678" height="799" frameX="-6" frameY="0" frameWidth="688" frameHeight="799"/>
+	<SubTexture name="maxfla-i0000" x="1381" y="5" width="697" height="798" frameX="0" frameY="-14" frameWidth="708" frameHeight="816"/>
+	<SubTexture name="maxfla-i0001" x="1381" y="5" width="697" height="798" frameX="0" frameY="-14" frameWidth="708" frameHeight="816"/>
+	<SubTexture name="maxfla-i0002" x="2083" y="5" width="700" height="806" frameX="-5" frameY="-8" frameWidth="708" frameHeight="816"/>
+	<SubTexture name="maxfla-i0003" x="2083" y="5" width="700" height="806" frameX="-5" frameY="-8" frameWidth="708" frameHeight="816"/>
+	<SubTexture name="maxfla-i0004" x="2788" y="5" width="700" height="813" frameX="-8" frameY="-2" frameWidth="708" frameHeight="816"/>
+	<SubTexture name="maxfla-i0005" x="2788" y="5" width="700" height="813" frameX="-8" frameY="-2" frameWidth="708" frameHeight="816"/>
+	<SubTexture name="maxfla-i0006" x="5" y="823" width="698" height="816" frameX="-9" frameY="0" frameWidth="708" frameHeight="816"/>
+	<SubTexture name="maxfla-i0007" x="5" y="823" width="698" height="816" frameX="-9" frameY="0" frameWidth="708" frameHeight="816"/>
+	<SubTexture name="maxfla-i0008" x="708" y="823" width="698" height="816" frameX="-9" frameY="0" frameWidth="708" frameHeight="816"/>
+	<SubTexture name="maxfla-i0009" x="708" y="823" width="698" height="816" frameX="-9" frameY="0" frameWidth="708" frameHeight="816"/>
+	<SubTexture name="maxfla-i0010" x="708" y="823" width="698" height="816" frameX="-9" frameY="0" frameWidth="708" frameHeight="816"/>
+	<SubTexture name="maxfla-i0011" x="708" y="823" width="698" height="816" frameX="-9" frameY="0" frameWidth="708" frameHeight="816"/>
+	<SubTexture name="maxfla-i0012" x="708" y="823" width="698" height="816" frameX="-9" frameY="0" frameWidth="708" frameHeight="816"/>
+	<SubTexture name="maxfla-i0013" x="708" y="823" width="698" height="816" frameX="-9" frameY="0" frameWidth="708" frameHeight="816"/>
+	<SubTexture name="maxfla-l0000" x="1411" y="823" width="634" height="821" frameX="0" frameY="0" frameWidth="643" frameHeight="821"/>
+	<SubTexture name="maxfla-l0001" x="1411" y="823" width="634" height="821" frameX="0" frameY="0" frameWidth="643" frameHeight="821"/>
+	<SubTexture name="maxfla-l0002" x="2050" y="823" width="641" height="821" frameX="-2" frameY="0" frameWidth="643" frameHeight="821"/>
+	<SubTexture name="maxfla-l0003" x="2050" y="823" width="641" height="821" frameX="-2" frameY="0" frameWidth="643" frameHeight="821"/>
+	<SubTexture name="maxfla-l0004" x="2050" y="823" width="641" height="821" frameX="-2" frameY="0" frameWidth="643" frameHeight="821"/>
+	<SubTexture name="maxfla-l0005" x="2050" y="823" width="641" height="821" frameX="-2" frameY="0" frameWidth="643" frameHeight="821"/>
+	<SubTexture name="maxfla-r0000" x="2696" y="823" width="715" height="819" frameX="-2" frameY="0" frameWidth="717" frameHeight="819"/>
+	<SubTexture name="maxfla-r0001" x="2696" y="823" width="715" height="819" frameX="-2" frameY="0" frameWidth="717" frameHeight="819"/>
+	<SubTexture name="maxfla-r0002" x="5" y="1649" width="715" height="815" frameX="0" frameY="-4" frameWidth="717" frameHeight="819"/>
+	<SubTexture name="maxfla-r0003" x="5" y="1649" width="715" height="815" frameX="0" frameY="-4" frameWidth="717" frameHeight="819"/>
+	<SubTexture name="maxfla-r0004" x="5" y="1649" width="715" height="815" frameX="0" frameY="-4" frameWidth="717" frameHeight="819"/>
+	<SubTexture name="maxfla-u0000" x="725" y="1649" width="673" height="861" frameX="-4" frameY="0" frameWidth="678" frameHeight="861"/>
+	<SubTexture name="maxfla-u0001" x="725" y="1649" width="673" height="861" frameX="-4" frameY="0" frameWidth="678" frameHeight="861"/>
+	<SubTexture name="maxfla-u0002" x="1403" y="1649" width="678" height="846" frameX="0" frameY="-13" frameWidth="678" frameHeight="861"/>
+	<SubTexture name="maxfla-u0003" x="1403" y="1649" width="678" height="846" frameX="0" frameY="-13" frameWidth="678" frameHeight="861"/>
+	<SubTexture name="maxfla-u0004" x="1403" y="1649" width="678" height="846" frameX="0" frameY="-13" frameWidth="678" frameHeight="861"/>
+</TextureAtlas>

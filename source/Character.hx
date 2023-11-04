@@ -45,8 +45,6 @@ class Character extends FlxSprite
 
 	public var holdTimer:Float = 0;
 
-	public var animationNotes:Array<Dynamic> = [];
-
 	public var healthIcon:String = "face";
 	public var specAnim:Bool = false;
 
@@ -115,11 +113,6 @@ class Character extends FlxSprite
 		else
 			playAnim("danceLeft");
 
-		if (character == "pico-speaker") {
-			playAnim("shoot" + FlxG.random.int(1, 4) + "-loop");
-			loadMappedAnims();
-		}
-
 		dance();
 		animation.finish();
 	}
@@ -129,25 +122,6 @@ class Character extends FlxSprite
 			flipX = !flipX;
 
 		return isPlayer = value;
-	}
-
-	public function loadMappedAnims()
-	{
-		var swagshit = Song.loadFromJson('picospeaker', 'stress');
-
-		var notes = swagshit.notes;
-
-		for (section in notes)
-		{
-			for (idk in section.sectionNotes)
-			{
-				animationNotes.push(idk);
-			}
-		}
-
-		TankmenBG.animationNotes = animationNotes;
-
-		animationNotes.sort(sortAnims);
 	}
 
 	function sortAnims(val1:Array<Dynamic>, val2:Array<Dynamic>):Int
@@ -183,28 +157,6 @@ class Character extends FlxSprite
 			case 'gf':
 				if (animation.curAnim != null && animation.curAnim.name == 'hairFall' && animation.curAnim.finished)
 					playAnim('danceRight');
-			case "pico-speaker":
-				// for pico??
-				if (animationNotes.length > 0)
-				{
-					if (Conductor.songPosition > animationNotes[0][0])
-					{
-						var shootAnim:Int = 1;
-
-						if (animationNotes[0][1] >= 2)
-							shootAnim = 3;
-
-						shootAnim += FlxG.random.int(0, 1);
-
-						playAnim('shoot' + shootAnim, true);
-						animationNotes.shift();
-					}
-				}
-
-				if (animation.curAnim != null && animation.curAnim.finished)
-				{
-					playAnim(animation.curAnim.name, false, false, animation.curAnim.numFrames - 3);
-				}
 		}
 
 		super.update(elapsed);

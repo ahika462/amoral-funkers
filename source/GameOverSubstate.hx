@@ -18,7 +18,7 @@ class GameOverSubstate extends MusicBeatSubstate
 {
 	public static var instance:GameOverSubstate = null;
 
-	var bf:Boyfriend;
+	public var boyfriend:Boyfriend;
 	var camFollow:FlxObject;
 
 	var stageSuffix:String = "";
@@ -43,6 +43,10 @@ class GameOverSubstate extends MusicBeatSubstate
 		config = Json.parse(Paths.getEmbedText("data/death.json"));
 
 		instance = this;
+
+		Conductor.onStepHit.remove(PlayState.instance.stepHit);
+		Conductor.onBeatHit.remove(PlayState.instance.beatHit);
+		Conductor.onSectionHit.remove(PlayState.instance.sectionHit);
 		
 		var daStage = PlayState.curStage;
 		var daBf:String = '';
@@ -62,16 +66,16 @@ class GameOverSubstate extends MusicBeatSubstate
 
 		super.create();
 
-		Conductor.songPosition = 0;
+		// Conductor.songPosition = 0;
 
-		bf = new Boyfriend(x, y, daBf);
-		add(bf);
+		boyfriend = new Boyfriend(x, y, daBf);
+		add(boyfriend);
 
 		var tweenProps:Dynamic = {
 			"pitch": 0.1,
 			"volume": 0
 		};
-		var anim:FlxAnimation = bf.animation.getByName("firstDeath");
+		var anim:FlxAnimation = boyfriend.animation.getByName("firstDeath");
 		var tweenDur:Float = anim.frameDuration * (anim.numFrames - 1);
 		var tweenEase:EaseFunction = FlxEase.sineInOut;
 		if (PlayState.instance != null && PlayState.instance.vocals != null)
@@ -83,7 +87,7 @@ class GameOverSubstate extends MusicBeatSubstate
 				FlxG.sound.music.stop();
 			}});
 
-		camFollow = new FlxObject(bf.getGraphicMidpoint().x, bf.getGraphicMidpoint().y, 1, 1);
+		camFollow = new FlxObject(boyfriend.getGraphicMidpoint().x, boyfriend.getGraphicMidpoint().y, 1, 1);
 		add(camFollow);
 
 		FlxG.sound.play(Paths.sound(config.fnf_loss_sfx + stageSuffix));
@@ -94,7 +98,7 @@ class GameOverSubstate extends MusicBeatSubstate
 		FlxG.camera.scroll.set();
 		FlxG.camera.target = null;
 
-		bf.playAnim('firstDeath');
+		boyfriend.playAnim('firstDeath');
 
 		var randomCensor:Array<Int> = [];
 
@@ -136,35 +140,29 @@ class GameOverSubstate extends MusicBeatSubstate
 			FlxG.switchState(new AnimationDebug(bf.curCharacter));
 		#end
 
-		if (bf.animation.curAnim.name == 'firstDeath' && bf.animation.curAnim.curFrame == 12)
-		{
+		if (boyfriend.animation.curAnim.name == 'firstDeath' && boyfriend.animation.curAnim.curFrame == 12)
 			FlxG.camera.follow(camFollow, LOCKON, 0.01);
-		}
 
 		switch (PlayState.storyWeek)
 		{
 			case 7:
-				if (bf.animation.curAnim.name == 'firstDeath' && bf.animation.curAnim.finished && !playingDeathSound)
-				{
+				if (boyfriend.animation.curAnim.name == 'firstDeath' && boyfriend.animation.curAnim.finished && !playingDeathSound) {
 					playingDeathSound = true;
 
 					coolStartDeath(0.2);
 
-					FlxG.sound.play(Paths.sound('jeffGameover/jeffGameover-' + randomGameover), 1, false, null, true, function()
-					{
+					FlxG.sound.play(Paths.sound('jeffGameover/jeffGameover-' + randomGameover), 1, false, null, true, function() {
 						if (!isEnding)
 							FlxG.sound.music.fadeIn(4, 0.2, 1);
 					});
 				}
 			default:
-				if (bf.animation.curAnim.name == 'firstDeath' && bf.animation.curAnim.finished)
-				{
+				if (boyfriend.animation.curAnim.name == 'firstDeath' && boyfriend.animation.curAnim.finished)
 					coolStartDeath();
-				}
 		}
 
-		if (deathStarted)
-			Debug.logTrace(Conductor.songPosition);
+		/*if (deathStarted)
+			Debug.logTrace(Conductor.songPosition);*/
 	}
 
 	var deathStarted:Bool = false;
@@ -175,6 +173,8 @@ class GameOverSubstate extends MusicBeatSubstate
 			FlxG.sound.music.stop();
 			FlxG.sound.playMusic(Paths.music(config.gameOver + stageSuffix), vol);
 			Conductor.followSound = FlxG.sound.music;
+
+			boyfriend.playAnim("deathLoop", true);
 		}
 	}
 
@@ -182,29 +182,25 @@ class GameOverSubstate extends MusicBeatSubstate
 	{
 		super.beatHit();
 
-		if (deathStarted)
-			bf.playAnim("deathLoop", true);
+		if (deathStarted && !isEnding)
+			boyfriend.playAnim("deathLoop", true);
 	}
 
 	var isEnding:Bool = false;
 
-	function endBullshit():Void
-	{
-		if (!isEnding)
-		{
+	function endBullshit() {
+		if (!isEnding) {
 			if (tweenVocals != null)
 				tweenVocals.cancel();
 			if (tweenInst != null)
 				tweenInst.cancel();
 
 			isEnding = true;
-			bf.playAnim('deathConfirm', true);
+			boyfriend.playAnim('deathConfirm', true);
 			FlxG.sound.music.stop();
 			FlxG.sound.play(Paths.music(config.gameOverEnd + stageSuffix));
-			new FlxTimer().start(0.7, function(tmr:FlxTimer)
-			{
-				FlxG.camera.fade(FlxColor.BLACK, 2, false, function()
-				{
+			new FlxTimer().start(0.7, function(tmr:FlxTimer) {
+				FlxG.camera.fade(FlxColor.BLACK, 2, false, function() {
 					LoadingState.loadAndSwitchState(new PlayState());
 				});
 			});

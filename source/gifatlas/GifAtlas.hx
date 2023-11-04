@@ -1,5 +1,6 @@
 package gifatlas;
 
+import openfl.display.BitmapData;
 import openfl.utils.Assets;
 import flixel.graphics.FlxGraphic;
 import openfl.utils.ByteArray;
@@ -7,7 +8,9 @@ import com.yagp.GifDecoder;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
 import com.yagp.Gif;
+#if sys
 import sys.FileSystem;
+#end
 import flixel.graphics.frames.FlxAtlasFrames;
 
 using StringTools;
@@ -26,6 +29,7 @@ class GifAtlas {
             var gif:Gif = GifDecoder.parseByteArray(ByteArray.fromFile(folder + file));
 
             for (frame in gif.frames) {
+                frame.data = CoolUtil.loadByGPU(frame.data); // оптимизейшн
                 var atlas:FlxAtlasFrames = new FlxAtlasFrames(FlxGraphic.fromBitmapData(frame.data));
                 atlas.addAtlasFrame(new FlxRect(0, 0, frame.data.width, frame.data.height), new FlxPoint(frame.data.width, frame.data.height), new FlxPoint(), file + funnyNum(gif.frames.indexOf(frame)));
 

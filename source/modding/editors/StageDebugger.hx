@@ -8,7 +8,7 @@ import StageData.StageFile;
 
 using StringTools;
 
-class StageDebugger extends BaseDebugger implements IHScriptable {
+class StageDebugger extends BaseDebugger {
     public var curStage:String = "stage";
     public var json:StageFile;
 
@@ -18,8 +18,6 @@ class StageDebugger extends BaseDebugger implements IHScriptable {
     var holdingChar:Character = null;
 
     public var camOverlay:FlxSprite;
-
-    var hscripts:Array<HScript> = [];
 
     public function new(stage:String = "stage") {
         super();
@@ -41,14 +39,6 @@ class StageDebugger extends BaseDebugger implements IHScriptable {
         camOverlay.setPosition(gf.getGraphicMidpoint().x - camOverlay.width / 2, gf.getGraphicMidpoint().y - camOverlay.height / 2);
         camOverlay.antialiasing = ClientPrefs.data.antialiasing;
         add(camOverlay);
-
-        if (Paths.embedExists("scripts/stages/" + stage + ".hx"))
-            hscripts.push(new HScript(Paths.getEmbedShit("scripts/stages/" + stage + ".hx"), this));
-
-        for (hscript in hscripts) {
-            hscript.call("pre_create");
-            hscript.call("create");
-        }
     }
 
     override function update(elapsed:Float) {

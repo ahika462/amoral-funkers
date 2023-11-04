@@ -14,6 +14,9 @@ class TimeSpectrum extends FlxSpriteGroup {
 
     var barShit:FlxSprite;
 
+    public var emptyColor:FlxColor = 0x59000000;
+    public var fillColor:FlxColor = 0xBFFFFFFF;
+
     public function new() {
         super();
 
@@ -73,12 +76,6 @@ class TimeSpectrum extends FlxSpriteGroup {
             var barHeight:Float = lerpSpectrum[i] * 1000;
             /*if (barHeight > maxHeight)
                 barHeight = maxHeight;*/
-
-            var emptyColor:FlxColor = FlxColor.BLACK;
-            emptyColor.alphaFloat = 0.35;
-
-            var fillColor:FlxColor = FlxColor.WHITE;
-            fillColor.alphaFloat = 0.75;
 
             var isThis:Bool = (barShit.width > i * 20) && (barShit.width < i * 20 + 15);
             var spr:FlxSprite = new FlxSprite(i * 20).makeGraphic(15, 1, (barShit.width < i * 20 + 15) ? emptyColor : fillColor);

@@ -17,9 +17,9 @@ class MusicBeatState extends FlxUIState {
 		super.create();
 	}
 
-	function stepHit() {}
-	function beatHit() {}
-	function sectionHit() {}
+	public function stepHit() {}
+	public function beatHit() {}
+	public function sectionHit() {}
 
 	override function destroy() {
 		Conductor.onStepHit.remove(stepHit);

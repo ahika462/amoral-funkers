@@ -8,6 +8,8 @@ class StrumNote extends FlxSprite {
     private var player:Int;
     public var downscroll:Bool = false;
 
+    public var speedMult:Float = 1;
+
     public var direction:Float = 90;//plan on doing scroll directions soon -bb
 
     public var texture(default, set):String = "NOTE_assets";

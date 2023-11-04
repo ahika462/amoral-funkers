@@ -20,7 +20,7 @@ class StageUI extends FlxUI {
         name = "Stages";
         debug = ModdingState.instance.stageDebug;
         
-        stageList = CoolUtil.coolTextFile(Paths.txt("stageList"));
+        stageList = CoolUtil.coolTextFile(Paths.getEmbedShit("stages/stageList.txt"));
         var stagesDropdown:FlxUIDropDownMenu = new FlxUIDropDownMenu(10, 10, FlxUIDropDownMenu.makeStrIdLabelArray(stageList, true));
         add(stagesDropdown);
 

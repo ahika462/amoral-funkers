@@ -619,24 +619,29 @@ class ChartDebugger extends BaseDebugger {
 
 	function addUndo() {
 		var cont:SwagSong = {
-			song: json.song,
-			notes: json.notes,
-			events: json.events,
-			bpm: json.bpm,
-			needsVoices: json.needsVoices,
-			speed: json.speed,
+			"song": json.song,
+			"notes": json.notes,
+			"events": json.events,
+			"bpm": json.bpm,
+			"needsVoices": json.needsVoices,
+			"speed": json.speed,
+			"stage": json.stage,
 
-			player1: json.player1,
-			player2: json.player2,
-			validScore: json.validScore
+			"player1": json.player1,
+			"player2": json.player2,
+			"validScore": json.validScore
 		};
 		undos.insert(0, cont);
 	}
 
 	function getSectionStartTime(sec:Int) {
 		var doneSteps:Int = 0;
-		for (i in 0...sec - 1)
-			doneSteps += json.notes[i].lengthInSteps;
+		for (i in 0...sec - 1) {
+			if (json.notes[i].sectionBeats != null)
+				doneSteps += json.notes[i].sectionBeats * 4;
+			else
+				doneSteps += json.notes[i].lengthInSteps;
+		}
 
 		return doneSteps * Conductor.stepCrochet;
 	}

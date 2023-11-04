@@ -99,7 +99,6 @@ class ModdingState extends MusicBeatState {
         return debug;
     }
 
-    var characterList:Array<String> = [];
     function addCharacterUI() {
         characterUI = new CharacterUI();
         mainTabUI.addGroup(characterUI);

@@ -113,15 +113,16 @@ class ChartingState extends MusicBeatState
 		else
 		{
 			_song = {
-				song: 'Test',
-				notes: [],
-				events: [],
-				bpm: 150,
-				needsVoices: true,
-				player1: 'bf',
-				player2: 'dad',
-				speed: 1,
-				validScore: false
+				"song": "Test",
+				"notes": [],
+				"events": [],
+				"bpm": 150,
+				"needsVoices": true,
+				"player1": "bf",
+				"player2": "dad",
+				"speed": 1,
+				"stage": "stage",
+				"validScore": false
 			};
 		}
 
@@ -226,7 +227,7 @@ class ChartingState extends MusicBeatState
 		stepperBPM.value = Conductor.bpm;
 		stepperBPM.name = 'song_bpm';
 
-		var characters:Array<String> = CoolUtil.coolTextFile(Paths.txt('characterList'));
+		var characters:Array<String> = CoolUtil.coolTextFile(Paths.getEmbedShit("characters/characterList.txt"));
 
 		var player1DropDown = new FlxUIDropDownMenu(10, 100, FlxUIDropDownMenu.makeStrIdLabelArray(characters, true), function(character:String)
 		{

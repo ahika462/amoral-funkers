@@ -54,6 +54,10 @@ class Note extends FlxSprite
 	public var distance:Float = 2000; //plan on doing scroll directions soon -bb
 	public var speedMult:Float = 1;
 
+	public var originalHeightForCalcs:Float = 6;
+
+	public var noteType:String = "";
+
 	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false)
 	{
 		super();
@@ -71,6 +75,7 @@ class Note extends FlxSprite
 		this.noteData = noteData;
 
 		if (PlayState.isPixelStage) {
+			originalHeightForCalcs = height;
 			loadGraphic(Paths.image('weeb/pixelUI/NOTE_assets'), true, 17, 17);
 
 			animation.add('greenScroll', [6]);
