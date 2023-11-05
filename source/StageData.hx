@@ -9,6 +9,8 @@ typedef StageFile = {
 }
 
 class StageData {
+    inline public static var DEFAULT_STAGE:String = "glasses";
+    
     public static function get(name:String):StageFile {
         var json:StageFile = cast Json.parse(Paths.getEmbedText("stages/" + name + ".json")).stage;
         if (json.zoom == null)

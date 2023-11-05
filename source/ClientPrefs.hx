@@ -3,13 +3,18 @@ import flixel.input.keyboard.FlxKey;
 
 class SaveVariables {
     public var censorNaughty:Bool = false;
-    public var downscroll:Bool = false;
     public var flashing:Bool = true;
     public var cameraZoom:Bool = true;
     public var fpsCounter:Bool = true;
     public var autoPause:Bool = false;
     public var arrowHSB:Array<Array<Float>> = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]];
     public var comboStacking:Bool = false;
+    
+    public var downscroll:Bool = false;
+    public var middlescroll:Bool = false;
+    public var opponentStrums:Bool = true;
+
+    public var gpuRender:Bool = false;
 
     public var safeFrames:Float = 10;
     public var sickWindow:Int = 45;

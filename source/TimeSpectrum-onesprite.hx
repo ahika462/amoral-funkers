@@ -28,7 +28,7 @@ class TimeSpectrum extends FlxSprite {
 
     override function update(elapsed:Float) {
         this.elapsed += elapsed;
-        if (Conductor.followSound != null && Conductor.followSound.playing) {
+        if (FlxG.sound.music != null && FlxG.sound.music.playing) {
             if (previous != Math.floor(this.elapsed * 2048)) {
                 updateSamples();
                 updateWaveform(elapsed);
@@ -43,13 +43,13 @@ class TimeSpectrum extends FlxSprite {
     public var lerpSpectrum:Array<Float> = [];
     public function updateSamples() {
         @:privateAccess {
-            var index:Int = Math.floor(Conductor.followSound.time * (Conductor.followSound._sound.__buffer.sampleRate / 1000));
+            var index:Int = Math.floor(Conductor.songPosition * (FlxG.sound.music._sound.__buffer.sampleRate / 1000));
 
             spectrum = [];
 
             for (i in index...index + 2048) {
                 if (i >= 0) {
-                    var byte:Int = Conductor.followSound._sound.__buffer.data.buffer.getUInt16(i * Conductor.followSound._sound.__buffer.channels * 2);
+                    var byte:Int = FlxG.sound.music._sound.__buffer.data.buffer.getUInt16(i * FlxG.sound.music._sound.__buffer.channels * 2);
 
                     if (byte > 65535 / 2)
                         byte -= 65535;
@@ -61,7 +61,7 @@ class TimeSpectrum extends FlxSprite {
     }
 
     public function updateWaveform(elapsed:Float) {
-        barShit.scale.x = (Conductor.songPosition / Conductor.followSound.length) * FlxG.width;
+        barShit.scale.x = (Conductor.songPosition / FlxG.sound.music.length) * FlxG.width;
         barShit.updateHitbox();
 
         loadGraphic(CoolUtil.loadByGPU(new BitmapData(FlxG.width, FlxG.height, FlxColor.TRANSPARENT)));

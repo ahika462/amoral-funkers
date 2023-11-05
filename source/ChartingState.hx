@@ -88,8 +88,8 @@ class ChartingState extends MusicBeatState
 		gridBG = FlxGridOverlay.create(GRID_SIZE, GRID_SIZE, GRID_SIZE * 8, GRID_SIZE * 16);
 		add(gridBG);
 
-		leftIcon = new HealthIcon('bf');
-		rightIcon = new HealthIcon('dad');
+		leftIcon = new HealthIcon(HealthIcon.DEFAULT_PLAYER);
+		rightIcon = new HealthIcon(HealthIcon.DEFAULT_OPPONENT);
 		leftIcon.scrollFactor.set(1, 1);
 		rightIcon.scrollFactor.set(1, 1);
 
@@ -118,8 +118,9 @@ class ChartingState extends MusicBeatState
 				"events": [],
 				"bpm": 150,
 				"needsVoices": true,
-				"player1": "bf",
-				"player2": "dad",
+				"player1": Character.DEFAULT_CHARACTER,
+				"player2": Character.DEFAULT_CHARACTER,
+				"gfVersion": Character.DEFAULT_CHARACTER,
 				"speed": 1,
 				"stage": "stage",
 				"validScore": false
@@ -140,7 +141,6 @@ class ChartingState extends MusicBeatState
 		loadSong(_song.song);
 		Conductor.bpm = _song.bpm;
 		Conductor.mapBPMChanges(_song);
-		Conductor.followSound = FlxG.sound.music;
 
 		bpmTxt = new FlxText(1000, 50, 0, "", 16);
 		bpmTxt.scrollFactor.set();
@@ -476,7 +476,7 @@ class ChartingState extends MusicBeatState
 	{
 		Conductor.curStep = recalculateSteps();
 
-		Conductor.songPosition = FlxG.sound.music.time;
+		// Conductor.songPosition = FlxG.sound.music.time;
 		_song.song = typingShit.text;
 
 		strumLine.y = getYfromStrum((Conductor.songPosition - sectionStartTime()) % (Conductor.stepCrochet * _song.notes[curSection].lengthInSteps));

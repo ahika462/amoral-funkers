@@ -158,7 +158,7 @@ class FunkinLua {
 		set('hits', 0);
 
 		set('rating', 0);
-		set('ratingName', '');
+		// set('ratingName', '');
 		set('ratingFC', '');
 		// set('version', MainMenuState.psychEngineVersion.trim());
 
@@ -1486,14 +1486,14 @@ class FunkinLua {
 		Lua_helper.add_callback(lua, "keyJustPressed", function(name:String) {
 			var key:Bool = false;
 			switch(name) {
-				case 'left': key = PlayState.instance.getControl('NOTE_LEFT_P');
-				case 'down': key = PlayState.instance.getControl('NOTE_DOWN_P');
-				case 'up': key = PlayState.instance.getControl('NOTE_UP_P');
-				case 'right': key = PlayState.instance.getControl('NOTE_RIGHT_P');
-				case 'accept': key = PlayState.instance.getControl('ACCEPT');
-				case 'back': key = PlayState.instance.getControl('BACK');
-				case 'pause': key = PlayState.instance.getControl('PAUSE');
-				case 'reset': key = PlayState.instance.getControl('RESET');
+				case 'left': key = PlayerSettings.player1.controls.NOTE_LEFT_P;
+				case 'down': key = PlayerSettings.player1.controls.NOTE_DOWN_P;
+				case 'up': key = PlayerSettings.player1.controls.NOTE_UP_P;
+				case 'right': key = PlayerSettings.player1.controls.NOTE_RIGHT_P;
+				case 'accept': key = PlayerSettings.player1.controls.ACCEPT;
+				case 'back': key = PlayerSettings.player1.controls.BACK;
+				case 'pause': key = PlayerSettings.player1.controls.PAUSE;
+				case 'reset': key = PlayerSettings.player1.controls.RESET;
 				case 'space': key = FlxG.keys.justPressed.SPACE;//an extra key for convinience
 			}
 			return key;
@@ -1501,10 +1501,10 @@ class FunkinLua {
 		Lua_helper.add_callback(lua, "keyPressed", function(name:String) {
 			var key:Bool = false;
 			switch(name) {
-				case 'left': key = PlayState.instance.getControl('NOTE_LEFT');
-				case 'down': key = PlayState.instance.getControl('NOTE_DOWN');
-				case 'up': key = PlayState.instance.getControl('NOTE_UP');
-				case 'right': key = PlayState.instance.getControl('NOTE_RIGHT');
+				case 'left': key = PlayerSettings.player1.controls.NOTE_LEFT;
+				case 'down': key = PlayerSettings.player1.controls.NOTE_DOWN;
+				case 'up': key = PlayerSettings.player1.controls.NOTE_UP;
+				case 'right': key = PlayerSettings.player1.controls.NOTE_RIGHT;
 				case 'space': key = FlxG.keys.pressed.SPACE;//an extra key for convinience
 			}
 			return key;
@@ -1512,10 +1512,10 @@ class FunkinLua {
 		Lua_helper.add_callback(lua, "keyReleased", function(name:String) {
 			var key:Bool = false;
 			switch(name) {
-				case 'left': key = PlayState.instance.getControl('NOTE_LEFT_R');
-				case 'down': key = PlayState.instance.getControl('NOTE_DOWN_R');
-				case 'up': key = PlayState.instance.getControl('NOTE_UP_R');
-				case 'right': key = PlayState.instance.getControl('NOTE_RIGHT_R');
+				case 'left': key = PlayerSettings.player1.controls.NOTE_LEFT_R;
+				case 'down': key = PlayerSettings.player1.controls.NOTE_DOWN_R;
+				case 'up': key = PlayerSettings.player1.controls.NOTE_UP_R;
+				case 'right': key = PlayerSettings.player1.controls.NOTE_RIGHT_R;
 				case 'space': key = FlxG.keys.justReleased.SPACE;//an extra key for convinience
 			}
 			return key;
@@ -1550,7 +1550,7 @@ class FunkinLua {
 			return true;
 		});
 		Lua_helper.add_callback(lua, "endSong", function() {
-			PlayState.instance.killNotes();
+			// PlayState.instance.killNotes();
 			PlayState.instance.endSong();
 			return true;
 		});
@@ -1632,8 +1632,7 @@ class FunkinLua {
 			if(target == 'dad') {
 				isDad = true;
 			}
-			PlayState.instance.cameraRightSide = isDad;
-			PlayState.instance.cameraMovement();
+			PlayState.instance.moveCamera(isDad);
 			return isDad;
 		});
 		Lua_helper.add_callback(lua, "cameraShake", function(camera:String, intensity:Float, duration:Float) {

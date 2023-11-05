@@ -35,13 +35,14 @@ typedef AnimArray = {
 	var name:String;
 }
 
-class Character extends FlxSprite
-{
+class Character extends FlxSprite {
+	inline public static var DEFAULT_CHARACTER:String = "minimaxfla";
+
 	public var animOffsets:Map<String, Array<Dynamic>>;
 	public var debugMode:Bool = false;
 
 	public var isPlayer(default, set):Bool = false;
-	public var curCharacter:String = 'bf';
+	public var curCharacter:String = DEFAULT_CHARACTER;
 
 	public var holdTimer:Float = 0;
 
@@ -49,10 +50,11 @@ class Character extends FlxSprite
 	public var specAnim:Bool = false;
 
 	public var healthColor:FlxColor = FlxColor.WHITE;
+	public var danceBeats:Int = 2;
 
 	public var json:CharacterFile;
 
-	public function new(x:Float, y:Float, ?character:String = "bf", ?isPlayer:Bool = false)
+	public function new(x:Float, y:Float, ?character:String = DEFAULT_CHARACTER, ?isPlayer:Bool = false)
 	{
 		super(x, y);
 
@@ -64,6 +66,9 @@ class Character extends FlxSprite
 
 		switch(curCharacter) {
 			default:
+				if (!Paths.embedExists("characters/" + character + ".json"))
+					character = DEFAULT_CHARACTER;
+
 				json = cast Json.parse(Paths.getEmbedText("characters/" + character + ".json")).character;
 		
 				if (Paths.exists("images/" + json.image + ".xml", TEXT))
@@ -163,10 +168,6 @@ class Character extends FlxSprite
 	}
 
 	private var danced:Bool = false;
-
-	/**
-	 * FOR GF DANCING SHIT
-	 */
 	public function dance()
 	{
 		if (!debugMode)

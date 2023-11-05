@@ -9,7 +9,7 @@ import StageData.StageFile;
 using StringTools;
 
 class StageDebugger extends BaseDebugger {
-    public var curStage:String = "stage";
+    public var curStage:String = StageData.DEFAULT_STAGE;
     public var json:StageFile;
 
     public var gf:Character;
@@ -19,7 +19,7 @@ class StageDebugger extends BaseDebugger {
 
     public var camOverlay:FlxSprite;
 
-    public function new(stage:String = "stage") {
+    public function new(stage:String = StageData.DEFAULT_STAGE) {
         super();
         curStage = stage;
         json = StageData.get(stage);

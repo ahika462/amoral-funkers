@@ -38,9 +38,14 @@ class GifAtlas {
         }
 
         var frames:FlxAtlasFrames = new FlxAtlasFrames(null);
+        #if (flixel >= "5.4.0")
+        for (atlas in atlases)
+            frames.addAtlas(atlas);
+        #else
         frames.frames = [];
         for (atlas in atlases)
             frames.frames = frames.frames.concat(atlas.frames);
+        #end
 
         return frames;
     }

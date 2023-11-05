@@ -94,6 +94,9 @@ class CoolUtil
 	}
 
 	public static function loadByGPU(bmp:BitmapData):BitmapData {
+		if (!ClientPrefs.data.gpuRender)
+			return bmp;
+		
 		var texture:RectangleTexture = FlxG.stage.context3D.createRectangleTexture(bmp.width, bmp.height, BGRA, true);
 		texture.uploadFromBitmapData(bmp);
 
@@ -115,5 +118,14 @@ class CoolUtil
 		if (colorNum == null)
 			colorNum = FlxColor.fromString('#$color');
 		return colorNum != null ? colorNum : 0xFFFFFFFF;
+	}
+
+	public static function boundSelection(value:Int, min:Int, max:Int):Int {
+		if (value > max)
+			value = min;
+		else if (value < min)
+			value = max;
+
+		return value;
 	}
 }

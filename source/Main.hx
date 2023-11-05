@@ -1,3 +1,4 @@
+import haxe.Log;
 #if sys
 import sys.io.Process;
 import sys.FileSystem;
@@ -49,6 +50,7 @@ class Main extends Sprite {
 		#end
 
 		Debug.initialize();
+		Log.trace = Debug.logTrace;
 		
 		while (funnyTitles.length < 10)
 			funnyTitles.push("AMORAL FUNKERS");
@@ -90,7 +92,7 @@ class Main extends Sprite {
 		setupGame();
 	}
 
-	public static var fpsCounter:MemFPS;
+	public static var fpsCounter:UsageInfo;
 
 	private function setupGame() {
 		Conductor.init();
@@ -98,7 +100,7 @@ class Main extends Sprite {
 		addChild(new FlxGame(game.width, game.height, game.initialState, game.framerate, game.framerate, game.skipSplash, game.startFullscreen));
 
 		#if !mobile
-		fpsCounter = new MemFPS(10, 3, 0xFFFFFF);
+		fpsCounter = new UsageInfo(10, 3);
 		FlxG.game.addChild(fpsCounter);
 		#end
 

@@ -15,11 +15,11 @@ import flixel.addons.ui.FlxUI;
 using StringTools;
 
 class CharacterUI extends FlxUI {
-    public var iconInputText:FlxUIInputText;
-    public var imageInputText:FlxUIInputText;
-    public var nameInputText:FlxUIInputText;
-    public var animInputText:FlxUIInputText;
-    public var indicesInputText:FlxUIInputText;
+    public var iconInputText:InputText;
+    public var imageInputText:InputText;
+    public var nameInputText:InputText;
+    public var animInputText:InputText;
+    public var indicesInputText:InputText;
 
     var characterList:Array<String> = [];
 
@@ -60,7 +60,7 @@ class CharacterUI extends FlxUI {
 
         var editorOffset:Float = 100;
 
-        iconInputText = new FlxUIInputText(10, editorOffset, 75, debug.character.json.healthicon);
+        iconInputText = new InputText(10, editorOffset, 75, debug.character.json.healthicon);
         insert(0, iconInputText);
 
         var playerCheckBox:FlxUICheckBox = new FlxUICheckBox(iconInputText.x + iconInputText.width + 10, editorOffset, null, null, "Is Player");
@@ -70,7 +70,7 @@ class CharacterUI extends FlxUI {
         }
         insert(0, playerCheckBox);
 
-        imageInputText = new FlxUIInputText(10, playerCheckBox.y + playerCheckBox.height + 10, 175, debug.json.image);
+        imageInputText = new InputText(10, playerCheckBox.y + playerCheckBox.height + 10, 175, debug.json.image);
         insert(0, imageInputText);
 
         var reloadButton:FlxButton = new FlxButton(imageInputText.x + imageInputText.width + 10, imageInputText.y, "Reload", function() {
@@ -193,12 +193,12 @@ class CharacterUI extends FlxUI {
                     debug.json.animations.remove(anim);
             }
 
-            if (debug.character.animation.getNameList().length > 0) {
-                var nextAnimID:Int = debug.character.getAnimNames().indexOf(debug.character.animation.curAnim.name) + 1;
+            if (debug.character.getAnimNames().length > 0) {
+                /*var nextAnimID:Int = debug.character.getAnimNames().indexOf(debug.character.animation.curAnim.name) + 1;
                 if (nextAnimID > debug.character.getAnimNames().length - 1)
-                    nextAnimID = 0;
+                    nextAnimID = 0;*/
 
-                debug.character.playAnim(debug.character.getAnimNames()[nextAnimID]);
+                debug.character.playAnim(debug.character.getAnimNames()[0]);
             }
             
             var daArray:Array<StrNameLabel> = [new StrNameLabel("-1", "")];
@@ -214,13 +214,13 @@ class CharacterUI extends FlxUI {
         });
         insert(0, removeButton);
 
-        nameInputText = new FlxUIInputText(10, animationsDropDown.y + 30, 175, "");
+        nameInputText = new InputText(10, animationsDropDown.y + 30, 175, "");
         insert(0, nameInputText);
 
-        animInputText = new FlxUIInputText(10, nameInputText.y + nameInputText.height + 10, 175, "");
+        animInputText = new InputText(10, nameInputText.y + nameInputText.height + 10, 175, "");
         insert(0, animInputText);
 
-        indicesInputText = new FlxUIInputText(10, animInputText.y + animInputText.height + 10, 150, "");
+        indicesInputText = new InputText(10, animInputText.y + animInputText.height + 10, 150, "");
         insert(0, indicesInputText);
 
         fpsStepper = new FlxUINumericStepper(indicesInputText.x + indicesInputText.width + 10, indicesInputText.y, 1, 24, 1);

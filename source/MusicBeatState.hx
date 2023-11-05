@@ -1,5 +1,6 @@
 package;
 
+import flixel.FlxG;
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.addons.ui.FlxUIState;
 
@@ -25,6 +26,11 @@ class MusicBeatState extends FlxUIState {
 		Conductor.onStepHit.remove(stepHit);
 		Conductor.onBeatHit.remove(beatHit);
 		Conductor.onSectionHit.remove(sectionHit);
+
+		for (sound in FlxG.sound.list) {
+			if (!sound.playing && !sound.persist)
+				sound.destroy();
+		}
 	}
 
 	override function transitionIn() {

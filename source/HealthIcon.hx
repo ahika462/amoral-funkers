@@ -11,10 +11,14 @@ class HealthIcon extends FlxSprite
 	 */
 	public var sprTracker:FlxSprite;
 
+	inline public static var DEFAULT_ICON:String = "face";
+	inline public static var DEFAULT_PLAYER:String = "slimeboy";
+	inline public static var DEFAULT_OPPONENT:String = "minimaxfla";
+
 	var char:String = '';
 	var isPlayer:Bool = false;
 
-	public function new(char:String = 'bf', isPlayer:Bool = false)
+	public function new(char:String = DEFAULT_ICON, isPlayer:Bool = false)
 	{
 		super();
 
@@ -43,7 +47,11 @@ class HealthIcon extends FlxSprite
 		{
 			if (animation.getByName(newChar) == null)
 			{
-				loadGraphic(Paths.image('icons/icon-' + newChar), true, 150, 150);
+				if (Paths.exists("images/icons/icon-" + newChar + ".png", IMAGE))
+					loadGraphic(Paths.image("icons/icon-" + newChar), true, 150, 150);
+				else
+					loadGraphic(Paths.image("icons/icon-" + DEFAULT_ICON), true, 150, 150);
+
 				animation.add(newChar, [0, 1], 0, false, isPlayer);
 			}
 			animation.play(newChar);

@@ -29,8 +29,6 @@ import openfl.events.NetStatusEvent;
 import openfl.media.Video;
 import openfl.net.NetConnection;
 import openfl.net.NetStream;
-import shaderslmfao.BuildingShaders.BuildingShader;
-import shaderslmfao.BuildingShaders;
 import shaderslmfao.ColorSwap;
 
 using StringTools;
@@ -59,7 +57,6 @@ class TitleState extends MusicBeatState
 	var wackyImage:FlxSprite;
 	var lastBeat:Int = 0;
 	var swagShader:ColorSwap;
-	var alphaShader:BuildingShaders;
 	var thingie:FlxSprite;
 
 	var video:Video;
@@ -80,7 +77,6 @@ class TitleState extends MusicBeatState
 		FlxG.game.focusLostFramerate = 60;
 
 		swagShader = new ColorSwap();
-		alphaShader = new BuildingShaders();
 
 		FlxG.sound.muteKeys = [ZERO];
 
@@ -114,8 +110,8 @@ class TitleState extends MusicBeatState
 
 		#if FREEPLAY
 		FlxG.switchState(new FreeplayState());
-		#elseif ANIMATE
-		FlxG.switchState(new CutsceneAnimTestState());
+		/*#elseif ANIMATE
+		FlxG.switchState(new CutsceneAnimTestState());*/
 		#elseif CHARTING
 		FlxG.switchState(new ChartingState());
 		/* 
@@ -217,7 +213,7 @@ class TitleState extends MusicBeatState
 		}
 
 		Conductor.bpm = 102;
-		Conductor.followSound = FlxG.sound.music;
+		// Conductor.followSound = FlxG.sound.music;
 		persistentUpdate = true;
 
 		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
@@ -236,7 +232,6 @@ class TitleState extends MusicBeatState
 		logoBl.updateHitbox();
 
 		logoBl.shader = swagShader.shader;
-		// logoBl.shader = alphaShader.shader;
 
 		// Debug.logTrace();
 		// logoBl.screenCenter();
@@ -332,10 +327,10 @@ class TitleState extends MusicBeatState
 
 	override function update(elapsed:Float)
 	{
-		#if debug
+		/*#if debug
 		if (FlxG.keys.justPressed.EIGHT)
 			FlxG.switchState(new CutsceneAnimTestState());
-		#end
+		#end*/
 
 		/* 
 			if (FlxG.keys.justPressed.R)
@@ -348,8 +343,8 @@ class TitleState extends MusicBeatState
 
 		 */
 
-		if (FlxG.sound.music != null)
-			Conductor.songPosition = FlxG.sound.music.time;
+		/*if (FlxG.sound.music != null)
+			Conductor.songPosition = FlxG.sound.music.time;*/
 		// FlxG.watch.addQuick('amp', FlxG.sound.music.amplitude);
 
 		if (FlxG.keys.justPressed.F)

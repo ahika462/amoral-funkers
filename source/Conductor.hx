@@ -1,3 +1,4 @@
+import flixel.FlxG;
 import flixel.sound.FlxSound;
 import openfl.events.Event;
 import openfl.Lib;
@@ -12,14 +13,21 @@ typedef BPMChangeEvent =
 }
 
 class Conductor {
-    public static var bpm(default, set):Float = 100;
+    public static var bpm:Float = 100;
 
-    public static var crochet:Float = ((60 / bpm) * 1000); // beats in milliseconds
-	public static var stepCrochet:Float = crochet / 4; // steps in milliseconds
+    public static var crochet(get, never):Float; // beats in milliseconds
+	public static var stepCrochet(get, never):Float; // steps in milliseconds
+
+	static function get_crochet():Float {
+		return (60 / bpm) * 1000;
+	}
+
+	static function get_stepCrochet():Float {
+		return crochet / 4;
+	}
     
-    public static var songPosition(get, default):Float;
+    public static var songPosition(get, set):Float;
 	public static var lastSongPos:Float;
-    public static var followSound:FlxSound = null;
 
 	public static var offset:Float = 0;
 
@@ -64,14 +72,14 @@ class Conductor {
 		Debug.logTrace("new BPM map BUDDY " + bpmChangeMap);
 	}
 
-	static function set_bpm(value:Float):Float {
+	/*static function set_bpm(value:Float):Float {
 		bpm = value;
 
 		crochet = ((60 / bpm) * 1000);
 		stepCrochet = crochet / 4;
 
 		return value;
-	}
+	}*/
 
 	public static function judgeNote(note:Note, ratings:Array<Rating>) {
 		var noteDiff:Float = Math.abs(note.strumTime - Conductor.songPosition);
@@ -85,7 +93,7 @@ class Conductor {
 	}
 
     public static function init() {
-        Lib.current.stage.addEventListener(Event.ENTER_FRAME, function(?e:Event) {
+		Lib.current.stage.addEventListener(Event.ENTER_FRAME, function(?e:Event) {
             update();
         });
     }
@@ -105,40 +113,46 @@ class Conductor {
         }
 
         curStep = lastChange.stepTime + Math.floor((songPosition - lastChange.songTime) / stepCrochet);
-        curBeat = Math.floor(curStep / 4);
+        
+		if (oldStep != curStep && curStep >= 0) {
+			curBeat = Std.int(curStep / 4);
+			
+			var oldSection:Int = curSection;
+			curSection = -1;
+			
+			var stepsToDo:Int = 0;
+			while (curStep >= stepsToDo && curStep > 0) {
+				if (PlayState.SONG != null && PlayState.SONG.notes[curSection] != null) {
+					if (PlayState.SONG.notes[curSection].sectionBeats != null)
+						stepsToDo += PlayState.SONG.notes[curSection].sectionBeats * 4;
+					else
+						stepsToDo += PlayState.SONG.notes[curSection].lengthInSteps;
+				} else
+					stepsToDo += 16;
 
-        if (oldStep != curStep && curStep >= 0) {
+				curSection++;
+			}
+
             onStepHit.dispatch();
             if (curStep % 4 == 0)
                 onBeatHit.dispatch();
+			if (oldSection != curSection)
+				onSectionHit.dispatch();
         }
-
-		var oldSection:Int = curSection;
-		curSection = 0;
-		var sectionLength:Int = 16;
-		if (PlayState.SONG != null && PlayState.SONG.notes[curSection] != null)
-			sectionLength = PlayState.SONG.notes[curSection].lengthInSteps;
-		var stepsToDo:Int = sectionLength;
-		while (curStep >= stepsToDo) {
-			curSection++;
-
-			if (PlayState.SONG != null && PlayState.SONG.notes[curSection] != null)
-				sectionLength = PlayState.SONG.notes[curSection].lengthInSteps;
-			else
-				sectionLength = 16;
-
-			stepsToDo += sectionLength;
-		}
-
-		if (oldSection != curSection && curSection >= 0)
-			onSectionHit.dispatch();
     }
 
 	static function get_songPosition():Float {
-		if (followSound != null)
-			return followSound.time - offset;
-		else
-			return songPosition - offset;
+		if (FlxG.sound.music != null)
+			return FlxG.sound.music.time;
+
+		return 0;
+	}
+
+	static function set_songPosition(value:Float):Float {
+		if (FlxG.sound.music != null)
+			return FlxG.sound.music.time = value;
+
+		return value;
 	}
 }
 

@@ -81,6 +81,7 @@ class StrumNote extends FlxSprite {
                     animation.addByPrefix('confirm', 'right confirm', 24, false);
             }
         }
+        animation.play("static");
 
         updateHitbox();
 

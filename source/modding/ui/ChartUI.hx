@@ -9,7 +9,7 @@ import modding.editors.ChartDebugger;
 import flixel.addons.ui.FlxUI;
 
 class ChartUI extends FlxUI {
-    public var nameInputText:FlxUIInputText;
+    public var nameInputText:InputText;
 
     public var speedStepper:FlxUINumericStepper;
     public var bpmStepper:FlxUINumericStepper;
@@ -29,7 +29,7 @@ class ChartUI extends FlxUI {
         var redoButton:FlxButton = new FlxButton(undoButton.x + undoButton.width + 10, undoButton.y, "Redo", redo);
         add(redoButton);
 
-        nameInputText = new FlxUIInputText(10, redoButton.y + redoButton.height + 10, 200, debug.json.song);
+        nameInputText = new InputText(10, redoButton.y + redoButton.height + 10, 200, debug.json.song);
         add(nameInputText);
 
         var saveButton:FlxButton = new FlxButton(nameInputText.x + nameInputText.width + 10, nameInputText.y, "Save", function() {

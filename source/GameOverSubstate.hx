@@ -135,10 +135,10 @@ class GameOverSubstate extends MusicBeatSubstate
 				FlxG.switchState(new FreeplayState());
 		}
 
-		#if debug
+		/*#if debug
 		if (FlxG.keys.justPressed.EIGHT)
 			FlxG.switchState(new AnimationDebug(bf.curCharacter));
-		#end
+		#end*/
 
 		if (boyfriend.animation.curAnim.name == 'firstDeath' && boyfriend.animation.curAnim.curFrame == 12)
 			FlxG.camera.follow(camFollow, LOCKON, 0.01);
@@ -172,7 +172,7 @@ class GameOverSubstate extends MusicBeatSubstate
 			deathStarted = true;
 			FlxG.sound.music.stop();
 			FlxG.sound.playMusic(Paths.music(config.gameOver + stageSuffix), vol);
-			Conductor.followSound = FlxG.sound.music;
+			// Conductor.followSound = FlxG.sound.music;
 
 			boyfriend.playAnim("deathLoop", true);
 		}

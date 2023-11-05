@@ -13,7 +13,7 @@ import haxe.Json;
 import Character;
 
 class CharacterDebugger extends BaseDebugger {
-    public var curCharacter(default, set):String = "bf";
+    public var curCharacter(default, set):String = Character.DEFAULT_CHARACTER;
     public var character:EditorCharacter;
 
     public var json(get, set):CharacterFile;
@@ -21,14 +21,20 @@ class CharacterDebugger extends BaseDebugger {
     var cross:FlxSprite;
     var offsetTxt:FlxText;
 
-    public function new(char:String = "bf") {
+    public function new(char:String = Character.DEFAULT_CHARACTER) {
         super();
 
         var bg:FlxSprite = FlxGridOverlay.create(10, 10, -1, -1, true, 0xff808080, 0xff404040);
         bg.scrollFactor.set(0.5, 0.5);
         add(bg);
 
-        character = new EditorCharacter(400, 130, cast Json.parse(Paths.getEmbedText("characters/" + curCharacter + ".json")).character, false);
+        var charJson:CharacterFile = null;
+        if (Paths.embedExists("characters/" + curCharacter + ".json"))
+            charJson = cast Json.parse(Paths.getEmbedText("characters/" + curCharacter + ".json")).character;
+        else
+            charJson = cast Json.parse(Paths.getEmbedText("characters/" + Character.DEFAULT_CHARACTER + ".json")).character;
+
+        character = new EditorCharacter(400, 130, charJson, false);
         add(character);
 
         cross = new FlxSprite(FlxGraphic.fromClass(GraphicCursorCross));

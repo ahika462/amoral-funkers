@@ -62,12 +62,20 @@ class Debug {
 
         var inputStr:String = Std.string(input);
         logContent += inputStr + "\n";
-        #if sys
-        Sys.println(inputStr);
-        File.saveContent(logFolder + logName, logContent);
-        #else
-        Log.trace(inputStr, null);
-        #end
+        
+        #if js
+		if (js.Syntax.typeof(untyped console) != "undefined" && (untyped console).log != null)
+			(untyped console).log(inputStr);
+		#elseif lua
+		untyped __define_feature__("use._hx_print", _hx_print(inputStr));
+		#elseif sys
+		Sys.println(inputStr);
+        try {
+            File.saveContent(logFolder + logName, logContent);
+        }
+		#else
+		throw new haxe.exceptions.NotImplementedException()
+		#end
 
         return returnVal;
     }

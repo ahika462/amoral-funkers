@@ -52,7 +52,7 @@ class ChartDebugger extends BaseDebugger {
 
 	var waveform:Waveform;
 
-    public function new(song:String = "Test") {
+    public function new(song:String = "Glasses") {
         super();
 
         curSection = lastSection;
@@ -61,13 +61,13 @@ class ChartDebugger extends BaseDebugger {
 		gridBG.setPosition(FlxG.width / 2 - GRID_SIZE * 4, FlxG.height / 2);
 		add(gridBG);
 
-        leftIcon = new HealthIcon('bf');
+        leftIcon = new HealthIcon(HealthIcon.DEFAULT_PLAYER);
 		leftIcon.setGraphicSize(0, 45);
 		leftIcon.updateHitbox();
 		leftIcon.setPosition(gridBG.x + gridBG.width / 4 - leftIcon.width / 2, gridBG.y - leftIcon.height * 1.5);
 		add(leftIcon);
 
-		rightIcon = new HealthIcon('dad');
+		rightIcon = new HealthIcon(HealthIcon.DEFAULT_OPPONENT);
 		rightIcon.setGraphicSize(0, 45);
 		rightIcon.updateHitbox();
 		rightIcon.setPosition(gridBG.x + gridBG.width / 4 - rightIcon.width / 2, gridBG.y - rightIcon.height * 1.5);
@@ -102,8 +102,8 @@ class ChartDebugger extends BaseDebugger {
         loadSong(json.song);
 		Conductor.bpm = json.bpm;
 		Conductor.mapBPMChanges(json);
-		Conductor.followSound = FlxG.sound.music;
-		Conductor.followSound.time = 0;
+		// Conductor.followSound = FlxG.sound.music;
+		Conductor.songPosition = 0;
 
 		bpmTxt = new FlxText(1000, 50, 0, "", 16);
 		bpmTxt.scrollFactor.set();
@@ -159,7 +159,7 @@ class ChartDebugger extends BaseDebugger {
 	override function update(elapsed:Float) {
 		Conductor.curStep = recalculateSteps();
 
-		Conductor.songPosition = FlxG.sound.music.time;
+		// Conductor.songPosition = FlxG.sound.music.time;
 
 		strumLine.y = getYfromStrum((Conductor.songPosition - sectionStartTime()) % (Conductor.stepCrochet * json.notes[curSection].lengthInSteps));
 
@@ -308,7 +308,7 @@ class ChartDebugger extends BaseDebugger {
 		if (FlxG.keys.justPressed.LEFT || FlxG.keys.justPressed.A)
 			changeSection(curSection - shiftThing);
 
-		bpmTxt.text = "Time: " + (Conductor.songPosition / 1000).formatTime() + " / " + (Conductor.followSound.length / 1000).formatTime() + "\n(" + Std.string(FlxMath.roundDecimal(Conductor.songPosition / 1000, 2)) + " / " + Std.string(FlxMath.roundDecimal(FlxG.sound.music.length / 1000, 2)) + ")\n\nSection: " + curSection;
+		bpmTxt.text = "Time: " + (Conductor.songPosition / 1000).formatTime() + " / " + (FlxG.sound.music.length / 1000).formatTime() + "\n(" + Std.string(FlxMath.roundDecimal(Conductor.songPosition / 1000, 2)) + " / " + Std.string(FlxMath.roundDecimal(FlxG.sound.music.length / 1000, 2)) + ")\n\nSection: " + curSection;
 
 		ModdingState.instance.camFollow.y = strumLine.y;
 
@@ -629,6 +629,7 @@ class ChartDebugger extends BaseDebugger {
 
 			"player1": json.player1,
 			"player2": json.player2,
+			"gfVersion": json.gfVersion,
 			"validScore": json.validScore
 		};
 		undos.insert(0, cont);
