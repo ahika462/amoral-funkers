@@ -1208,10 +1208,10 @@ class PlayState extends MusicBeatState {
 		noteRatings += daRating.rating;
 
 		if (daRating.sick) {
-			var strum:StrumNote = playerStrums.members[daNote.noteData];
+			// var strum:StrumNote = playerStrums.members[daNote.noteData];
 			var noteSplash:NoteSplash = grpNoteSplashes.recycle(NoteSplash);
-			// noteSplash.setupNoteSplash(daNote.x, daNote.y, daNote.noteData);
-			noteSplash.setupNoteSplash(strum.x, strum.y, daNote.noteData);
+			noteSplash.setupNoteSplash(daNote.x, daNote.y, daNote.noteData);
+			// noteSplash.setupNoteSplash(strum.x, strum.y, daNote.noteData);
 			grpNoteSplashes.add(noteSplash);
 		}
 

@@ -42,7 +42,7 @@ class NoteSplash extends FlxSprite
 		animation.curAnim.frameRate += FlxG.random.int(-2, 2);
 		#end*/
 		updateHitbox();
-		angle = FlxG.random.float(0, 360);
+		angle = FlxG.random.float(-30, 30);
 
 		// offset.set(width * 0.3, height * 0.3);
 

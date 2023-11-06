@@ -1,3 +1,5 @@
+// спиздил спиздил спиздил
+
 package shaderslmfao;
 
 import flixel.FlxSprite;
@@ -44,7 +46,6 @@ class RGBPalette {
 	}
 }
 
-// automatic handler for easy usability
 class RGBShaderReference
 {
 	public var r(default, set):FlxColor;

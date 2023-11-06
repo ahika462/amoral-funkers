@@ -97,6 +97,8 @@ class MainMenuState extends MusicBeatState {
 		versionShit.setFormat(Paths.font("vcr.ttf"), 16, 0xFFFFFFFF, LEFT, OUTLINE, 0xFF000000);
 		versionShit.scrollFactor.set();
 		add(versionShit);
+
+		super.create();
 	}
 
 	function changeItem(value:Int = 0) {
