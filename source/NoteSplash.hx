@@ -1,12 +1,14 @@
 package;
 
-import shaderslmfao.ColorSwap;
+import shaderslmfao.RGBPalette;
 import flixel.FlxG;
 import flixel.FlxSprite;
 
+using StringTools;
+
 class NoteSplash extends FlxSprite
 {
-	public var colorSwap:ColorSwap;
+	public var rgbShader:RGBShaderReference;
 
 	public function new(x:Float, y:Float, noteData:Int = 0):Void
 	{
@@ -14,17 +16,14 @@ class NoteSplash extends FlxSprite
 
 		frames = Paths.getSparrowAtlas('noteSplashes');
 
-		animation.addByPrefix('note1-0', 'note impact 1  blue', 24, false);
-		animation.addByPrefix('note2-0', 'note impact 1 green', 24, false);
-		animation.addByPrefix('note0-0', 'note impact 1 purple', 24, false);
-		animation.addByPrefix('note3-0', 'note impact 1 red', 24, false);
-		animation.addByPrefix('note1-1', 'note impact 2 blue', 24, false);
-		animation.addByPrefix('note2-1', 'note impact 2 green', 24, false);
-		animation.addByPrefix('note0-1', 'note impact 2 purple', 24, false);
-		animation.addByPrefix('note3-1', 'note impact 2 red', 24, false);
-
-		colorSwap = new ColorSwap();
-		shader = colorSwap.shader;
+		animation.addByPrefix('note1-0', 'note splash blue 1', 24, false);
+		animation.addByPrefix('note2-0', 'note splash green 1', 24, false);
+		animation.addByPrefix('note0-0', 'note splash purple 1', 24, false);
+		animation.addByPrefix('note3-0', 'note splash red 1', 24, false);
+		animation.addByPrefix('note1-1', 'note splash blue 2', 24, false);
+		animation.addByPrefix('note2-1', 'note splash green 2', 24, false);
+		animation.addByPrefix('note0-1', 'note splash purple 2', 24, false);
+		animation.addByPrefix('note3-1', 'note splash red 2', 24, false);
 
 		setupNoteSplash(x, y, noteData);
 
@@ -43,18 +42,29 @@ class NoteSplash extends FlxSprite
 		animation.curAnim.frameRate += FlxG.random.int(-2, 2);
 		#end*/
 		updateHitbox();
+		angle = FlxG.random.float(0, 360);
 
-		offset.set(width * 0.3, height * 0.3);
+		// offset.set(width * 0.3, height * 0.3);
 
-		colorSwap.hue = ClientPrefs.data.arrowHSB[noteData][0];
+		rgbShader = new RGBShaderReference(this, Note.createGlobalRGB(noteData));
+		shader = rgbShader.parent.shader;
+
+		/*colorSwap.hue = ClientPrefs.data.arrowHSB[noteData][0];
 		colorSwap.saturation = ClientPrefs.data.arrowHSB[noteData][1];
-		colorSwap.brightness = ClientPrefs.data.arrowHSB[noteData][2];
+		colorSwap.brightness = ClientPrefs.data.arrowHSB[noteData][2];*/
 	}
 
 	override function update(elapsed:Float)
 	{
-		if (animation.curAnim.finished)
+		if (animation.curAnim == null || animation.curAnim.finished)
 			kill();
+		else { // да, спиздил оффсеты, и?
+			if (animation.curAnim.name.endsWith("0"))
+				offset.set(28, 18);
+			else if (animation.curAnim.name.endsWith("1"))
+				offset.set(12, 12);
+		}
+		offset.add(70, 70);
 
 		super.update(elapsed);
 	}

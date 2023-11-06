@@ -1,12 +1,13 @@
 package;
 
+import shaderslmfao.RGBPalette;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.math.FlxMath;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
-import shaderslmfao.ColorSwap;
+// import shaderslmfao.ColorSwap;
 
 using StringTools;
 
@@ -33,8 +34,11 @@ class Note extends FlxSprite
 	public var sustainLength:Float = 0;
 	public var isSustainNote:Bool = false;
 
-	public var colorSwap:ColorSwap;
-	public static var arrowColors:Array<Float> = [1, 1, 1, 1];
+	// public var colorSwap:ColorSwap;
+	// public static var arrowColors:Array<Float> = [1, 1, 1, 1];
+
+	public var rgbShader:RGBShaderReference;
+	public static var globalRGBShaders:Array<RGBPalette> = [];
 
 	public var noteScore:Float = 1;
 
@@ -101,12 +105,12 @@ class Note extends FlxSprite
 		} else {
 			frames = Paths.getSparrowAtlas('NOTE_assets');
 
-			animation.addByPrefix('greenScroll', 'green instance');
-			animation.addByPrefix('redScroll', 'red instance');
-			animation.addByPrefix('blueScroll', 'blue instance');
-			animation.addByPrefix('purpleScroll', 'purple instance');
+			animation.addByPrefix('greenScroll', 'green0');
+			animation.addByPrefix('redScroll', 'red0');
+			animation.addByPrefix('blueScroll', 'blue0');
+			animation.addByPrefix('purpleScroll', 'purple0');
 
-			animation.addByPrefix('purpleholdend', 'pruple end hold');
+			animation.addByPrefix('purpleholdend', 'purple hold end');
 			animation.addByPrefix('greenholdend', 'green hold end');
 			animation.addByPrefix('redholdend', 'red hold end');
 			animation.addByPrefix('blueholdend', 'blue hold end');
@@ -122,11 +126,14 @@ class Note extends FlxSprite
 
 		updateHitbox();
 
-		colorSwap = new ColorSwap();
+		/*colorSwap = new ColorSwap();
 		shader = colorSwap.shader;
 		colorSwap.hue = ClientPrefs.data.arrowHSB[noteData][0];
 		colorSwap.saturation = ClientPrefs.data.arrowHSB[noteData][1];
-		colorSwap.brightness = ClientPrefs.data.arrowHSB[noteData][2];
+		colorSwap.brightness = ClientPrefs.data.arrowHSB[noteData][2];*/
+
+		rgbShader = new RGBShaderReference(this, createGlobalRGB(noteData));
+		shader = rgbShader.parent.shader;
 
 		switch (noteData)
 		{
@@ -237,5 +244,21 @@ class Note extends FlxSprite
 			if (alpha > 0.3)
 				alpha = 0.3;
 		}
+	}
+
+	public static function createGlobalRGB(noteData:Int):RGBPalette {
+		if (globalRGBShaders[noteData] == null) {
+			var newRGB:RGBPalette = new RGBPalette();
+			globalRGBShaders[noteData] = newRGB;
+
+			var arr:Array<FlxColor> = (!PlayState.isPixelStage) ? ClientPrefs.data.arrowRGB[noteData] : ClientPrefs.data.arrowRGBPixel[noteData];
+			if (noteData > -1 && noteData <= arr.length)
+			{
+				newRGB.r = arr[0];
+				newRGB.g = arr[1];
+				newRGB.b = arr[2];
+			}
+		}
+		return globalRGBShaders[noteData];
 	}
 }

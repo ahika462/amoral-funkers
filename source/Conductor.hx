@@ -99,6 +99,9 @@ class Conductor {
     }
 
     public static function update() {
+		if (songPosition == 0)
+			return;
+
         var oldStep:Int = curStep;
 
         var lastChange:BPMChangeEvent = {
@@ -118,10 +121,20 @@ class Conductor {
 			curBeat = Std.int(curStep / 4);
 			
 			var oldSection:Int = curSection;
-			curSection = -1;
+			curSection = 0;
 			
 			var stepsToDo:Int = 0;
-			while (curStep >= stepsToDo && curStep > 0) {
+			if (PlayState.SONG != null && PlayState.SONG.notes[0] != null) {
+				if (PlayState.SONG.notes[0].sectionBeats != null)
+					stepsToDo += PlayState.SONG.notes[0].sectionBeats * 4;
+				else
+					stepsToDo += PlayState.SONG.notes[0].lengthInSteps;
+			} else
+				stepsToDo += 16;
+
+			while (curStep >= stepsToDo) {
+				curSection++;
+				
 				if (PlayState.SONG != null && PlayState.SONG.notes[curSection] != null) {
 					if (PlayState.SONG.notes[curSection].sectionBeats != null)
 						stepsToDo += PlayState.SONG.notes[curSection].sectionBeats * 4;
@@ -129,8 +142,6 @@ class Conductor {
 						stepsToDo += PlayState.SONG.notes[curSection].lengthInSteps;
 				} else
 					stepsToDo += 16;
-
-				curSection++;
 			}
 
             onStepHit.dispatch();

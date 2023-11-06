@@ -43,16 +43,11 @@ class PlayState extends MusicBeatState {
 
 	public var luaArray:Array<FunkinLua> = [];
 	public var variables:Map<String, Dynamic> = [];
-	/*public var modchartSprites:Map<String, ModchartSprite> = [];
+	public var modchartSprites:Map<String, ModchartSprite> = [];
 	public var modchartTexts:Map<String, ModchartText> = [];
 	public var modchartTweens:Map<String, FlxTween> = [];
 	public var modchartTimers:Map<String, FlxTimer> = [];
-	public var modchartSounds:Map<String, FlxSound> = new Map<String, FlxSound>();*/
-	public var modchartTweens:Map<String, FlxTween> = new Map<String, FlxTween>();
-	public var modchartSprites:Map<String, ModchartSprite> = new Map<String, ModchartSprite>();
-	public var modchartTimers:Map<String, FlxTimer> = new Map<String, FlxTimer>();
-	public var modchartSounds:Map<String, FlxSound> = new Map<String, FlxSound>();
-	public var modchartTexts:Map<String, ModchartText> = new Map<String, ModchartText>();
+	public var modchartSounds:Map<String, FlxSound> = [];
 
 	public var BF_X:Float = 770;
 	public var BF_Y:Float = 450;
@@ -701,12 +696,6 @@ class PlayState extends MusicBeatState {
 			} else
 				babyArrow.alpha = targetAlpha;
 
-			if (ClientPrefs.data.middlescroll) {
-				if (player == 1)
-					babyArrow.x += FlxG.width / 4;
-				else if (i > 1)
-					babyArrow.x += FlxG.width / 2;
-			}
 			babyArrow.x += ((FlxG.width / 2) * player);
 
 			if (player == 1)
@@ -1219,8 +1208,10 @@ class PlayState extends MusicBeatState {
 		noteRatings += daRating.rating;
 
 		if (daRating.sick) {
+			var strum:StrumNote = playerStrums.members[daNote.noteData];
 			var noteSplash:NoteSplash = grpNoteSplashes.recycle(NoteSplash);
-			noteSplash.setupNoteSplash(daNote.x, daNote.y, daNote.noteData);
+			// noteSplash.setupNoteSplash(daNote.x, daNote.y, daNote.noteData);
+			noteSplash.setupNoteSplash(strum.x, strum.y, daNote.noteData);
 			grpNoteSplashes.add(noteSplash);
 		}
 
@@ -1665,7 +1656,6 @@ class PlayState extends MusicBeatState {
 
 	override function sectionHit() {
 		super.sectionHit();
-		trace("section hit!");
 
 		if (camZooming) {
 			if (FlxG.camera.zoom < defaultCamZoom + 0.015)

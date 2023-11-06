@@ -1,8 +1,11 @@
-import shaderslmfao.ColorSwap;
+import flixel.util.FlxColor;
+import shaderslmfao.RGBPalette;
+// import shaderslmfao.ColorSwap;
 import flixel.FlxSprite;
 
 class StrumNote extends FlxSprite {
-    public var colorSwap:ColorSwap;
+    // public var colorSwap:ColorSwap;
+    public var rgbShader:RGBShaderReference;
 
     private var noteData:Int = 0;
     private var player:Int;
@@ -15,15 +18,25 @@ class StrumNote extends FlxSprite {
     public var texture(default, set):String = "NOTE_assets";
 
     public function new(x:Float, y:Float, noteData:Int, player:Int) {
-        super(x, y);
+        super(x + Note.swagWidth * noteData, y);
 
         this.noteData = noteData;
         this.player = player;
 
+        rgbShader = new RGBShaderReference(this, Note.createGlobalRGB(noteData));
+        rgbShader.enabled = false;
+		shader = rgbShader.parent.shader;
+
         texture = "NOTE_assets";
 
-        colorSwap = new ColorSwap();
-        shader = colorSwap.shader;
+        var arr:Array<FlxColor> = !PlayState.isPixelStage ? ClientPrefs.data.arrowRGB[noteData] : ClientPrefs.data.arrowRGBPixel[noteData];
+		if (noteData <= arr.length) {
+			@:bypassAccessor {
+				rgbShader.r = arr[0];
+				rgbShader.g = arr[1];
+				rgbShader.b = arr[2];
+			}
+		}
     }
 
     public function set_texture(value:String):String {
@@ -58,30 +71,27 @@ class StrumNote extends FlxSprite {
             antialiasing = true;
             setGraphicSize(Std.int(width * 0.7));
 
-            switch (Math.abs(noteData)) {
-                case 0:
-                    x += Note.swagWidth * 0;
-                    animation.addByPrefix('static', 'arrow static instance 1');
-                    animation.addByPrefix('pressed', 'left press', 24, false);
-                    animation.addByPrefix('confirm', 'left confirm', 24, false);
-                case 1:
-                    x += Note.swagWidth * 1;
-                    animation.addByPrefix('static', 'arrow static instance 2');
-                    animation.addByPrefix('pressed', 'down press', 24, false);
-                    animation.addByPrefix('confirm', 'down confirm', 24, false);
-                case 2:
-                    x += Note.swagWidth * 2;
-                    animation.addByPrefix('static', 'arrow static instance 4');
-                    animation.addByPrefix('pressed', 'up press', 24, false);
-                    animation.addByPrefix('confirm', 'up confirm', 24, false);
-                case 3:
-                    x += Note.swagWidth * 3;
-                    animation.addByPrefix('static', 'arrow static instance 3');
-                    animation.addByPrefix('pressed', 'right press', 24, false);
-                    animation.addByPrefix('confirm', 'right confirm', 24, false);
-            }
+            switch (Math.abs(noteData))
+			{
+				case 0:
+					animation.addByPrefix('static', 'arrowLEFT');
+					animation.addByPrefix('pressed', 'left press', 24, false);
+					animation.addByPrefix('confirm', 'left confirm', 24, false);
+				case 1:
+					animation.addByPrefix('static', 'arrowDOWN');
+					animation.addByPrefix('pressed', 'down press', 24, false);
+					animation.addByPrefix('confirm', 'down confirm', 24, false);
+				case 2:
+					animation.addByPrefix('static', 'arrowUP');
+					animation.addByPrefix('pressed', 'up press', 24, false);
+					animation.addByPrefix('confirm', 'up confirm', 24, false);
+				case 3:
+					animation.addByPrefix('static', 'arrowRIGHT');
+					animation.addByPrefix('pressed', 'right press', 24, false);
+					animation.addByPrefix('confirm', 'right confirm', 24, false);
+			}
         }
-        animation.play("static");
+        playAnim("static");
 
         updateHitbox();
 
@@ -98,7 +108,7 @@ class StrumNote extends FlxSprite {
 			}
 		}
 
-        if (animation.curAnim != null && animation.curAnim.name != "static") {
+        /*if (animation.curAnim != null && animation.curAnim.name != "static") {
             colorSwap.hue = ClientPrefs.data.arrowHSB[noteData][0];
             colorSwap.saturation = ClientPrefs.data.arrowHSB[noteData][1];
             colorSwap.brightness = ClientPrefs.data.arrowHSB[noteData][2];
@@ -106,7 +116,7 @@ class StrumNote extends FlxSprite {
             colorSwap.hue = 0;
             colorSwap.saturation = 0;
             colorSwap.brightness = 0;
-        }
+        }*/
 
         super.update(elapsed);
     }
@@ -116,5 +126,7 @@ class StrumNote extends FlxSprite {
         centerOffsets();
         if (!PlayState.isPixelStage && animation.curAnim != null && animation.curAnim.name == "confirm")
             offset.add(-13, -13);
+
+        rgbShader.enabled = (animation.curAnim != null && animation.curAnim.name != 'static');
 	}
 }
