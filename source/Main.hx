@@ -1,3 +1,6 @@
+import openfl.display3D.Program3D;
+import flixel.input.keyboard.FlxKey;
+import openfl.events.KeyboardEvent;
 import haxe.Log;
 #if sys
 import sys.io.Process;
@@ -44,6 +47,10 @@ class Main extends Sprite {
 	];
 
 	public static function main() {
+		#if sys
+		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onCrash);
+		#end
+
 		#if sys
 		if (Sys.args()[0] != null)
 			Sys.setCwd(Sys.args()[0]);
@@ -95,21 +102,27 @@ class Main extends Sprite {
 	public static var fpsCounter:UsageInfo;
 
 	private function setupGame() {
-		Conductor.init();
-
 		addChild(new FlxGame(game.width, game.height, game.initialState, game.framerate, game.framerate, game.skipSplash, game.startFullscreen));
 
+		Conductor.init();
+		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, function(e:KeyboardEvent) {
+			if (e.keyCode == F11)
+				FlxG.stage.application.window.fullscreen = !FlxG.stage.application.window.fullscreen;
+		});
+		MemoryUtil.enable();
+		
 		#if !mobile
 		fpsCounter = new UsageInfo(10, 3);
 		FlxG.game.addChild(fpsCounter);
 		#end
-
-		#if sys
-		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onCrash);
-		#end
 	}
 
-	function onCrash(e:UncaughtErrorEvent) {
+	static function onCrash(e:UncaughtErrorEvent) {
+		if (FlxG.sound.music != null)
+			FlxG.sound.music.stop();
+		for (sound in FlxG.sound.list)
+			sound.stop();
+
 		var crashDump:String = Debug.logCrash(e);
 		#if sys
 		Application.current.window.alert(crashDump, "AMORAL ENGINE DEBUG");

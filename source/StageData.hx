@@ -6,6 +6,7 @@ typedef StageFile = {
     var gf:Array<Float>;
     var dad:Array<Float>;
     var boyfriend:Array<Float>;
+    var hide_gf:Null<Bool>;
 }
 
 class StageData {
@@ -23,6 +24,8 @@ class StageData {
             json.dad = [0, 0];
         if (json.boyfriend == null)
             json.boyfriend = [0, 0];
+        if (json.hide_gf == null)
+            json.hide_gf = false;
 
         return json;
     }

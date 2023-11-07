@@ -65,6 +65,8 @@ class StageDebugger extends BaseDebugger {
                 json.gf = [gf.x - 400, gf.y - 130];
         }
 
+        gf.visible = !json.hide_gf;
+
         super.update(elapsed);
     }
 

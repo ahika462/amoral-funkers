@@ -61,13 +61,13 @@ class ChartDebugger extends BaseDebugger {
 		gridBG.setPosition(FlxG.width / 2 - GRID_SIZE * 4, FlxG.height / 2);
 		add(gridBG);
 
-        leftIcon = new HealthIcon(HealthIcon.DEFAULT_PLAYER);
+        leftIcon = new HealthIcon("bf");
 		leftIcon.setGraphicSize(0, 45);
 		leftIcon.updateHitbox();
 		leftIcon.setPosition(gridBG.x + gridBG.width / 4 - leftIcon.width / 2, gridBG.y - leftIcon.height * 1.5);
 		add(leftIcon);
 
-		rightIcon = new HealthIcon(HealthIcon.DEFAULT_OPPONENT);
+		rightIcon = new HealthIcon("dad");
 		rightIcon.setGraphicSize(0, 45);
 		rightIcon.updateHitbox();
 		rightIcon.setPosition(gridBG.x + gridBG.width / 4 - rightIcon.width / 2, gridBG.y - rightIcon.height * 1.5);

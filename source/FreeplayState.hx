@@ -60,11 +60,6 @@ class FreeplayState extends MusicBeatState
 
 		var isDebug:Bool = false;
 
-		#if debug
-		isDebug = true;
-		addSong('Test', 1, 'bf-pixel');
-		#end
-
 		if (FlxG.sound.music != null)
 		{
 			if (!FlxG.sound.music.playing)

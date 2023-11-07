@@ -57,13 +57,6 @@ class GameOverSubstate extends MusicBeatSubstate
 		} else
 			daBf = "bf-dead";
 
-		var daSong = PlayState.SONG.song.toLowerCase();
-
-		switch (daSong) {
-			case 'stress':
-				daBf = 'bf-holding-gf-dead';
-		}
-
 		super.create();
 
 		// Conductor.songPosition = 0;
@@ -134,11 +127,6 @@ class GameOverSubstate extends MusicBeatSubstate
 			else
 				FlxG.switchState(new FreeplayState());
 		}
-
-		/*#if debug
-		if (FlxG.keys.justPressed.EIGHT)
-			FlxG.switchState(new AnimationDebug(bf.curCharacter));
-		#end*/
 
 		if (boyfriend.animation.curAnim.name == 'firstDeath' && boyfriend.animation.curAnim.curFrame == 12)
 			FlxG.camera.follow(camFollow, LOCKON, 0.01);

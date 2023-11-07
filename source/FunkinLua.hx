@@ -1725,9 +1725,13 @@ class FunkinLua {
 		});
 		Lua_helper.add_callback(lua, "characterDance", function(character:String) {
 			switch(character.toLowerCase()) {
-				case 'dad': PlayState.instance.dad.dance();
-				case 'gf' | 'girlfriend': if(PlayState.instance.gf != null) PlayState.instance.gf.dance();
-				default: PlayState.instance.boyfriend.dance();
+				case 'dad':
+					PlayState.instance.dad.dance();
+				case 'gf' | 'girlfriend':
+					if (PlayState.instance.gf != null)
+						PlayState.instance.gf.dance();
+				default:
+					PlayState.instance.boyfriend.dance();
 			}
 		});
 

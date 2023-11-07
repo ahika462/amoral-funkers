@@ -36,7 +36,7 @@ typedef AnimArray = {
 }
 
 class Character extends FlxSprite {
-	inline public static var DEFAULT_CHARACTER:String = "minimaxfla";
+	inline public static var DEFAULT_CHARACTER:String = "bf";
 
 	public var animOffsets:Map<String, Array<Dynamic>>;
 	public var debugMode:Bool = false;
@@ -46,7 +46,7 @@ class Character extends FlxSprite {
 
 	public var holdTimer:Float = 0;
 
-	public var healthIcon:String = "face";
+	public var healthIcon:String = "bf";
 	public var specAnim:Bool = false;
 
 	public var healthColor:FlxColor = FlxColor.WHITE;

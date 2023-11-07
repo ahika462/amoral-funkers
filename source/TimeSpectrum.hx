@@ -79,6 +79,7 @@ class TimeSpectrum extends FlxSpriteGroup {
 
             var isThis:Bool = (barShit.width > i * 20) && (barShit.width < i * 20 + 15);
             var spr:FlxSprite = new FlxSprite(i * 20).makeGraphic(15, 1, (barShit.width < i * 20 + 15) ? emptyColor : fillColor);
+            CoolUtil.loadByGPU(spr.graphic.bitmap);
             spr.scale.y = barHeight;
             spr.updateHitbox();
             add(spr);
@@ -87,6 +88,7 @@ class TimeSpectrum extends FlxSpriteGroup {
                 spr.clipRect = new FlxRect(barShit.width - spr.x, 0, (spr.x + spr.width) - barShit.width, spr.height);
                 
                 var spr2:FlxSprite = new FlxSprite(spr.x).makeGraphic(1, 1, fillColor);
+                CoolUtil.loadByGPU(spr.graphic.bitmap);
                 spr2.scale.set(spr.width - spr.clipRect.width, barHeight);
                 spr2.updateHitbox();
                 add(spr2);

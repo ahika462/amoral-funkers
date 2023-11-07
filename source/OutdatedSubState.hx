@@ -24,7 +24,7 @@ class OutdatedSubState extends MusicBeatState
 			+ NGio.GAME_VER
 			+ "! Press Space to go to itch.io, or ESCAPE to ignore this!!",
 			32);
-		txt.setFormat("VCR OSD Mono", 32, FlxColor.WHITE, CENTER);
+		txt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER);
 		txt.screenCenter();
 		add(txt);
 	}

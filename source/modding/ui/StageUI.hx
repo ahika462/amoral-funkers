@@ -39,6 +39,14 @@ class StageUI extends FlxUI {
         }
         insert(0, pixelCheckBox);
 
+        var hideGfCheckBox:FlxUICheckBox = new FlxUICheckBox(pixelCheckBox.x + pixelCheckBox.width + 10, pixelCheckBox.y, null, null, "Hide GF");
+        hideGfCheckBox.checked = debug.json.hide_gf;
+        hideGfCheckBox.callback = function() {
+            debug.json.hide_gf = hideGfCheckBox.checked;
+            debug.gf.visible = !debug.json.hide_gf;
+        }
+        insert(0, hideGfCheckBox);
+
         stagesDropdown.callback = function(choice:String) {
             ModdingState.instance.closeSubState();
             ModdingState.instance.stageDebug = new StageDebugger(stageList[Std.parseInt(choice)]);

@@ -94,7 +94,7 @@ class CoolUtil
 	}
 
 	public static function loadByGPU(bmp:BitmapData):BitmapData {
-		if (!ClientPrefs.data.gpuRender)
+		if (!ClientPrefs.data.gpuRender || bmp == null || bmp.image == null)
 			return bmp;
 		
 		var texture:RectangleTexture = FlxG.stage.context3D.createRectangleTexture(bmp.width, bmp.height, BGRA, true);

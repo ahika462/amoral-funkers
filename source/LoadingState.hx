@@ -162,12 +162,14 @@ class LoadingState extends MusicBeatState
 
 	static function getSongPath()
 	{
-		return Paths.inst(PlayState.SONG.song);
+		return Paths.getLibraryPathForce(PlayState.SONG.song.toLowerCase() + "/Inst" + Paths.SOUND_EXT, "songs");
+		// return Paths.inst(PlayState.SONG.song);
 	}
 
 	static function getVocalPath()
 	{
-		return Paths.voices(PlayState.SONG.song);
+		return Paths.getLibraryPathForce(PlayState.SONG.song.toLowerCase() + "/Voices" + Paths.SOUND_EXT, "songs");
+		// return Paths.voices(PlayState.SONG.song);
 	}
 
 	inline static public function loadAndSwitchState(target:FlxState, stopMusic = false)
@@ -180,7 +182,7 @@ class LoadingState extends MusicBeatState
 		Paths.setCurrentLevel("week" + PlayState.storyWeek);
 		#if NO_PRELOAD_ALL
 		var loaded = isSoundLoaded(getSongPath())
-			&& (!PlayState.SONG.needsVoices || isSoundLoaded(getVocalPath()))
+			// && (!PlayState.SONG.needsVoices || isSoundLoaded(getVocalPath()))
 			&& isLibraryLoaded("shared");
 
 		if (!loaded)

@@ -1,141 +1,180 @@
-package;
-
-import lime.utils.Bytes;
-import openfl.display3D.textures.RectangleTexture;
-import openfl.display.BitmapData;
-#if (!final && sys)
+import openfl.system.System;
+#if sys
 import sys.FileSystem;
 import sys.io.File;
 #end
-import flixel.FlxG;
 import flixel.graphics.frames.FlxAtlasFrames;
+import flixel.graphics.FlxGraphic;
+import flixel.FlxG;
+import openfl.media.Sound;
+import openfl.utils.Assets;
 import openfl.utils.AssetType;
-import openfl.utils.Assets as OpenFlAssets;
 
 using StringTools;
 
-class Paths
-{
-	inline public static var SOUND_EXT = #if web "mp3" #else "ogg" #end;
+class Paths {
+	inline public static var SOUND_EXT:String = #if web ".mp3" #else ".ogg" #end;
 
 	static var currentLevel:String;
 
-	static public function setCurrentLevel(name:String)
-	{
+	public static function setCurrentLevel(name:String) {
 		currentLevel = name.toLowerCase();
 	}
 
-	public static function getPath(file:String, type:AssetType, ?library:String)
-	{
+	public static function getPath(file:String, type:AssetType, library:String = null):String {
 		if (library != null)
 			return getLibraryPath(file, library);
 
-		if (currentLevel != null)
-		{
+		if (currentLevel != null) {
 			var levelPath = getLibraryPathForce(file, currentLevel);
-			if (OpenFlAssets.exists(levelPath, type))
+			if (Assets.exists(levelPath, type))
 				return levelPath;
 
 			levelPath = getLibraryPathForce(file, "shared");
-			if (OpenFlAssets.exists(levelPath, type))
+			if (Assets.exists(levelPath, type))
 				return levelPath;
 		}
 
 		return getPreloadPath(file);
 	}
 
-	static public function getLibraryPath(file:String, library = "preload")
-	{
+	public static function getLibraryPath(file:String, library:String = "preload"):String {
 		return if (library == "preload" || library == "default") getPreloadPath(file); else getLibraryPathForce(file, library);
 	}
 
-	inline static function getLibraryPathForce(file:String, library:String)
-	{
-		return '$library:assets/$library/$file';
+	public static function getLibraryPathForce(file:String, library:String):String {
+		return library + ":" + getPreloadPath(library + "/" + file);
 	}
 
-	inline public static function getPreloadPath(file:String)
-	{
-		return 'assets/$file';
+	public static function getPreloadPath(file:String):String {
+		return "assets/" + file;
 	}
 
-	inline static public function file(file:String, type:AssetType = TEXT, ?library:String)
-	{
+	public static function file(file:String, type:AssetType = TEXT, library:String = null) {
 		return getPath(file, type, library);
 	}
 
-	inline static public function txt(key:String, ?library:String)
-	{
-		return getPath('data/$key.txt', TEXT, library);
+	public static function txt(key:String, library:String = null) {
+		return getPath("data/" + key + ".txt", TEXT, library);
 	}
 
-	inline static public function xml(key:String, ?library:String)
-	{
-		return getPath('data/$key.xml', TEXT, library);
+	public static function xml(key:String, library:String = null) {
+		return getPath("data/" + key + ".xml", TEXT, library);
 	}
 
-	inline static public function json(key:String, ?library:String)
-	{
-		return getPath('data/$key.json', TEXT, library);
+	public static function json(key:String, library:String = null) {
+		return getPath("data/" + key + ".json", TEXT, library);
 	}
 
-	static public function sound(key:String, ?library:String)
-	{
-		return getPath('sounds/$key.$SOUND_EXT', SOUND, library);
+	public static function sound(key:String, library:String = null):Sound {
+		var path:String = getPath("sounds/" + key + SOUND_EXT, SOUND, library);
+
+		localTrackedAssets.push(path);
+
+		if (!Assets.exists(path))
+			return null;
+
+		if (currentTrackedSounds.exists(path))
+			return currentTrackedSounds.get(path);
+
+		var asset:Sound = Assets.getSound(path);
+		currentTrackedSounds.set(path, asset);
+
+		return asset;
 	}
 
-	inline static public function soundRandom(key:String, min:Int, max:Int, ?library:String)
-	{
+	public static function soundRandom(key:String, min:Int, max:Int, library:String = null) {
 		return sound(key + FlxG.random.int(min, max), library);
 	}
 
-	inline static public function music(key:String, ?library:String)
-	{
-		return getPath('music/$key.$SOUND_EXT', MUSIC, library);
+	public static function music(key:String, library:String = null):Sound {
+		var path:String = getPath("music/" + key + SOUND_EXT, SOUND, library);
+
+		localTrackedAssets.push(path);
+
+		if (!Assets.exists(path))
+			return null;
+
+		if (currentTrackedSounds.exists(path))
+			return currentTrackedSounds.get(path);
+
+		var asset:Sound = Assets.getSound(path);
+		currentTrackedSounds.set(path, asset);
+
+		return asset;
 	}
 
-	inline static public function voices(song:String)
-	{
-		return 'songs:assets/songs/${song.toLowerCase()}/Voices.$SOUND_EXT';
+	public static function voices(song:String):Sound {
+		var path:String = getLibraryPathForce(song.toLowerCase() + "/Voices" + SOUND_EXT, "songs");
+
+		localTrackedAssets.push(path);
+
+		if (!Assets.exists(path))
+			return null;
+
+		if (currentTrackedSounds.exists(path))
+			return currentTrackedSounds.get(path);
+
+		var asset:Sound = Assets.getSound(path);
+		currentTrackedSounds.set(path, asset);
+
+		return asset;
 	}
 
-	inline static public function inst(song:String)
-	{
-		return 'songs:assets/songs/${song.toLowerCase()}/Inst.$SOUND_EXT';
+	public static function inst(song:String):Sound {
+		var path:String = getLibraryPathForce(song.toLowerCase() + "/Inst" + SOUND_EXT, "songs");
+
+		localTrackedAssets.push(path);
+
+		if (!Assets.exists(path))
+			return null;
+
+		if (currentTrackedSounds.exists(path))
+			return currentTrackedSounds.get(path);
+
+		var asset:Sound = Assets.getSound(path);
+		currentTrackedSounds.set(path, asset);
+
+		return asset;
 	}
 
-	inline static public function image(key:String, ?library:String, ?gpuRender:Bool = true)
-	{
-		var path:String = getPath('images/$key.png', IMAGE, library);
+	public static function image(key:String, library:String = null):FlxGraphic {
+		var path:String = getPath("images/" + key + ".png", IMAGE, library);
 
-		if (FlxG.bitmap.get(path) != null)
-			return FlxG.bitmap.get(path);
+		localTrackedAssets.push(path);
 
-		var bitmap:BitmapData = gpuRender ? CoolUtil.loadByGPU(OpenFlAssets.getBitmapData(path)) : OpenFlAssets.getBitmapData(path);
-		return FlxG.bitmap.add(bitmap, false, path);
+		if (!Assets.exists(path))
+			return null;
+
+		if (currentTrackedAssets.exists(path))
+			return currentTrackedAssets.get(path);
+
+		var asset:FlxGraphic = FlxGraphic.fromBitmapData(CoolUtil.loadByGPU(Assets.getBitmapData(path)));
+		asset.persist = true;
+		asset.destroyOnNoUse = false;
+		currentTrackedAssets.set(path, asset);
+
+		return asset;
 	}
 
-	inline static public function font(key:String)
-	{
-		return 'assets/fonts/$key';
+	public static function font(key:String):String {
+		return "assets/fonts/" + key;
 	}
 
-	inline static public function getSparrowAtlas(key:String, ?library:String)
-	{
+	public static function getSparrowAtlas(key:String, library:String = null):FlxAtlasFrames {
 		return FlxAtlasFrames.fromSparrow(image(key, library), file('images/$key.xml', library));
 	}
 
-	inline static public function getPackerAtlas(key:String, ?library:String)
-	{
+	public static function getPackerAtlas(key:String, library:String = null):FlxAtlasFrames {
 		return FlxAtlasFrames.fromSpriteSheetPacker(image(key, library), file('images/$key.txt', library));
 	}
 
-	public static function getTextFromFile(key:String, ?library:String) {
-		return OpenFlAssets.getText(getPath(key, TEXT, library));
+	public static function getTextFromFile(key:String, library:String = null):String {
+		return Assets.getText(getPath(key, TEXT, library));
 	}
 
-	public static function exists(key:String, type:AssetType, ?library:String) {
-		return OpenFlAssets.exists(getPath(key, type, library));
+	public static function exists(key:String, type:AssetType, library:String = null) {
+		return Assets.exists(getPath(key, type, library));
 	}
 
 	public static function getEmbedShit(key:String):String {
@@ -144,7 +183,7 @@ class Paths
 
 	public static function getEmbedText(key:String):String {
 		#if (final || !sys)
-		return OpenFlAssets.getText(getEmbedShit(key));
+		return Assets.getText(getEmbedShit(key));
 		#else
 		return File.getContent(getEmbedShit(key));
 		#end
@@ -157,7 +196,7 @@ class Paths
 		var returnVal:Array<String> = [];
 		
 		#if (final || !sys)
-		returnVal = OpenFlAssets.list(type);
+		returnVal = Assets.list(type);
 		for (file in returnVal) {
 			if (!file.startsWith(getEmbedShit(key)))
 				returnVal.remove(file);
@@ -185,18 +224,64 @@ class Paths
 		#end
 	}
 
-	public static function clear(cache:Bool = true, unused:Bool = true) {
-		if (cache)
-			FlxG.bitmap.clearCache();
-		if (unused)
-			FlxG.bitmap.clearUnused();
-	}
-
 	public static function shaderFragment(key:String):String {
 		return embedExists("shaders/" + key + ".frag", TEXT) ? getEmbedText("shaders/" + key + ".frag") : null;
 	}
 
 	public static function shaderVertex(key:String):String {
 		return embedExists("shaders/" + key + ".vert", TEXT) ? getEmbedText("shaders/" + key + ".vert") : null;
+	}
+
+	public static var currentTrackedAssets:Map<String, FlxGraphic> = [];
+	public static var currentTrackedSounds:Map<String, Sound> = [];
+	public static var localTrackedAssets:Array<String> = [];
+
+	public static function clearUnusedMemory() {
+		for (key => asset in currentTrackedAssets) {
+			if (localTrackedAssets.contains(key))
+				continue;
+
+			if (asset == null) {
+				currentTrackedAssets.remove(key);
+				continue;
+			}
+
+			@:privateAccess {
+				Assets.cache.removeBitmapData(key);
+				FlxG.bitmap._cache.remove(key);
+				asset.destroy();
+				currentTrackedAssets.remove(key);
+			}
+		}
+		MemoryUtil.clearMajor();
+		MemoryUtil.destroyFlixelZombies();
+	}
+
+	public static function clearStoredMemory() {
+		// clear anything not in the tracked assets list
+		@:privateAccess {
+			for (key => asset in FlxG.bitmap._cache) {
+				if (asset == null || localTrackedAssets.contains(key))
+					continue;
+
+				Assets.cache.removeBitmapData(key);
+				FlxG.bitmap._cache.remove(key);
+				asset.destroy();
+			}
+		}
+
+		// clear all sounds that are cached
+		for (key in currentTrackedSounds.keys()) {
+			if (localTrackedAssets.contains(key) || key == null)
+				continue;
+			
+			Assets.cache.clear(key);
+			currentTrackedSounds.remove(key);
+		}
+		// flags everything to be cleared out next unused memory clear
+		localTrackedAssets = [];
+		Assets.cache.clear("songs");
+
+		MemoryUtil.clearMinor();
 	}
 }
