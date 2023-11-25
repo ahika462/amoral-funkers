@@ -16,7 +16,12 @@ import flixel.graphics.frames.FlxAtlasFrames;
 using StringTools;
 
 class GifAtlas {
+    public static var cache:Map<String, FlxAtlasFrames> = [];
+
     public static function build(path:String, ?library:String):FlxAtlasFrames {
+        if (cache.exists(path))
+            return cache.get(path);
+
         var folder:String = getPath("images/" + path + "/", library);
         var files:Array<String> = FileSystem.readDirectory(folder);
 
@@ -46,6 +51,8 @@ class GifAtlas {
         for (atlas in atlases)
             frames.frames = frames.frames.concat(atlas.frames);
         #end
+
+        cache.set(path, frames);
 
         return frames;
     }

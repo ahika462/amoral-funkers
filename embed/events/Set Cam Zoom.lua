@@ -5,6 +5,7 @@ function onEvent(name, value1, value2)
         else
             doTweenZoom('camz','camGame',tonumber(value1),tonumber(value2),'cubeOut')
         end
+        debugPrint(name, " - ", value1, " - ", value2)
     end
 end
 

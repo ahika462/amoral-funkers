@@ -1,1 +1,12 @@
-import Paths;
+import funkin.backend.Paths;
+import funkin.backend.CoolUtil;
+import funkin.Conductor;
+import funkin.debug.Debug;
+import funkin.menus.CredtitsState;
+import funkin.menus.FreeplayState;
+import funkin.menus.MainMenuState;
+import funkin.menus.StoryMenuState;
+import funkin.menus.TitleState;
+import funkin.gameplay.PlayState;
+import funkin.backend.LoadingState;
+import funkin.data.ClientPrefs;

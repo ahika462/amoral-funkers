@@ -1,4 +1,5 @@
-import openfl.display3D.Program3D;
+import funkin.backend.MemoryUtil;
+import funkin.debug.UsageInfo;
 import flixel.input.keyboard.FlxKey;
 import openfl.events.KeyboardEvent;
 import haxe.Log;
@@ -8,11 +9,7 @@ import sys.FileSystem;
 #end
 import flixel.FlxState;
 import lime.app.Application;
-#if discord_rpc
-import Discord.DiscordClient;
-#end
 import flixel.FlxG;
-import haxe.io.Path;
 import openfl.events.UncaughtErrorEvent;
 import flixel.FlxGame;
 import openfl.Lib;
@@ -47,9 +44,7 @@ class Main extends Sprite {
 	];
 
 	public static function main() {
-		#if sys
 		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onCrash);
-		#end
 
 		#if sys
 		if (Sys.args()[0] != null)
